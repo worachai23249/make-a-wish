@@ -1,13 +1,13 @@
 const CACHE_NAME = 'wishy-v1';
 const PRECACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/css/main.css',
-  '/js/app.js',
-  '/js/db.js',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  './',
+  'index.html',
+  'css/main.css',
+  'js/app.js',
+  'js/db.js',
+  'manifest.json',
+  'icons/icon-192.png',
+  'icons/icon-512.png'
 ];
 
 // Install: precache app shell
@@ -40,6 +40,6 @@ self.addEventListener('fetch', (event) => {
           return response;
         });
       });
-    }).catch(() => caches.match('/index.html'))
+    }).catch(() => caches.match('index.html'))
   );
 });

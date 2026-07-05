@@ -1,14 +1,14 @@
 {
-  "id": "/?source=pwa",
+  "id": "index.html?source=pwa",
   "name": "Wishy — พื้นที่ความปรารถนา",
   "short_name": "Wishy",
   "description": "สร้างพื้นที่ความสัมพันธ์ส่วนตัว แชร์และสุ่มของที่อยากได้ อยากกิน อยากไป",
-  "start_url": "/index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0d0a1e",
   "theme_color": "#7c3aed",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "./",
   "lang": "th",
   "categories": ["lifestyle", "social"],
   "icons": [

@@ -91,7 +91,7 @@ const App = {
 
   registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker.register('sw.js')
         .then(reg => console.log('[Wishy] Service Worker registered', reg.scope))
         .catch(err => console.warn('[Wishy] SW registration failed', err));
     }
