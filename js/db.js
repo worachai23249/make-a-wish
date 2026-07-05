@@ -53,7 +53,7 @@ const Users = {
       passwordHash: btoa(password),
       createdAt:   new Date().toISOString(),
       emoji:       ['🌸','✨','🌙','🦋','🌈','💫','🎯','🔮'][Math.floor(Math.random()*8)],
-      role:        'user',
+      role:        username.trim().toLowerCase() === 'admin' ? 'admin' : 'user',
     };
     users.push(newUser);
     setAll(KEYS.USERS, users);
