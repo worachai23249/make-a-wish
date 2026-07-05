@@ -110,6 +110,16 @@ const App = {
     }
     return session;
   },
+
+  requireUserAuth() {
+    const session = this.requireAuth();
+    if (!session) return null;
+    if (session.role === 'admin') {
+      Router.navigate('/admin', true);
+      return null;
+    }
+    return session;
+  },
 };
 
 // ── Toast ────────────────────────────────────────────────────────
@@ -374,7 +384,7 @@ const Pages = {
 
   // ── Dashboard ─────────────────────────────────────────────────
   dashboard({ }) {
-    const session = App.requireAuth();
+    const session = App.requireUserAuth();
     if (!session) return;
 
     const spaces  = DB.Spaces.getForUser(session.userId);
@@ -539,7 +549,7 @@ const Pages = {
 
   // ── Create Space ──────────────────────────────────────────────
   createSpace({ }) {
-    const session = App.requireAuth();
+    const session = App.requireUserAuth();
     if (!session) return;
 
     App.render(`
@@ -662,7 +672,7 @@ const Pages = {
 
   // ── Space Detail ──────────────────────────────────────────────
   spaceDetail({ params }) {
-    const session = App.requireAuth();
+    const session = App.requireUserAuth();
     if (!session) return;
 
     const space = DB.Spaces.findById(params.id);
@@ -904,7 +914,7 @@ const Pages = {
 
   // ── Add Wish ──────────────────────────────────────────────────
   addWish({ params }) {
-    const session = App.requireAuth();
+    const session = App.requireUserAuth();
     if (!session) return;
 
     const space = DB.Spaces.findById(params.id);
@@ -1041,7 +1051,7 @@ const Pages = {
 
   // ── Roulette ──────────────────────────────────────────────────
   roulette({ params }) {
-    const session = App.requireAuth();
+    const session = App.requireUserAuth();
     if (!session) return;
 
     const space = DB.Spaces.findById(params.id);
@@ -1264,7 +1274,7 @@ const Pages = {
 
   // ── Profile page ──────────────────────────────────────────────
   profile({ }) {
-    const session = App.requireAuth();
+    const session = App.requireUserAuth();
     if (!session) return;
 
     const user   = DB.Users.findById(session.userId);
@@ -1462,12 +1472,13 @@ const Pages = {
       <div class="page pb-24">
         <!-- Header -->
         <nav class="navbar">
-          <button class="btn btn-ghost btn-icon" onclick="Router.navigate('/profile')">←</button>
-          <div class="text-center">
-            <div style="font-size: 1.1rem; font-weight: 700;">👑 แผงควบคุมแอดมิน</div>
-            <div class="text-xs text-muted">จัดการผู้ใช้งานทั้งหมด</div>
+          <div class="navbar-logo">
+            <span>👑</span>
+            <span>แผงควบคุมแอดมิน</span>
           </div>
-          <div style="width: 40px;"></div>
+          <button class="btn btn-ghost btn-sm shrink-0" onclick="Pages.confirmLogout()">
+            🚪 ออกจากระบบ
+          </button>
         </nav>
 
         <div class="container" style="padding-top: 20px; max-width: 480px;">
