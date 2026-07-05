@@ -1,7 +1,7 @@
-/**
- * db.js — localStorage abstraction layer (Wishy database)
- * All data is namespaced under 'wishy_' prefix
- */
+/* ================================================================
+   WISHY — DB JS (Global Cloud Sync + localStorage Database)
+   Synchronizes local storage globally across all devices using KVDB.io
+   ================================================================ */
 
 const KEYS = {
   USERS:   'wishy_users',
@@ -10,8 +10,7 @@ const KEYS = {
   SESSION: 'wishy_session',
 };
 
-// ── Generic helpers ──────────────────────────────────────────────
-
+// ── Local Database Helpers ───────────────────────────────────────
 function getAll(key) {
   try { return JSON.parse(localStorage.getItem(key) || '[]'); }
   catch { return []; }
@@ -30,8 +29,56 @@ function generateCode(length = 6) {
   return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-// ── Users ────────────────────────────────────────────────────────
+// ── Cloud Sync Engine (REST API via KVDB.io) ──────────────────────
+// Custom bucket 'WDveAYa7PKJb5axxvkiBfN' verified for worachai23249@gmail.com
+const SYNC_BUCKET = 'https://kvdb.io/WDveAYa7PKJb5axxvkiBfN/';
 
+const CloudSync = {
+  fetch: async (key) => {
+    try {
+      const res = await fetch(SYNC_BUCKET + key);
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('[CloudSync] Pull failed for ' + key, e);
+    }
+    return null;
+  },
+
+  save: async (key, data) => {
+    try {
+      await fetch(SYNC_BUCKET + key, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    } catch (e) {
+      console.warn('[CloudSync] Push failed for ' + key, e);
+    }
+  },
+
+  pullAll: async () => {
+    console.log('[CloudSync] Syncing database with cloud...');
+    const users = await CloudSync.fetch(KEYS.USERS);
+    if (users && Array.isArray(users)) {
+      setAll(KEYS.USERS, users);
+    }
+
+    const spaces = await CloudSync.fetch(KEYS.SPACES);
+    if (spaces && Array.isArray(spaces)) {
+      setAll(KEYS.SPACES, spaces);
+    }
+
+    const wishes = await CloudSync.fetch(KEYS.WISHES);
+    if (wishes && Array.isArray(wishes)) {
+      setAll(KEYS.WISHES, wishes);
+    }
+    console.log('[CloudSync] Sync complete.');
+  }
+};
+
+// ── Users ────────────────────────────────────────────────────────
 const Users = {
   getAll: () => getAll(KEYS.USERS),
 
@@ -57,6 +104,7 @@ const Users = {
     };
     users.push(newUser);
     setAll(KEYS.USERS, users);
+    CloudSync.save(KEYS.USERS, users); // Sync to cloud
     return newUser;
   },
 
@@ -80,6 +128,7 @@ const Users = {
     }
 
     setAll(KEYS.USERS, users);
+    CloudSync.save(KEYS.USERS, users); // Sync to cloud
     return users[userIndex];
   },
 
@@ -90,7 +139,9 @@ const Users = {
     }
     
     // Remove user from users list
-    setAll(KEYS.USERS, Users.getAll().filter(u => u.id !== id));
+    const updatedUsers = Users.getAll().filter(u => u.id !== id);
+    setAll(KEYS.USERS, updatedUsers);
+    CloudSync.save(KEYS.USERS, updatedUsers); // Sync to cloud
 
     // Remove user from all spaces
     const spaces = Spaces.getAll();
@@ -101,12 +152,13 @@ const Users = {
     });
 
     // Remove user's wishes
-    setAll(KEYS.WISHES, Wishes.getAll().filter(w => w.userId !== id));
+    const updatedWishes = Wishes.getAll().filter(w => w.userId !== id);
+    setAll(KEYS.WISHES, updatedWishes);
+    CloudSync.save(KEYS.WISHES, updatedWishes); // Sync to cloud
   }
 };
 
 // ── Session ──────────────────────────────────────────────────────
-
 const Session = {
   get: () => {
     try { return JSON.parse(sessionStorage.getItem(KEYS.SESSION) || 'null'); }
@@ -131,7 +183,6 @@ const Session = {
 };
 
 // ── Spaces ───────────────────────────────────────────────────────
-
 const Spaces = {
   getAll: () => getAll(KEYS.SPACES),
 
@@ -157,6 +208,7 @@ const Spaces = {
     };
     spaces.push(space);
     setAll(KEYS.SPACES, spaces);
+    CloudSync.save(KEYS.SPACES, spaces); // Sync to cloud
     return space;
   },
 
@@ -170,6 +222,7 @@ const Spaces = {
     if (space.memberIds.length >= maxMembers) throw new Error(`Space นี้เต็มแล้ว (${maxMembers} คน)`);
     space.memberIds.push(userId);
     setAll(KEYS.SPACES, spaces);
+    CloudSync.save(KEYS.SPACES, spaces); // Sync to cloud
     return space;
   },
 
@@ -182,17 +235,20 @@ const Spaces = {
       spaces.splice(idx, 1);
     }
     setAll(KEYS.SPACES, spaces);
+    CloudSync.save(KEYS.SPACES, spaces); // Sync to cloud
   },
 
   delete: (spaceId) => {
-    setAll(KEYS.SPACES, Spaces.getAll().filter(s => s.id !== spaceId));
+    const updatedSpaces = Spaces.getAll().filter(s => s.id !== spaceId);
+    setAll(KEYS.SPACES, updatedSpaces);
+    CloudSync.save(KEYS.SPACES, updatedSpaces); // Sync to cloud
+    
     // Also delete all wishes in this space
     Wishes.deleteBySpace(spaceId);
   },
 };
 
 // ── Wishes ───────────────────────────────────────────────────────
-
 const CATEGORIES = {
   item:  { id: 'item',  label: 'สิ่งของที่อยากได้', emoji: '🎁', color: 'var(--clr-primary)' },
   food:  { id: 'food',  label: 'อาหารที่อยากกิน',   emoji: '🍜', color: 'var(--clr-accent)' },
@@ -230,15 +286,20 @@ const Wishes = {
     };
     wishes.push(wish);
     setAll(KEYS.WISHES, wishes);
+    CloudSync.save(KEYS.WISHES, wishes); // Sync to cloud
     return wish;
   },
 
   delete: (wishId) => {
-    setAll(KEYS.WISHES, Wishes.getAll().filter(w => w.id !== wishId));
+    const updatedWishes = Wishes.getAll().filter(w => w.id !== wishId);
+    setAll(KEYS.WISHES, updatedWishes);
+    CloudSync.save(KEYS.WISHES, updatedWishes); // Sync to cloud
   },
 
   deleteBySpace: (spaceId) => {
-    setAll(KEYS.WISHES, Wishes.getAll().filter(w => w.spaceId !== spaceId));
+    const updatedWishes = Wishes.getAll().filter(w => w.spaceId !== spaceId);
+    setAll(KEYS.WISHES, updatedWishes);
+    CloudSync.save(KEYS.WISHES, updatedWishes); // Sync to cloud
   },
 };
 
@@ -281,4 +342,4 @@ try {
 }
 
 // Export everything
-window.DB = { Users, Session, Spaces, Wishes, CATEGORIES };
+window.DB = { Users, Session, Spaces, Wishes, CATEGORIES, CloudSync };

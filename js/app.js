@@ -60,10 +60,17 @@ const Router = {
 const App = {
   appEl: null,
 
-  init() {
+  async init() {
     this.appEl = document.getElementById('app');
     this.registerRoutes();
     this.registerServiceWorker();
+
+    // Pull database from cloud on startup to sync devices
+    try {
+      await DB.CloudSync.pullAll();
+    } catch (e) {
+      console.warn('[Wishy App] CloudSync pull failed on startup', e);
+    }
 
     window.addEventListener('hashchange', () => Router.resolve());
     window.addEventListener('popstate',   () => Router.resolve());
@@ -71,7 +78,11 @@ const App = {
     // Initial route
     if (!location.hash) {
       const session = DB.Session.get();
-      Router.navigate(session ? '/dashboard' : '/login', true);
+      if (session) {
+        Router.navigate(session.role === 'admin' ? '/admin' : '/dashboard', true);
+      } else {
+        Router.navigate('/login', true);
+      }
     } else {
       Router.resolve();
     }
@@ -382,10 +393,13 @@ const Pages = {
     });
   },
 
-  // ── Dashboard ─────────────────────────────────────────────────
-  dashboard({ }) {
+  async dashboard({ }) {
     const session = App.requireUserAuth();
     if (!session) return;
+
+    try {
+      await DB.CloudSync.pullAll();
+    } catch (e) {}
 
     const spaces  = DB.Spaces.getForUser(session.userId);
     const wishes  = DB.Wishes.getAll();
@@ -670,10 +684,13 @@ const Pages = {
     });
   },
 
-  // ── Space Detail ──────────────────────────────────────────────
-  spaceDetail({ params }) {
+  async spaceDetail({ params }) {
     const session = App.requireUserAuth();
     if (!session) return;
+
+    try {
+      await DB.CloudSync.pullAll();
+    } catch (e) {}
 
     const space = DB.Spaces.findById(params.id);
     if (!space || !space.memberIds.includes(session.userId)) {
@@ -1414,7 +1431,7 @@ const Pages = {
     `);
   },
 
-  admin({ }) {
+  async admin({ }) {
     const session = App.requireAuth();
     if (!session) return;
     if (session.role !== 'admin') {
@@ -1422,6 +1439,10 @@ const Pages = {
       Router.navigate('/dashboard', true);
       return;
     }
+
+    try {
+      await DB.CloudSync.pullAll();
+    } catch (e) {}
 
     const initialNormalUsers = DB.Users.getAll().filter(u => u.role !== 'admin' && u.username.toLowerCase() !== 'admin');
 
