@@ -62,6 +62,27 @@ const Users = {
 
   verifyPassword: (user, password) => user.passwordHash === btoa(password),
 
+  update: (id, { displayName, email, password }) => {
+    const users = Users.getAll();
+    const userIndex = users.findIndex(u => u.id === id);
+    if (userIndex === -1) throw new Error('ไม่พบผู้ใช้งาน');
+
+    // Validate email uniqueness if changed
+    const existingEmail = Users.findByEmail(email);
+    if (existingEmail && existingEmail.id !== id) {
+      throw new Error('อีเมลนี้ถูกใช้งานแล้ว');
+    }
+
+    users[userIndex].displayName = displayName.trim();
+    users[userIndex].email = email.trim().toLowerCase();
+    if (password) {
+      users[userIndex].passwordHash = btoa(password);
+    }
+
+    setAll(KEYS.USERS, users);
+    return users[userIndex];
+  },
+
   delete: (id) => {
     const user = Users.findById(id);
     if (user && user.username === 'admin') {

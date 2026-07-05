@@ -1461,9 +1461,14 @@ const Pages = {
                   <div class="text-xs text-muted">@${u.username}</div>
                 </div>
               </div>
-              <button class="btn btn-danger btn-sm shrink-0" onclick="Pages.deleteUserByAdmin('${u.id}')">
-                ลบ 🗑️
-              </button>
+              <div class="flex gap-2">
+                <button class="btn btn-ghost btn-sm shrink-0" style="padding: 6px 10px;" onclick="Pages.showEditUserModal('${u.id}')">
+                  แก้ไข ✏️
+                </button>
+                <button class="btn btn-danger btn-sm shrink-0" style="padding: 6px 10px;" onclick="Pages.deleteUserByAdmin('${u.id}')">
+                  ลบ 🗑️
+                </button>
+              </div>
             </div>
             <div class="w-full mt-2" style="font-size: 0.82rem; border-top: 1px solid var(--clr-border); padding-top: 8px;">
               <div>📧 อีเมล: <span class="text-muted">${u.email}</span></div>
@@ -1506,7 +1511,13 @@ const Pages = {
             </div>
           </div>
 
-          <h3 class="mb-3">รายชื่อสมาชิกทั้งหมด</h3>
+          <div class="flex justify-between items-center mb-3">
+            <h3 style="margin-bottom: 0;">รายชื่อสมาชิกทั้งหมด</h3>
+            <button class="btn btn-primary btn-sm" onclick="Pages.showAddUserModal()">
+              ➕ เพิ่มผู้ใช้งาน
+            </button>
+          </div>
+
           <div class="flex flex-col gap-3" id="admin-user-list">
             <!-- Rendered by renderUserList() -->
           </div>
@@ -1514,7 +1525,139 @@ const Pages = {
       </div>
     `);
 
-    // Attach deletion logic to Pages
+    // Attach CRUD logic to Pages
+    Pages.showAddUserModal = () => {
+      Modal.open(`
+        <div class="flex flex-col gap-4">
+          <h3 class="text-center">➕ เพิ่มผู้ใช้งานใหม่</h3>
+          
+          <div class="form-group">
+            <label class="form-label">ชื่อที่ใช้แสดง (Display Name)</label>
+            <input type="text" id="admin-add-displayname" class="form-input" placeholder="เช่น กิ๊ฟจัง">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="admin-add-username" class="form-input" placeholder="เช่น gift_chan">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">อีเมล</label>
+            <input type="email" id="admin-add-email" class="form-input" placeholder="เช่น gift@email.com">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">รหัสผ่าน</label>
+            <input type="password" id="admin-add-password" class="form-input" placeholder="ตั้งรหัสผ่าน">
+          </div>
+
+          <div class="form-error hidden" id="admin-add-error"></div>
+
+          <div class="flex gap-3 mt-2">
+            <button class="btn btn-ghost flex-1" onclick="Modal.close()">ยกเลิก</button>
+            <button class="btn btn-primary flex-1" onclick="Pages.submitAddUserByAdmin()">สร้างผู้ใช้งาน</button>
+          </div>
+        </div>
+      `);
+    };
+
+    Pages.submitAddUserByAdmin = () => {
+      const displayName = document.getElementById('admin-add-displayname').value.trim();
+      const username    = document.getElementById('admin-add-username').value.trim();
+      const email       = document.getElementById('admin-add-email').value.trim();
+      const password    = document.getElementById('admin-add-password').value.trim();
+      const errorEl     = document.getElementById('admin-add-error');
+
+      if (!displayName || !username || !email || !password) {
+        errorEl.textContent = '⚠️ กรุณากรอกข้อมูลให้ครบถ้วน';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      if (DB.Users.findByUsername(username)) {
+        errorEl.textContent = '⚠️ Username นี้ถูกใช้งานแล้ว';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      if (DB.Users.findByEmail(email)) {
+        errorEl.textContent = '⚠️ อีเมลนี้ถูกใช้งานแล้ว';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        DB.Users.create({ username, displayName, email, password });
+        Modal.close();
+        Toast.success(`สร้างผู้ใช้งาน "${displayName}" สำเร็จ 🎉`);
+        renderUserList();
+      } catch (err) {
+        errorEl.textContent = '⚠️ ' + err.message;
+        errorEl.classList.remove('hidden');
+      }
+    };
+
+    Pages.showEditUserModal = (userId) => {
+      const user = DB.Users.findById(userId);
+      if (!user) return;
+
+      Modal.open(`
+        <div class="flex flex-col gap-4">
+          <h3 class="text-center">✏️ แก้ไขข้อมูลผู้ใช้งาน</h3>
+          
+          <div class="form-group">
+            <label class="form-label">Username (ไม่สามารถแก้ไขได้)</label>
+            <input type="text" class="form-input" value="@${user.username}" disabled style="background: var(--clr-border);">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">ชื่อที่ใช้แสดง (Display Name)</label>
+            <input type="text" id="admin-edit-displayname" class="form-input" value="${user.displayName}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">อีเมล</label>
+            <input type="email" id="admin-edit-email" class="form-input" value="${user.email}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">รหัสผ่านใหม่ (ปล่อยว่างถ้าไม่ต้องการเปลี่ยน)</label>
+            <input type="password" id="admin-edit-password" class="form-input" placeholder="ใส่รหัสผ่านใหม่">
+          </div>
+
+          <div class="form-error hidden" id="admin-edit-error"></div>
+
+          <div class="flex gap-3 mt-2">
+            <button class="btn btn-ghost flex-1" onclick="Modal.close()">ยกเลิก</button>
+            <button class="btn btn-primary flex-1" onclick="Pages.submitEditUserByAdmin('${user.id}')">บันทึกข้อมูล</button>
+          </div>
+        </div>
+      `);
+    };
+
+    Pages.submitEditUserByAdmin = (userId) => {
+      const displayName = document.getElementById('admin-edit-displayname').value.trim();
+      const email       = document.getElementById('admin-edit-email').value.trim();
+      const password    = document.getElementById('admin-edit-password').value.trim();
+      const errorEl     = document.getElementById('admin-edit-error');
+
+      if (!displayName || !email) {
+        errorEl.textContent = '⚠️ กรุณากรอกข้อมูลให้ครบถ้วน';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        DB.Users.update(userId, { displayName, email, password });
+        Modal.close();
+        Toast.success('แก้ไขข้อมูลผู้ใช้สำเร็จแล้ว ✨');
+        renderUserList();
+      } catch (err) {
+        errorEl.textContent = '⚠️ ' + err.message;
+        errorEl.classList.remove('hidden');
+      }
+    };
+
     Pages.deleteUserByAdmin = (userId) => {
       const user = DB.Users.findById(userId);
       if (!user) return;
