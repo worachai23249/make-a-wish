@@ -53,6 +53,7 @@ const Users = {
       passwordHash: btoa(password),
       createdAt:   new Date().toISOString(),
       emoji:       ['🌸','✨','🌙','🦋','🌈','💫','🎯','🔮'][Math.floor(Math.random()*8)],
+      role:        'user',
     };
     users.push(newUser);
     setAll(KEYS.USERS, users);
@@ -60,6 +61,27 @@ const Users = {
   },
 
   verifyPassword: (user, password) => user.passwordHash === btoa(password),
+
+  delete: (id) => {
+    const user = Users.findById(id);
+    if (user && user.username === 'admin') {
+      throw new Error('ไม่สามารถลบผู้ดูแลระบบหลักได้');
+    }
+    
+    // Remove user from users list
+    setAll(KEYS.USERS, Users.getAll().filter(u => u.id !== id));
+
+    // Remove user from all spaces
+    const spaces = Spaces.getAll();
+    spaces.forEach(space => {
+      if (space.memberIds.includes(id)) {
+        Spaces.removeMember(space.id, id);
+      }
+    });
+
+    // Remove user's wishes
+    setAll(KEYS.WISHES, Wishes.getAll().filter(w => w.userId !== id));
+  }
 };
 
 // ── Session ──────────────────────────────────────────────────────
@@ -76,6 +98,7 @@ const Session = {
       username:    user.username,
       displayName: user.displayName,
       emoji:       user.emoji,
+      role:        user.role || 'user',
     };
     sessionStorage.setItem(KEYS.SESSION, JSON.stringify(session));
     return session;
@@ -197,6 +220,28 @@ const Wishes = {
     setAll(KEYS.WISHES, Wishes.getAll().filter(w => w.spaceId !== spaceId));
   },
 };
+
+// ── Database Seeding ─────────────────────────────────────────────
+try {
+  const users = Users.getAll();
+  const adminExists = users.some(u => u.username === 'admin');
+  if (!adminExists) {
+    const adminUser = {
+      id:          'admin_id',
+      username:    'admin',
+      displayName: 'ผู้ดูแลระบบ (Admin)',
+      email:       'admin@wishy.com',
+      passwordHash: btoa('admin123'), // Default password: admin123
+      createdAt:   new Date().toISOString(),
+      emoji:       '👑',
+      role:        'admin'
+    };
+    users.push(adminUser);
+    setAll(KEYS.USERS, users);
+  }
+} catch (e) {
+  console.error('Failed to seed admin user', e);
+}
 
 // Export everything
 window.DB = { Users, Session, Spaces, Wishes, CATEGORIES };

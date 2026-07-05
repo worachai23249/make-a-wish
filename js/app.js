@@ -87,6 +87,7 @@ const App = {
     Router.register('/space/:id/add',  Pages.addWish);
     Router.register('/space/:id/roulette', Pages.roulette);
     Router.register('/profile',        Pages.profile);
+    Router.register('/admin',          Pages.admin);
   },
 
   registerServiceWorker() {
@@ -1331,6 +1332,11 @@ const Pages = {
 
           <!-- Actions -->
           <div class="flex flex-col gap-3">
+            ${user?.role === 'admin' ? `
+              <button class="btn btn-primary btn-full" onclick="Router.navigate('/admin')">
+                👑 แผงควบคุมแอดมิน (Admin Panel)
+              </button>
+            ` : ''}
             <button class="btn btn-ghost btn-full" onclick="Pages.showAbout()">
               ℹ️ เกี่ยวกับ Wishy
             </button>
@@ -1396,6 +1402,110 @@ const Pages = {
         <button class="btn btn-ghost btn-full mt-4" onclick="Modal.close()">ปิด</button>
       </div>
     `);
+  },
+
+  admin({ }) {
+    const session = App.requireAuth();
+    if (!session) return;
+    if (session.role !== 'admin') {
+      Toast.error('ไม่มีสิทธิ์เข้าถึงหน้านี้');
+      Router.navigate('/dashboard', true);
+      return;
+    }
+
+    const users = DB.Users.getAll();
+
+    function renderUserList() {
+      const listEl = document.getElementById('admin-user-list');
+      if (!listEl) return;
+
+      const allUsers = DB.Users.getAll();
+      listEl.innerHTML = allUsers.map(u => {
+        const isMe = u.id === session.userId;
+        const isDefaultAdmin = u.username === 'admin';
+        const userSpaces = DB.Spaces.getForUser(u.id);
+        const userWishes = DB.Wishes.getAll().filter(w => w.userId === u.id);
+
+        return `
+          <div class="wish-item" style="cursor: default; align-items: flex-start; flex-direction: column; gap: var(--space-2); padding: var(--space-4);">
+            <div class="flex items-center justify-between w-full">
+              <div class="flex items-center gap-3">
+                <div class="avatar avatar-md" style="background: linear-gradient(135deg, ${colorFromId(u.id)});">${u.emoji || '👤'}</div>
+                <div>
+                  <div style="font-weight: 700;">${u.displayName}</div>
+                  <div class="text-xs text-muted">@${u.username} ${u.role === 'admin' ? '<span class="badge badge-primary" style="margin-left: 4px;">Admin</span>' : ''}</div>
+                </div>
+              </div>
+              ${isDefaultAdmin ? '' : `
+                <button class="btn btn-danger btn-sm shrink-0" onclick="Pages.deleteUserByAdmin('${u.id}')">
+                  ลบ 🗑️
+                </button>
+              `}
+            </div>
+            <div class="w-full mt-2" style="font-size: 0.82rem; border-top: 1px solid var(--clr-border); padding-top: 8px;">
+              <div>📧 อีเมล: <span class="text-muted">${u.email}</span></div>
+              <div>📅 สมัครเมื่อ: <span class="text-muted">${new Date(u.createdAt).toLocaleDateString('th-TH')}</span></div>
+              <div class="flex gap-3 mt-1 text-xs text-muted">
+                <span>📂 Spaces: <strong>${userSpaces.length}</strong></span>
+                <span>💫 Wishes: <strong>${userWishes.length}</strong></span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    App.render(`
+      <div class="bg-gradient"></div>
+      <div class="orb orb-1"></div>
+
+      <div class="page pb-24">
+        <!-- Header -->
+        <nav class="navbar">
+          <button class="btn btn-ghost btn-icon" onclick="Router.navigate('/profile')">←</button>
+          <div class="text-center">
+            <div style="font-size: 1.1rem; font-weight: 700;">👑 แผงควบคุมแอดมิน</div>
+            <div class="text-xs text-muted">จัดการผู้ใช้งานทั้งหมด</div>
+          </div>
+          <div style="width: 40px;"></div>
+        </nav>
+
+        <div class="container" style="padding-top: 20px; max-width: 480px;">
+          <!-- Summary card -->
+          <div class="glass-card mb-5" style="padding: 20px;">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 style="font-size: 0.95rem;" class="text-muted">จำนวนผู้สมัครทั้งหมด</h3>
+                <div style="font-size: 2.2rem; font-weight: 800; color: var(--clr-primary);" class="mt-1">${users.length} คน</div>
+              </div>
+              <div style="font-size: 3rem;">👥</div>
+            </div>
+          </div>
+
+          <h3 class="mb-3">รายชื่อสมาชิกทั้งหมด</h3>
+          <div class="flex flex-col gap-3" id="admin-user-list">
+            <!-- Rendered by renderUserList() -->
+          </div>
+        </div>
+      </div>
+    `);
+
+    // Attach deletion logic to Pages
+    Pages.deleteUserByAdmin = (userId) => {
+      const user = DB.Users.findById(userId);
+      if (!user) return;
+      if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้งาน "${user.displayName}" (@${user.username})?\nการดำเนินการนี้จะลบข้อมูล Spaces และ Wishes ทั้งหมดของผู้ใช้นี้ด้วย!`)) {
+        try {
+          DB.Users.delete(userId);
+          Toast.success(`ลบผู้ใช้งาน "${user.displayName}" สำเร็จ 🗑️`);
+          renderUserList();
+        } catch (err) {
+          Toast.error(err.message);
+        }
+      }
+    };
+
+    renderUserList();
   },
 
   joinSpace({ }) {
