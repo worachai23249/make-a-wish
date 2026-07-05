@@ -221,9 +221,12 @@ const Wishes = {
   },
 };
 
-// ── Database Seeding ─────────────────────────────────────────────
+// ── Database Seeding & Migration ─────────────────────────────────
 try {
   const users = Users.getAll();
+  let updated = false;
+
+  // 1. Seed admin if not exists
   const adminExists = users.some(u => u.username === 'admin');
   if (!adminExists) {
     const adminUser = {
@@ -237,10 +240,23 @@ try {
       role:        'admin'
     };
     users.push(adminUser);
+    updated = true;
+  }
+
+  // 2. Migration: Ensure any user with username 'admin' has 'admin' role
+  users.forEach(u => {
+    if (u.username.toLowerCase() === 'admin' && u.role !== 'admin') {
+      u.role = 'admin';
+      updated = true;
+    }
+  });
+
+  if (updated) {
     setAll(KEYS.USERS, users);
+    console.log('[Wishy DB] Admin seeded/migrated successfully.');
   }
 } catch (e) {
-  console.error('Failed to seed admin user', e);
+  console.error('Failed to seed/migrate admin user', e);
 }
 
 // Export everything
