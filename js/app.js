@@ -1423,16 +1423,31 @@ const Pages = {
       return;
     }
 
-    const users = DB.Users.getAll();
+    const initialNormalUsers = DB.Users.getAll().filter(u => u.role !== 'admin' && u.username.toLowerCase() !== 'admin');
 
     function renderUserList() {
       const listEl = document.getElementById('admin-user-list');
       if (!listEl) return;
 
-      const allUsers = DB.Users.getAll();
-      listEl.innerHTML = allUsers.map(u => {
-        const isMe = u.id === session.userId;
-        const isDefaultAdmin = u.username === 'admin';
+      const normalUsers = DB.Users.getAll().filter(u => u.role !== 'admin' && u.username.toLowerCase() !== 'admin');
+      
+      // Update count dynamically
+      const countEl = document.getElementById('admin-user-count');
+      if (countEl) {
+        countEl.textContent = `${normalUsers.length} คน`;
+      }
+
+      if (normalUsers.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state" style="padding: 40px 20px;">
+            <div class="empty-icon">👥</div>
+            <h3>ยังไม่มีผู้ใช้งานทั่วไป</h3>
+            <p>เมื่อมีผู้สมัครสมาชิก รายชื่อจะแสดงที่นี่</p>
+          </div>`;
+        return;
+      }
+
+      listEl.innerHTML = normalUsers.map(u => {
         const userSpaces = DB.Spaces.getForUser(u.id);
         const userWishes = DB.Wishes.getAll().filter(w => w.userId === u.id);
 
@@ -1443,14 +1458,12 @@ const Pages = {
                 <div class="avatar avatar-md" style="background: linear-gradient(135deg, ${colorFromId(u.id)});">${u.emoji || '👤'}</div>
                 <div>
                   <div style="font-weight: 700;">${u.displayName}</div>
-                  <div class="text-xs text-muted">@${u.username} ${u.role === 'admin' ? '<span class="badge badge-primary" style="margin-left: 4px;">Admin</span>' : ''}</div>
+                  <div class="text-xs text-muted">@${u.username}</div>
                 </div>
               </div>
-              ${isDefaultAdmin ? '' : `
-                <button class="btn btn-danger btn-sm shrink-0" onclick="Pages.deleteUserByAdmin('${u.id}')">
-                  ลบ 🗑️
-                </button>
-              `}
+              <button class="btn btn-danger btn-sm shrink-0" onclick="Pages.deleteUserByAdmin('${u.id}')">
+                ลบ 🗑️
+              </button>
             </div>
             <div class="w-full mt-2" style="font-size: 0.82rem; border-top: 1px solid var(--clr-border); padding-top: 8px;">
               <div>📧 อีเมล: <span class="text-muted">${u.email}</span></div>
@@ -1487,7 +1500,7 @@ const Pages = {
             <div class="flex justify-between items-center">
               <div>
                 <h3 style="font-size: 0.95rem;" class="text-muted">จำนวนผู้สมัครทั้งหมด</h3>
-                <div style="font-size: 2.2rem; font-weight: 800; color: var(--clr-primary);" class="mt-1">${users.length} คน</div>
+                <div style="font-size: 2.2rem; font-weight: 800; color: var(--clr-primary);" class="mt-1" id="admin-user-count">${initialNormalUsers.length} คน</div>
               </div>
               <div style="font-size: 3rem;">👥</div>
             </div>
