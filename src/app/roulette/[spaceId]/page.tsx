@@ -18,6 +18,7 @@ export default function RoulettePage() {
   const [space, setSpace] = useState<Space | null>(null);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("item");
+  const [spinFilter, setSpinFilter] = useState<"all" | "others">("others");
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<Wish | null>(null);
   const [displayEmoji, setDisplayEmoji] = useState("🎰");
@@ -36,7 +37,12 @@ export default function RoulettePage() {
     setLoading(false);
   }
 
-  const pool = space?.wishes.filter((w) => w.category === category) ?? [];
+  const userId = session?.user?.id;
+  const pool = (space?.wishes || []).filter((w) => {
+    if (w.category !== category) return false;
+    if (spinFilter === "others") return w.userId !== userId;
+    return true;
+  });
 
   function spin() {
     if (pool.length === 0 || spinning) return;
@@ -81,11 +87,11 @@ export default function RoulettePage() {
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <div style={{ fontSize: "1.8rem" }}>{space.emoji}</div>
           <h2 style={{ fontWeight: 700, margin: "4px 0" }}>{space.name}</h2>
-          <p style={{ color: "#9e7088", fontSize: "0.85rem" }}>มี {pool.length} รายการในหมวดนี้</p>
+          <p style={{ color: "#9e7088", fontSize: "0.85rem" }}>มี {pool.length} รายการที่ตรงเงื่อนไข</p>
         </div>
 
         {/* Category select */}
-        <div className="category-tabs" style={{ width: "100%", marginBottom: 28 }}>
+        <div className="category-tabs" style={{ width: "100%", marginBottom: 12 }}>
           {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
             <button
               key={k}
@@ -93,6 +99,39 @@ export default function RoulettePage() {
               onClick={() => { setCategory(k); setResult(null); setDisplayEmoji("🎰"); }}
             >
               {v}
+            </button>
+          ))}
+        </div>
+
+        {/* Spin Filter (All / Others) */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 24, width: "100%", justifyContent: "center" }}>
+          {[
+            { value: "others", label: space.type === "1on1" ? "💑 สุ่มของอีกฝ่าย" : "👥 สุ่มของคนอื่น" },
+            { value: "all", label: "✨ สุ่มรวมทั้งหมด" }
+          ].map((item) => (
+            <button
+              key={item.value}
+              onClick={() => {
+                if (spinning) return;
+                setSpinFilter(item.value as any);
+                setResult(null);
+                setDisplayEmoji("🎰");
+              }}
+              style={{
+                flex: 1,
+                padding: "6px 12px",
+                borderRadius: 50,
+                border: `1.5px solid ${spinFilter === item.value ? "#f4306d" : "#ffd6e8"}`,
+                background: spinFilter === item.value ? "rgba(244,48,109,0.08)" : "white",
+                color: spinFilter === item.value ? "#f4306d" : "#9e7088",
+                fontSize: "0.78rem",
+                fontWeight: 600,
+                cursor: spinning ? "not-allowed" : "pointer",
+                fontFamily: "inherit",
+                transition: "all 0.2s",
+              }}
+            >
+              {item.label}
             </button>
           ))}
         </div>
