@@ -31,8 +31,13 @@ export default function DashboardPage() {
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/login");
     if (status === "authenticated") {
-      if ((session.user as any).role === "admin") router.replace("/admin");
-      else fetchSpaces();
+      if ((session.user as any).role === "admin") {
+        router.replace("/admin");
+      } else {
+        fetchSpaces();
+        const interval = setInterval(fetchSpaces, 5000); // Poll every 5 seconds for dashboard updates
+        return () => clearInterval(interval);
+      }
     }
   }, [status]);
 

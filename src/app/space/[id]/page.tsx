@@ -54,8 +54,12 @@ export default function SpaceDetailPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/login");
-    if (status === "authenticated") fetchSpace();
-  }, [status]);
+    if (status === "authenticated") {
+      fetchSpace();
+      const interval = setInterval(fetchSpace, 3000); // Poll every 3 seconds for real-time sync
+      return () => clearInterval(interval);
+    }
+  }, [status, id]);
 
   function showToast(msg: string, type = "success") {
     setToast({ msg, type });
