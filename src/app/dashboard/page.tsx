@@ -205,7 +205,6 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
-      </div>
 
       {/* Bottom Nav */}
       <nav className="bottom-nav">
