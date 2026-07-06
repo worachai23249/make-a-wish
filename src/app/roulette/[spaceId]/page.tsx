@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 
 type Wish = { id: string; title: string; emoji: string; category: string; userId: string; user: { id: string; displayName: string; emoji: string } };
-type Space = { id: string; name: string; emoji: string; wishes: Wish[] };
+type Space = { id: string; name: string; type: string; emoji: string; wishes: Wish[] };
 
 const CATEGORY_LABELS: Record<string, string> = { item: "🎁 สิ่งของ", food: "🍜 อาหาร", place: "📍 สถานที่" };
 
