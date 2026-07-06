@@ -1,9 +1,10 @@
 "use client";
 // src/app/dashboard/page.tsx
 import { useEffect, useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AppLayout from "@/components/layout";
 
 type Space = {
   id: string;
@@ -12,6 +13,8 @@ type Space = {
   emoji: string;
   inviteCode: string;
   ownerId: string;
+  createdAt: Date;
+  updatedAt: Date;
   members: { user: { id: string; displayName: string; emoji: string } }[];
   _count: { wishes: number };
 };
@@ -48,8 +51,10 @@ export default function DashboardPage() {
 
   async function fetchSpaces() {
     const res = await fetch("/api/spaces");
-    const data = await res.json();
-    setSpaces(data.spaces || []);
+    if (res.ok) {
+      const data = await res.json();
+      setSpaces(data.spaces);
+    }
     setLoading(false);
   }
 
@@ -70,6 +75,7 @@ export default function DashboardPage() {
       setJoinCode("");
       showToast("เข้าร่วม Space สำเร็จ 🎉");
       fetchSpaces();
+      router.push(`/space/${data.spaceId}`);
     }
   }
 
@@ -88,46 +94,67 @@ export default function DashboardPage() {
     } else {
       setShowCreate(false);
       setCreateForm({ name: "", type: "1on1" });
-      showToast("สร้าง Space สำเร็จ ✨");
+      showToast("สร้าง Space สำเร็จ 🌸");
       fetchSpaces();
+      router.push(`/space/${data.space.id}`);
     }
   }
 
-  if (status === "loading" || loading) {
+  if (loading) {
     return (
       <div className="page-wrapper" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100dvh" }}>
-        <div><div className="spinner" /><p style={{ textAlign: "center", color: "#9e7088", marginTop: 16 }}>กำลังโหลด...</p></div>
+        <div>
+          <div className="spinner" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="page-wrapper">
-      {/* Toast */}
-      {toast && (
-        <div className="toast-container">
-          <div className={`toast toast-${toast.type}`}>{toast.msg}</div>
-        </div>
-      )}
+    <AppLayout activeTab="home">
+      <div className="page-wrapper">
+        {/* Toast */}
+        {toast && (
+          <div className="toast-container">
+            <div className={`toast toast-${toast.type}`}>{toast.msg}</div>
+          </div>
+        )}
 
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-logo">
-          <span>🌸</span>
-          <span>Wishy</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: "1.4rem" }}>{(session?.user as any)?.emoji || "🌸"}</span>
-          <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#3d1a29" }}>
-            {session?.user?.name}
-          </span>
-        </div>
-      </nav>
+        {/* Mobile Navbar */}
+        <nav className="navbar">
+          <div className="navbar-logo">
+            <span>🌸</span>
+            <span>Wishy</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: "1.4rem" }}>{(session?.user as any)?.emoji || "🌸"}</span>
+            <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#3d1a29" }}>
+              {session?.user?.name}
+            </span>
+          </div>
+        </nav>
 
-      <div className="page-content">
-        <div style={{ paddingTop: 20 }}>
+        {/* Desktop Action Bar */}
+        <div className="desktop-only-action-bar">
+          <div>
+            <h1 style={{ fontWeight: 900, fontSize: "2rem", color: "#3d1a29", letterSpacing: "-0.03em" }}>พื้นที่ความสัมพันธ์</h1>
+            <p style={{ color: "#9e7088", fontSize: "0.92rem", marginTop: 4, fontWeight: 500 }}>
+              สร้างหรือเข้าร่วม Space เพื่อแบ่งปันความต้องการกับคนพิเศษ
+            </p>
+          </div>
+          <div style={{ display: "flex", gap: 12 }}>
+            <button className="btn-secondary" style={{ padding: "12px 20px", fontWeight: 700 }} onClick={() => setShowJoin(true)}>
+              🔑 เข้าร่วมด้วยโค้ด
+            </button>
+            <button className="btn-primary" style={{ padding: "12px 20px", fontWeight: 700 }} onClick={() => setShowCreate(true)}>
+              + สร้าง Space ใหม่
+            </button>
+          </div>
+        </div>
+
+        <div className="page-content" style={{ marginTop: 24 }}>
           {spaces.length === 0 ? (
-            <div className="empty-state">
+            <div className="empty-state" style={{ background: "rgba(255, 255, 255, 0.5)", borderRadius: 24, border: "1.5px dashed #ffd6e8" }}>
               <div className="empty-icon">🌙</div>
               <h3>ยังไม่มีพื้นที่ความสัมพันธ์</h3>
               <p>สร้างหรือเข้าร่วม Space แรกของคุณเลย!</p>
@@ -284,5 +311,6 @@ export default function DashboardPage() {
         </div>
       )}
     </div>
+    </AppLayout>
   );
 }

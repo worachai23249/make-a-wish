@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
+import AppLayout from "@/components/layout";
 
 const CATEGORIES = [
   { id: "item", label: "สิ่งของ", emoji: "🎁" },
@@ -133,7 +134,8 @@ export default function SpaceDetailPage() {
   }
 
   return (
-    <div className="page-wrapper">
+    <AppLayout activeTab="home">
+      <div className="page-wrapper">
       {toast && (
         <div className="toast-container">
           <div className={`toast toast-${toast.type}`}>{toast.msg}</div>
@@ -393,5 +395,6 @@ export default function SpaceDetailPage() {
         </div>
       )}
     </div>
+    </AppLayout>
   );
 }
