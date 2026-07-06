@@ -1,0 +1,75 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  displayName  String
+  email        String   @unique
+  passwordHash String
+  emoji        String   @default("🌸")
+  role         String   @default("user") // "user" | "admin"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedSpaces  Space[]       @relation("SpaceOwner")
+  memberships  SpaceMember[]
+  wishes       Wish[]
+
+  @@map("users")
+}
+
+model Space {
+  id         String   @id @default(uuid())
+  name       String
+  type       String   // "1on1" | "group"
+  emoji      String   @default("💕")
+  inviteCode String   @unique
+  ownerId    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  owner   User          @relation("SpaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members SpaceMember[]
+  wishes  Wish[]
+
+  @@map("spaces")
+}
+
+model SpaceMember {
+  id       String   @id @default(uuid())
+  spaceId  String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([spaceId, userId])
+  @@map("space_members")
+}
+
+model Wish {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  emoji       String   @default("⭐")
+  category    String   // "item" | "food" | "place"
+  spaceId     String
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wishes")
+}
