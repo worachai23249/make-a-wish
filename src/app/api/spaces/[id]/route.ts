@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (!space) return NextResponse.json({ error: "ไม่พบ Space" }, { status: 404 });
 
-  const isMember = space.members.some((m) => m.userId === session.user.id);
+  const isMember = space.members.some((m) => m.userId === session.user!.id);
   if (!isMember) return NextResponse.json({ error: "คุณไม่ใช่สมาชิกของ Space นี้" }, { status: 403 });
 
   return NextResponse.json({ space });
@@ -36,7 +36,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const space = await prisma.space.findUnique({ where: { id } });
 
   if (!space) return NextResponse.json({ error: "ไม่พบ Space" }, { status: 404 });
-  if (space.ownerId !== session.user.id) return NextResponse.json({ error: "เฉพาะเจ้าของเท่านั้น" }, { status: 403 });
+  if (space.ownerId !== session.user!.id) return NextResponse.json({ error: "เฉพาะเจ้าของเท่านั้น" }, { status: 403 });
 
   await prisma.space.delete({ where: { id } });
   return NextResponse.json({ message: "ลบ Space สำเร็จ" });

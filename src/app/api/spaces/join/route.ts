@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   if (!space) return NextResponse.json({ error: "ไม่พบรหัสเชิญนี้" }, { status: 404 });
 
-  const alreadyMember = space.members.some((m) => m.userId === session.user.id);
+  const alreadyMember = space.members.some((m) => m.userId === session.user!.id);
   if (alreadyMember) return NextResponse.json({ error: "คุณอยู่ใน Space นี้แล้ว" }, { status: 400 });
 
   const maxMembers = space.type === "1on1" ? 2 : 10;
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Space นี้เต็มแล้ว (${maxMembers} คน)` }, { status: 400 });
   }
 
-  await prisma.spaceMember.create({ data: { spaceId: space.id, userId: session.user.id } });
+  await prisma.spaceMember.create({ data: { spaceId: space.id, userId: session.user!.id } });
 
   return NextResponse.json({ spaceId: space.id, message: "เข้าร่วม Space สำเร็จ" });
 }

@@ -15,7 +15,7 @@ export async function GET() {
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const spaces = await prisma.space.findMany({
-    where: { members: { some: { userId: session.user.id } } },
+    where: { members: { some: { userId: session.user!.id } } },
     include: {
       members: { include: { user: { select: { id: true, displayName: true, emoji: true } } } },
       _count: { select: { wishes: true } },
@@ -49,8 +49,8 @@ export async function POST(req: NextRequest) {
       type,
       emoji,
       inviteCode,
-      ownerId: session.user.id,
-      members: { create: { userId: session.user.id } },
+      ownerId: session.user!.id,
+      members: { create: { userId: session.user!.id } },
     },
     include: {
       members: { include: { user: { select: { id: true, displayName: true, emoji: true } } } },

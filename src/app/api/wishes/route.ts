@@ -14,12 +14,12 @@ export async function POST(req: NextRequest) {
 
   // Verify membership
   const membership = await prisma.spaceMember.findUnique({
-    where: { spaceId_userId: { spaceId, userId: session.user.id } },
+    where: { spaceId_userId: { spaceId, userId: session.user!.id } },
   });
   if (!membership) return NextResponse.json({ error: "คุณไม่ใช่สมาชิกของ Space นี้" }, { status: 403 });
 
   const wish = await prisma.wish.create({
-    data: { spaceId, userId: session.user.id, title, description, emoji, category },
+    data: { spaceId, userId: session.user!.id, title, description, emoji, category },
     include: { user: { select: { id: true, displayName: true, emoji: true } } },
   });
 
