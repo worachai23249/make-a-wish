@@ -225,7 +225,7 @@ export default function SpaceDetailPage() {
         )}
 
         {/* Wishes */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="wishes-list">
           {filteredWishes.length === 0 ? (
             <div className="empty-state" style={{ padding: "32px 0" }}>
               <div className="empty-icon">💫</div>

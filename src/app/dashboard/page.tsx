@@ -136,7 +136,7 @@ export default function DashboardPage() {
               </button>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="spaces-list">
               {spaces.map((space) => (
                 <div key={space.id} className="space-card" onClick={() => router.push(`/space/${space.id}`)}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
