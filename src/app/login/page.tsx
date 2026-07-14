@@ -1,180 +1,120 @@
 "use client";
 // src/app/login/page.tsx
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [showPw, setShowPw] = useState(false);
+  const [error, setError] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError("");
     setLoading(true);
-
+    setError("");
     const res = await signIn("credentials", {
-      email,
-      password,
       redirect: false,
+      email: form.email,
+      password: form.password,
     });
-
     setLoading(false);
-
     if (res?.error) {
-      setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง ⚠️");
+      setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
     } else {
-      // Fetch session to check role
-      const sessionRes = await fetch("/api/auth/session");
-      const session = await sessionRes.json();
-      if (session?.user?.role === "admin") {
-        router.replace("/admin");
-      } else {
-        router.replace("/dashboard");
-      }
+      router.replace("/dashboard");
     }
   }
 
   return (
-    <div className="page-wrapper">
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100dvh",
-          padding: "24px",
-        }}
-      >
+    <div className="auth-page">
+      {/* Decorative blobs */}
+      <div className="auth-blob" style={{ width: 280, height: 280, background: "#F9A8C9", top: -80, left: -60 }} />
+      <div className="auth-blob" style={{ width: 220, height: 220, background: "#DDB8FA", bottom: -60, right: -40, animationDelay: "3s" }} />
+      <div className="auth-blob" style={{ width: 180, height: 180, background: "#FDBA74", bottom: 100, left: -30, animationDelay: "1.5s" }} />
+
+      <div className="auth-card">
         {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <div style={{ fontSize: "3.5rem", marginBottom: 8 }}>🌸</div>
-          <h1
-            style={{
-              fontSize: "2rem",
-              fontWeight: 800,
-              color: "#f4306d",
-              margin: 0,
-            }}
-          >
-            Wishy
-          </h1>
-          <p style={{ color: "#9e7088", fontSize: "0.9rem", marginTop: 4 }}>
-            พื้นที่ความปรารถนาของคุณ
-          </p>
+        <div className="auth-logo">
+          <div className="auth-logo-icon">🌸</div>
+          <span className="auth-logo-text">Wishy</span>
+          <p className="auth-subtitle">แบ่งปันความปรารถนาของคุณ</p>
         </div>
 
         {/* Form */}
-        <div className="glass" style={{ width: "100%", padding: "32px 24px" }}>
-          <h2 style={{ fontWeight: 700, marginBottom: 24, fontSize: "1.2rem" }}>
-            เข้าสู่ระบบ
-          </h2>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="form-group">
+            <label className="form-label">อีเมล</label>
+            <input
+              id="login-email"
+              type="email"
+              className="form-input"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+              autoComplete="email"
+            />
+          </div>
 
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div>
-              <label className="form-label">อีเมล</label>
-              <input
-                type="email"
-                className="form-input"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-              />
+          <div className="form-group">
+            <label className="form-label">รหัสผ่าน</label>
+            <input
+              id="login-password"
+              type="password"
+              className="form-input"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+              autoComplete="current-password"
+            />
+          </div>
+
+          {error && (
+            <div style={{
+              padding: "10px 14px",
+              background: "#FEF2F2",
+              border: "1px solid #FECACA",
+              borderRadius: 12,
+              color: "#DC2626",
+              fontSize: "0.85rem",
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}>
+              ✕ {error}
             </div>
+          )}
 
-            <div>
-              <label className="form-label">รหัสผ่าน</label>
-              <div style={{ position: "relative" }}>
-                <input
-                  type={showPw ? "text" : "password"}
-                  className="form-input"
-                  placeholder="••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  style={{ paddingRight: 48 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(!showPw)}
-                  style={{
-                    position: "absolute",
-                    right: 14,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "1.1rem",
-                  }}
-                >
-                  {showPw ? "🙈" : "👁️"}
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <p
-                style={{
-                  color: "#dc2626",
-                  background: "#fef2f2",
-                  border: "1px solid #fecaca",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  fontSize: "0.88rem",
-                  margin: 0,
-                }}
-              >
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              className="btn-primary"
-              style={{ width: "100%", marginTop: 4 }}
-              disabled={loading}
-            >
-              {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ 🌸"}
-            </button>
-          </form>
-
-          <p
-            style={{
-              textAlign: "center",
-              marginTop: 20,
-              fontSize: "0.9rem",
-              color: "#9e7088",
-            }}
+          <button
+            id="login-submit"
+            type="submit"
+            className="btn btn-primary btn-full btn-lg"
+            disabled={loading}
+            style={{ marginTop: 4 }}
           >
-            ยังไม่มีบัญชี?{" "}
-            <Link
-              href="/register"
-              style={{ color: "#f4306d", fontWeight: 700, textDecoration: "none" }}
-            >
-              สมัครสมาชิกใหม่ ✨
-            </Link>
-          </p>
-        </div>
+            {loading ? (
+              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span className="spinner spinner-sm" style={{ borderTopColor: "white", borderColor: "rgba(255,255,255,0.3)" }} />
+                กำลังเข้าสู่ระบบ...
+              </span>
+            ) : "เข้าสู่ระบบ ✨"}
+          </button>
 
-        <p
-          style={{
-            textAlign: "center",
-            marginTop: 20,
-            fontSize: "0.75rem",
-            color: "#9e7088",
-          }}
-        >
-          ข้อมูลจัดเก็บในฐานข้อมูลที่ปลอดภัย 🔒
-        </p>
+          <div className="divider">หรือ</div>
+
+          <Link
+            href="/register"
+            className="btn btn-secondary btn-full"
+            style={{ textAlign: "center" }}
+          >
+            สมัครสมาชิกใหม่ 🌸
+          </Link>
+        </form>
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ export async function GET() {
   const spaces = await prisma.space.findMany({
     where: { members: { some: { userId: session.user!.id } } },
     include: {
-      members: { include: { user: { select: { id: true, displayName: true, emoji: true } } } },
+      members: { include: { user: { select: { id: true, displayName: true, emoji: true, avatarUrl: true } } } },
       _count: { select: { wishes: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, type } = await req.json();
+  const { name, type, emoji: bodyEmoji } = await req.json();
   if (!name || !type) return NextResponse.json({ error: "กรุณากรอกข้อมูลให้ครบ" }, { status: 400 });
 
   let inviteCode = generateCode(6);
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     existing = await prisma.space.findUnique({ where: { inviteCode } });
   }
 
-  const emoji = SPACE_EMOJIS[Math.floor(Math.random() * SPACE_EMOJIS.length)];
+  const emoji = bodyEmoji || SPACE_EMOJIS[Math.floor(Math.random() * SPACE_EMOJIS.length)];
 
   const space = await prisma.space.create({
     data: {
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       members: { create: { userId: session.user!.id } },
     },
     include: {
-      members: { include: { user: { select: { id: true, displayName: true, emoji: true } } } },
+      members: { include: { user: { select: { id: true, displayName: true, emoji: true, avatarUrl: true } } } },
     },
   });
 

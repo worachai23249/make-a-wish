@@ -1,19 +1,33 @@
 "use client";
 // src/app/roulette/[spaceId]/page.tsx
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
+import AppLayout from "@/components/layout";
+import Avatar from "@/components/Avatar";
+import ConfettiHearts from "@/components/ConfettiHearts";
 
-type Wish = { id: string; title: string; emoji: string; category: string; userId: string; user: { id: string; displayName: string; emoji: string } };
-type Space = { id: string; name: string; type: string; emoji: string; wishes: Wish[] };
+type Wish = {
+  id: string; title: string; description?: string;
+  emoji: string; category: string; userId: string;
+  user: { id: string; displayName: string; emoji: string; avatarUrl?: string };
+};
+type Space = {
+  id: string; name: string; type: string; emoji: string;
+  wishes: Wish[];
+  members: { user: { id: string; displayName: string; emoji: string; avatarUrl?: string } }[];
+};
 
-const CATEGORY_LABELS: Record<string, string> = { item: "🎁 สิ่งของ", food: "🍜 อาหาร", place: "📍 สถานที่" };
+const CATS = [
+  { id: "item", label: "สิ่งของ", emoji: "🎁" },
+  { id: "food", label: "อาหาร",  emoji: "🍜" },
+  { id: "place", label: "สถานที่", emoji: "📍" },
+];
 
 export default function RoulettePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const params = useParams();
-  const spaceId = params.spaceId as string;
+  const { spaceId } = useParams<{ spaceId: string }>();
 
   const [space, setSpace] = useState<Space | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,22 +36,24 @@ export default function RoulettePage() {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<Wish | null>(null);
   const [displayEmoji, setDisplayEmoji] = useState("🎰");
-  const [spinKey, setSpinKey] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") router.replace("/login");
+    if (status === "unauthenticated") { router.replace("/login"); return; }
     if (status === "authenticated") fetchSpace();
   }, [status]);
 
   async function fetchSpace() {
     const res = await fetch(`/api/spaces/${spaceId}`);
     if (!res.ok) { router.replace("/dashboard"); return; }
-    const data = await res.json();
-    setSpace(data.space);
+    const d = await res.json();
+    setSpace(d.space);
     setLoading(false);
   }
 
-  const userId = session?.user?.id;
+  const userId = (session?.user as any)?.id;
+  const partner = space?.members.find((m) => m.user.id !== userId);
+
   const pool = (space?.wishes || []).filter((w) => {
     if (w.category !== category) return false;
     if (spinFilter === "others") return w.userId !== userId;
@@ -48,145 +64,168 @@ export default function RoulettePage() {
     if (pool.length === 0 || spinning) return;
     setSpinning(true);
     setResult(null);
-    setSpinKey((k) => k + 1);
+    setShowConfetti(false);
 
-    // Rapid shuffle animation
     let count = 0;
     const interval = setInterval(() => {
-      const random = pool[Math.floor(Math.random() * pool.length)];
-      setDisplayEmoji(random.emoji);
+      const r = pool[Math.floor(Math.random() * pool.length)];
+      setDisplayEmoji(r.emoji);
       count++;
       if (count > 20) {
         clearInterval(interval);
-        const winner = pool[Math.floor(Math.random() * pool.length)];
-        setDisplayEmoji(winner.emoji);
-        setResult(winner);
+        const chosen = pool[Math.floor(Math.random() * pool.length)];
+        setDisplayEmoji(chosen.emoji);
+        setResult(chosen);
         setSpinning(false);
+        setShowConfetti(true);
       }
     }, 80);
   }
 
-  if (loading || !space) {
-    return (
-      <div className="page-wrapper" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100dvh" }}>
-        <div><div className="spinner" /></div>
+  if (loading || !space) return (
+    <AppLayout>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
+        <div className="spinner" />
       </div>
-    );
-  }
+    </AppLayout>
+  );
 
   return (
-    <div className="page-wrapper">
-      <nav className="navbar">
-        <button className="btn-ghost" style={{ padding: "8px 14px" }} onClick={() => router.push(`/space/${spaceId}`)}>← กลับ</button>
-        <div style={{ fontWeight: 700 }}>🎰 สุ่มของขวัญ</div>
-        <div style={{ width: 60 }} />
-      </nav>
+    <AppLayout>
+      <ConfettiHearts show={showConfetti} />
 
-      <div className="page-content" style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 24 }}>
-        {/* Space name */}
+      <div className="page-wrap" style={{ maxWidth: 500, margin: "0 auto" }}>
+        {/* Back */}
+        <button className="btn btn-ghost btn-sm" onClick={() => router.push(`/space/${spaceId}`)} style={{ marginBottom: 16 }}>
+          ← กลับ
+        </button>
+
+        {/* Title */}
         <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div style={{ fontSize: "1.8rem" }}>{space.emoji}</div>
-          <h2 style={{ fontWeight: 700, margin: "4px 0" }}>{space.name}</h2>
-          <p style={{ color: "#9e7088", fontSize: "0.85rem" }}>มี {pool.length} รายการที่ตรงเงื่อนไข</p>
+          <div style={{ fontSize: "2rem", marginBottom: 6 }}>{space.emoji}</div>
+          <h1 style={{ fontWeight: 900, fontSize: "1.35rem", letterSpacing: "-0.04em" }}>
+            🎰 สุ่มความปรารถนา
+          </h1>
+          <p style={{ color: "var(--muted)", fontSize: "0.85rem", marginTop: 4, fontWeight: 500 }}>
+            {space.name}
+          </p>
         </div>
 
-        {/* Category select */}
-        <div className="category-tabs" style={{ width: "100%", marginBottom: 12 }}>
-          {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
-            <button
-              key={k}
-              className={`category-tab ${category === k ? "active" : ""}`}
-              onClick={() => { setCategory(k); setResult(null); setDisplayEmoji("🎰"); }}
+        {/* Category Tabs */}
+        <div className="tabs" style={{ marginBottom: 16 }}>
+          {CATS.map((c) => (
+            <button key={c.id}
+              className={`tab ${category === c.id ? "active" : ""}`}
+              onClick={() => { setCategory(c.id); setResult(null); setDisplayEmoji("🎰"); }}
             >
-              {v}
+              {c.emoji} {c.label}
             </button>
           ))}
         </div>
 
-        {/* Spin Filter (All / Others) */}
-        <div style={{ display: "flex", gap: 6, marginBottom: 24, width: "100%", justifyContent: "center" }}>
-          {[
-            { value: "others", label: space.type === "1on1" ? "💑 สุ่มของอีกฝ่าย" : "👥 สุ่มของคนอื่น" },
-            { value: "all", label: "✨ สุ่มรวมทั้งหมด" }
-          ].map((item) => (
-            <button
-              key={item.value}
-              onClick={() => {
-                if (spinning) return;
-                setSpinFilter(item.value as any);
-                setResult(null);
-                setDisplayEmoji("🎰");
-              }}
-              style={{
-                flex: 1,
-                padding: "6px 12px",
-                borderRadius: 50,
-                border: `1.5px solid ${spinFilter === item.value ? "#f4306d" : "#ffd6e8"}`,
-                background: spinFilter === item.value ? "rgba(244,48,109,0.08)" : "white",
-                color: spinFilter === item.value ? "#f4306d" : "#9e7088",
-                fontSize: "0.78rem",
-                fontWeight: 600,
-                cursor: spinning ? "not-allowed" : "pointer",
-                fontFamily: "inherit",
-                transition: "all 0.2s",
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Wheel display */}
-        <div
-          style={{
-            width: 200,
-            height: 200,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.9)",
-            border: "4px solid #ffc0dc",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "5rem",
-            boxShadow: "0 8px 40px rgba(244,48,109,0.2)",
-            marginBottom: 28,
-            transition: spinning ? "none" : "all 0.5s ease",
-            animation: result && !spinning ? "bounce 0.5s ease" : "none",
-          }}
-          key={spinKey}
-        >
-          <span style={{ display: "inline-block", animation: spinning ? "spin-fast 0.08s linear infinite" : "float 2s ease-in-out infinite" }}>
-            {displayEmoji}
-          </span>
-        </div>
-
-        {/* Result */}
-        {result && (
-          <div className="glass" style={{ width: "100%", padding: 20, textAlign: "center", marginBottom: 20 }}>
-            <p style={{ color: "#9e7088", fontSize: "0.82rem", marginBottom: 6 }}>ได้รับมาจาก</p>
-            <div style={{ fontSize: "2rem", marginBottom: 6 }}>{result.emoji}</div>
-            <h3 style={{ fontWeight: 800, fontSize: "1.2rem", color: "#3d1a29", margin: "0 0 6px" }}>{result.title}</h3>
-            <div style={{ fontSize: "0.85rem", color: "#9e7088" }}>
-              {result.user.emoji} {result.user.displayName} ตั้งไว้
-            </div>
+        {/* Spin Filter — 1on1 special */}
+        {space.type === "1on1" && partner && (
+          <div style={{ display: "flex", gap: 8, marginBottom: 20, justifyContent: "center" }}>
+            {[
+              { v: "others", l: `💑 ของ ${partner.user.displayName}` },
+              { v: "all",    l: "✨ รวมทั้งหมด" },
+            ].map(({ v, l }) => (
+              <button key={v}
+                onClick={() => { setSpinFilter(v as any); setResult(null); setDisplayEmoji("🎰"); }}
+                style={{
+                  padding: "8px 18px", borderRadius: 99, border: "1.5px solid",
+                  borderColor: spinFilter === v ? "var(--primary)" : "var(--border)",
+                  background: spinFilter === v ? "linear-gradient(135deg, rgba(232,84,122,0.1), rgba(249,168,201,0.15))" : "transparent",
+                  color: spinFilter === v ? "var(--primary)" : "var(--muted)",
+                  fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
+                  transition: "all 0.2s",
+                }}
+              >{l}</button>
+            ))}
           </div>
         )}
 
-        {/* Spin button */}
+        {/* Roulette Card */}
+        <div className={`roulette-card ${spinning ? "spinning" : ""}`} style={{
+          background: result ? "linear-gradient(135deg, var(--bg-alt), var(--surface))" : "var(--surface)",
+          borderColor: result ? "var(--primary-light)" : "var(--border)",
+          marginBottom: 24,
+          minHeight: 240,
+        }}>
+          <div className={`roulette-emoji ${spinning ? "" : result ? "spin-anim" : ""}`}>
+            {displayEmoji}
+          </div>
+
+          {result ? (
+            <div style={{ textAlign: "center" }}>
+              <h2 style={{ fontWeight: 900, fontSize: "1.3rem", letterSpacing: "-0.03em", color: "var(--text)" }}>
+                {result.title}
+              </h2>
+              {result.description && (
+                <p style={{ color: "var(--text-2)", fontSize: "0.88rem", marginTop: 4 }}>{result.description}</p>
+              )}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginTop: 12 }}>
+                <Avatar src={result.user.avatarUrl} emoji={result.user.emoji} displayName={result.user.displayName} size="xs" />
+                <span style={{ fontSize: "0.78rem", color: "var(--muted)", fontWeight: 600 }}>ความปรารถนาของ {result.user.displayName}</span>
+              </div>
+            </div>
+          ) : (
+            <div style={{ textAlign: "center" }}>
+              <p style={{ color: "var(--muted)", fontSize: "0.88rem", fontWeight: 600 }}>
+                {pool.length === 0
+                  ? "ไม่มีรายการในหมวดนี้"
+                  : spinning ? "กำลังสุ่ม..." : `มี ${pool.length} รายการ • กด Spin เลย!`}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Spin Button */}
         <button
-          className="btn-primary"
-          style={{ width: "100%", fontSize: "1.1rem", padding: "14px" }}
+          className="btn btn-primary btn-full btn-lg"
           onClick={spin}
           disabled={spinning || pool.length === 0}
+          style={{
+            fontSize: "1.05rem", letterSpacing: "0.01em",
+            boxShadow: pool.length > 0 ? "0 8px 32px rgba(232, 84, 122, 0.35)" : "none",
+          }}
         >
-          {spinning ? "🌀 กำลังสุ่ม..." : pool.length === 0 ? "ไม่มีรายการในหมวดนี้" : result ? "🎰 สุ่มใหม่อีกครั้ง" : "🎰 สุ่มเลย!"}
+          {spinning ? (
+            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span className="spinner spinner-sm" style={{ borderTopColor: "white", borderColor: "rgba(255,255,255,0.3)" }} />
+              กำลังสุ่ม...
+            </span>
+          ) : result ? "🔄 สุ่มใหม่" : "🎰 Spin!"}
         </button>
-      </div>
 
-      <style>{`
-        @keyframes spin-fast { to { transform: rotate(360deg); } }
-        @keyframes bounce { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-      `}</style>
-    </div>
+        {/* Pool Info */}
+        {pool.length > 0 && (
+          <div style={{
+            marginTop: 20, padding: "12px 16px",
+            background: "var(--bg-alt)", borderRadius: "var(--radius-lg)",
+            border: "1px solid var(--border)",
+          }}>
+            <div style={{ fontSize: "0.78rem", color: "var(--muted)", fontWeight: 700, marginBottom: 10, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+              รายการในกลุ่มสุ่ม ({pool.length})
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {pool.map((w) => (
+                <div key={w.id} style={{
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: "8px 12px", background: "var(--surface)",
+                  borderRadius: "var(--radius-md)",
+                  border: result?.id === w.id ? "1.5px solid var(--primary)" : "1px solid var(--border)",
+                  transition: "all 0.3s",
+                }}>
+                  <span style={{ fontSize: "1.2rem" }}>{w.emoji}</span>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 700, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.title}</span>
+                  <Avatar src={w.user.avatarUrl} emoji={w.user.emoji} displayName={w.user.displayName} size="xs" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </AppLayout>
   );
 }

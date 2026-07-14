@@ -12,9 +12,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const space = await prisma.space.findUnique({
     where: { id },
     include: {
-      members: { include: { user: { select: { id: true, displayName: true, emoji: true, username: true } } } },
+      members: { include: { user: { select: { id: true, displayName: true, emoji: true, username: true, avatarUrl: true } } } },
       wishes: {
-        include: { user: { select: { id: true, displayName: true, emoji: true } } },
+        include: { user: { select: { id: true, displayName: true, emoji: true, avatarUrl: true } } },
         orderBy: { createdAt: "desc" },
       },
     },

@@ -1,73 +1,127 @@
 "use client";
 // src/components/layout.tsx
-import React from "react";
+import React, { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import Avatar from "./Avatar";
 
-export default function AppLayout({ children, activeTab }: { children: React.ReactNode; activeTab: string }) {
+interface NavItem {
+  href: string;
+  icon: string;
+  label: string;
+  key: string;
+}
+
+const NAV: NavItem[] = [
+  { href: "/dashboard", icon: "🏠", label: "หน้าหลัก", key: "home" },
+  { href: "/friends",   icon: "👥", label: "เพื่อน",    key: "friends" },
+  { href: "/profile",   icon: "👤", label: "โปรไฟล์",   key: "profile" },
+];
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
+  const user = session?.user as any;
 
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: "/login" });
+  const getActive = () => {
+    if (pathname.startsWith("/dashboard") || pathname.startsWith("/space")) return "home";
+    if (pathname.startsWith("/friends")) return "friends";
+    if (pathname.startsWith("/profile")) return "profile";
+    return "home";
   };
 
+  const active = getActive();
+
   return (
-    <div className="desktop-layout">
-      {/* Desktop Sidebar */}
-      <aside className="desktop-sidebar">
+    <div className="app-shell">
+      {/* ── Desktop Sidebar ── */}
+      <aside className="sidebar">
+        {/* Logo */}
         <div>
-          {/* Logo */}
-          <div className="navbar-logo" style={{ padding: "0 12px", marginBottom: 8 }}>
-            <span>🌸</span>
-            <span style={{ fontSize: "1.4rem", letterSpacing: "-0.03em" }}>Wishy</span>
+          <div className="sidebar-logo">
+            <div className="sidebar-logo-icon">🌸</div>
+            <span className="sidebar-logo-text">Wishy</span>
           </div>
 
-          {/* Nav Links */}
-          <nav className="desktop-sidebar-nav">
-            <Link href="/dashboard" className={`desktop-sidebar-item ${activeTab === "home" ? "active" : ""}`}>
-              <span>🏠</span> หน้าหลัก
-            </Link>
-            <Link href="/profile" className={`desktop-sidebar-item ${activeTab === "profile" ? "active" : ""}`}>
-              <span>👤</span> โปรไฟล์
-            </Link>
+          {/* Navigation */}
+          <nav className="sidebar-nav">
+            {NAV.map((item) => (
+              <Link
+                key={item.key}
+                href={item.href}
+                className={`sidebar-item ${active === item.key ? "active" : ""}`}
+              >
+                <span className="sidebar-item-icon">{item.icon}</span>
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
 
-        {/* User profile & Logout */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px", background: "rgba(255, 240, 246, 0.4)", borderRadius: 16 }}>
-            <span style={{ fontSize: "1.8rem" }}>{(session?.user as any)?.emoji || "🌸"}</span>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "#3d1a29", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {session?.user?.name}
-              </div>
-              <div style={{ fontSize: "0.72rem", color: "#9e7088", fontWeight: 600 }}>
-                {(session?.user as any)?.role === "admin" ? "👑 ผู้ดูแลระบบ" : "👤 สมาชิก"}
+        {/* User section */}
+        <div>
+          <div className="sidebar-user" onClick={() => router.push("/profile")}>
+            <Avatar
+              src={user?.avatarUrl}
+              emoji={user?.emoji}
+              displayName={user?.name}
+              size="sm"
+            />
+            <div className="sidebar-user-info">
+              <div className="sidebar-user-name">{user?.name || "ผู้ใช้"}</div>
+              <div className="sidebar-user-role">
+                {user?.role === "admin" ? "👑 ผู้ดูแลระบบ" : `@${user?.username || ""}`}
               </div>
             </div>
           </div>
-          <button className="desktop-sidebar-item" onClick={handleLogout} style={{ color: "#dc2626", fontWeight: 700 }}>
-            <span>🚪</span> ออกจากระบบ
+          <button
+            className="sidebar-logout-btn"
+            onClick={() => signOut({ callbackUrl: "/login" })}
+          >
+            🚪 ออกจากระบบ
           </button>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="desktop-main">
+      {/* ── Main Content ── */}
+      <main className="main-content">
+        {/* Mobile Topbar */}
+        <header className="topbar">
+          <div className="topbar-logo">
+            <div className="topbar-logo-icon">🌸</div>
+            <span className="topbar-logo-text">Wishy</span>
+          </div>
+          <button
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
+            onClick={() => router.push("/profile")}
+          >
+            <Avatar
+              src={user?.avatarUrl}
+              emoji={user?.emoji}
+              displayName={user?.name}
+              size="sm"
+              ring
+            />
+          </button>
+        </header>
+
+        {/* Page Content */}
         {children}
 
         {/* Mobile Bottom Navigation */}
         <nav className="bottom-nav">
-          <Link href="/dashboard" className={`bottom-nav-item ${activeTab === "home" ? "active" : ""}`}>
-            <span className="nav-icon">🏠</span>
-            <span>หน้าหลัก</span>
-          </Link>
-          <Link href="/profile" className={`bottom-nav-item ${activeTab === "profile" ? "active" : ""}`}>
-            <span className="nav-icon">👤</span>
-            <span>โปรไฟล์</span>
-          </Link>
+          {NAV.map((item) => (
+            <Link
+              key={item.key}
+              href={item.href}
+              className={`bottom-nav-item ${active === item.key ? "active" : ""}`}
+            >
+              <span className="nav-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </Link>
+          ))}
         </nav>
       </main>
     </div>

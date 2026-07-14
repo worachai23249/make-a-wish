@@ -127,6 +127,7 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   emoji: 'emoji',
+  avatarUrl: 'avatarUrl',
   role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -162,9 +163,23 @@ exports.Prisma.WishScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.FriendshipScalarFieldEnum = {
+  id: 'id',
+  senderId: 'senderId',
+  receiverId: 'receiverId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 
 exports.Prisma.UserOrderByRelevanceFieldEnum = {
@@ -174,6 +189,7 @@ exports.Prisma.UserOrderByRelevanceFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   emoji: 'emoji',
+  avatarUrl: 'avatarUrl',
   role: 'role'
 };
 
@@ -192,11 +208,6 @@ exports.Prisma.SpaceMemberOrderByRelevanceFieldEnum = {
   userId: 'userId'
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 exports.Prisma.WishOrderByRelevanceFieldEnum = {
   id: 'id',
   title: 'title',
@@ -207,12 +218,20 @@ exports.Prisma.WishOrderByRelevanceFieldEnum = {
   userId: 'userId'
 };
 
+exports.Prisma.FriendshipOrderByRelevanceFieldEnum = {
+  id: 'id',
+  senderId: 'senderId',
+  receiverId: 'receiverId',
+  status: 'status'
+};
+
 
 exports.Prisma.ModelName = {
   User: 'User',
   Space: 'Space',
   SpaceMember: 'SpaceMember',
-  Wish: 'Wish'
+  Wish: 'Wish',
+  Friendship: 'Friendship'
 };
 
 /**

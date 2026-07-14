@@ -16,6 +16,7 @@ model User {
   email        String   @unique
   passwordHash String
   emoji        String   @default("🌸")
+  avatarUrl    String?  @db.Text
   role         String   @default("user") // "user" | "admin"
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -23,6 +24,8 @@ model User {
   ownedSpaces  Space[]       @relation("SpaceOwner")
   memberships  SpaceMember[]
   wishes       Wish[]
+  sentFriendRequests     Friendship[] @relation("FriendshipSender")
+  receivedFriendRequests Friendship[] @relation("FriendshipReceiver")
 
   @@map("users")
 }
@@ -73,3 +76,19 @@ model Wish {
 
   @@map("wishes")
 }
+
+model Friendship {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     String   @default("pending") // "pending" | "accepted" | "declined"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sender   User @relation("FriendshipSender",   fields: [senderId],   references: [id], onDelete: Cascade)
+  receiver User @relation("FriendshipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@map("friendships")
+}
+
