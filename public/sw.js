@@ -8,6 +8,10 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Simple pass-through fetch handler to satisfy Chrome's PWA installability requirements
+  // Only handle GET requests. Let POST/PUT/DELETE requests bypass the service worker.
+  // This prevents login (POST requests) and API mutations from freezing.
+  if (event.request.method !== 'GET') {
+    return;
+  }
   event.respondWith(fetch(event.request));
 });
