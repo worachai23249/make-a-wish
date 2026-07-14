@@ -8,10 +8,16 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests. Let POST/PUT/DELETE requests bypass the service worker.
-  // This prevents login (POST requests) and API mutations from freezing.
-  if (event.request.method !== 'GET') {
+  const url = new URL(event.request.url);
+
+  // Bypass API requests, Next.js internal files, and non-GET requests
+  if (
+    event.request.method !== 'GET' ||
+    url.pathname.startsWith('/api') ||
+    url.pathname.includes('/_next/')
+  ) {
     return;
   }
+
   event.respondWith(fetch(event.request));
 });

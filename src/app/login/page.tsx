@@ -15,16 +15,31 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const res = await signIn("credentials", {
-      redirect: false,
-      email: form.email,
-      password: form.password,
-    });
-    setLoading(false);
-    if (res?.error) {
-      setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
-    } else {
-      router.replace("/dashboard");
+
+    // Set a safety timeout to turn off loading indicator after 8 seconds
+    const safetyTimeout = setTimeout(() => {
+      setLoading(false);
+      setError("การเชื่อมต่อหมดเวลา (Timeout) กรุณาลองใหม่อีกครั้ง");
+    }, 8000);
+
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: form.email,
+        password: form.password,
+      });
+      clearTimeout(safetyTimeout);
+      setLoading(false);
+      if (res?.error) {
+        setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+      } else {
+        router.replace("/dashboard");
+      }
+    } catch (err: any) {
+      clearTimeout(safetyTimeout);
+      setLoading(false);
+      setError("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
+      console.error(err);
     }
   }
 

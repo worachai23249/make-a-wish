@@ -7,6 +7,7 @@ export const authConfig = {
   pages: {
     signIn: "/login",
   },
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || "wishy_super_secret_key_2025_make_a_wish_app",
   session: { strategy: "jwt" as const },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
