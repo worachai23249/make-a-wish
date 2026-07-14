@@ -1,12 +1,25 @@
 // src/app/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
   title: "Wishy — พื้นที่ความปรารถนาของคุณ",
   description: "แชร์ความปรารถนาและของขวัญในฝันกับคนพิเศษ",
-  themeColor: "#f4306d",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "Wishy",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#E8547A",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
