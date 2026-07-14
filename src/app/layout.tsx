@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   title: "Wishy — พื้นที่ความปรารถนาของคุณ",
   description: "แชร์ความปรารถนาและของขวัญในฝันกับคนพิเศษ",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icon-192.png",
+    shortcut: "/icon-192.png",
+    apple: "/icon-192.png",
+  },
   appleWebApp: {
     capable: true,
     title: "Wishy",
