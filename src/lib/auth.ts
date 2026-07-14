@@ -1,10 +1,13 @@
 // src/lib/auth.ts
+// Node.js runtime only — imports prisma safely
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { authConfig } from "./auth.config";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -40,7 +43,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    ...authConfig.callbacks,
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.username = (user as any).username;
@@ -62,19 +66,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return token;
     },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string;
-        (session.user as any).username = token.username;
-        (session.user as any).role = token.role;
-        (session.user as any).emoji = token.emoji;
-        (session.user as any).avatarUrl = token.avatarUrl;
-      }
-      return session;
-    },
   },
-  pages: {
-    signIn: "/login",
-  },
-  session: { strategy: "jwt" },
 });
