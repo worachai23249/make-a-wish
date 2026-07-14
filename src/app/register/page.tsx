@@ -51,7 +51,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-icon">🌸</div>
-          <span className="auth-logo-text">Wishy</span>
+          <span className="auth-logo-text">Make a Wish</span>
           <p className="auth-subtitle">สร้างบัญชีและเริ่มแบ่งปันความปรารถนา</p>
         </div>
 

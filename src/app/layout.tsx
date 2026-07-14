@@ -4,7 +4,7 @@ import "./globals.css";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "Wishy — พื้นที่ความปรารถนาของคุณ",
+  title: "Make a Wish — พื้นที่ความปรารถนาของคุณ",
   description: "แชร์ความปรารถนาและของขวัญในฝันกับคนพิเศษ",
   manifest: "/manifest.json",
   icons: {
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: "Wishy",
+    title: "Make a Wish",
     statusBarStyle: "default",
   },
 };

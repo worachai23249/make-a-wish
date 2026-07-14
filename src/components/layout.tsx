@@ -42,7 +42,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div>
           <div className="sidebar-logo">
             <div className="sidebar-logo-icon">🌸</div>
-            <span className="sidebar-logo-text">Wishy</span>
+            <span className="sidebar-logo-text">Make a Wish</span>
           </div>
 
           {/* Navigation */}
@@ -91,7 +91,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="topbar">
           <div className="topbar-logo">
             <div className="topbar-logo-icon">🌸</div>
-            <span className="topbar-logo-text">Wishy</span>
+            <span className="topbar-logo-text">Make a Wish</span>
           </div>
           <button
             style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}

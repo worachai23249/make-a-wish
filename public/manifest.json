@@ -1,6 +1,6 @@
 {
-  "name": "Wishy - Make a Wish",
-  "short_name": "Wishy",
+  "name": "Make a Wish",
+  "short_name": "Make a Wish",
   "description": "แชร์ความปรารถนาและของขวัญในฝันกับคนพิเศษ",
   "start_url": "/dashboard",
   "display": "standalone",

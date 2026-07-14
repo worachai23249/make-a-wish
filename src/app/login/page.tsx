@@ -39,7 +39,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-icon">🌸</div>
-          <span className="auth-logo-text">Wishy</span>
+          <span className="auth-logo-text">Make a Wish</span>
           <p className="auth-subtitle">แบ่งปันความปรารถนาของคุณ</p>
         </div>
 
