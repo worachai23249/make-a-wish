@@ -1,19 +1,9 @@
 // prisma/seed.ts
 import "dotenv/config";
-import { PrismaClient } from "../src/generated/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-const url = new URL(process.env.DATABASE_URL!);
-const adapter = new PrismaMariaDb({
-  host: url.hostname,
-  port: Number(url.port) || 3306,
-  user: url.username || "root",
-  password: url.password || "",
-  database: url.pathname.replace("/", ""),
-});
-
-const prisma = new PrismaClient({ adapter } as any);
+const prisma = new PrismaClient();
 
 async function main() {
   // Create admin if not exists
