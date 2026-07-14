@@ -30,11 +30,21 @@ export default function DashboardPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: "success"|"error"|"info"|"heart" } | null>(null);
 
-  const fetchSpaces = useCallback(async () => {
+  const fetchSpaces = useCallback(async (isSilent = false) => {
+    if (!isSilent) {
+      const cached = localStorage.getItem("dashboard_spaces");
+      if (cached) {
+        try {
+          setSpaces(JSON.parse(cached));
+          setLoading(false);
+        } catch (_) {}
+      }
+    }
     const res = await fetch("/api/spaces");
     if (res.ok) {
       const d = await res.json();
       setSpaces(d.spaces || []);
+      localStorage.setItem("dashboard_spaces", JSON.stringify(d.spaces || []));
     }
     setLoading(false);
   }, []);
@@ -44,11 +54,11 @@ export default function DashboardPage() {
     if (status === "authenticated") {
       const u = session?.user as any;
       if (u?.role === "admin") { router.replace("/admin"); return; }
-      fetchSpaces();
-      const interval = setInterval(fetchSpaces, 5000);
+      fetchSpaces(false);
+      const interval = setInterval(() => fetchSpaces(true), 5000);
       return () => clearInterval(interval);
     }
-  }, [status]);
+  }, [status, session, fetchSpaces, router]);
 
   const showToast = (msg: string, type: "success"|"error"|"info"|"heart" = "success") =>
     setToast({ msg, type });

@@ -46,22 +46,36 @@ export default function SpaceDetailPage() {
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: "success"|"error"|"heart" } | null>(null);
 
-  const fetchSpace = useCallback(async () => {
+  const fetchSpace = useCallback(async (isSilent = false) => {
+    if (!isSilent) {
+      const cached = localStorage.getItem(`space_${id}`);
+      if (cached) {
+        try {
+          setSpace(JSON.parse(cached));
+          setLoading(false);
+        } catch (_) {}
+      }
+    }
     const res = await fetch(`/api/spaces/${id}`);
-    if (!res.ok) { router.replace("/dashboard"); return; }
+    if (!res.ok) {
+      if (res.status === 401) { router.replace("/login"); }
+      else { router.replace("/dashboard"); }
+      return;
+    }
     const d = await res.json();
     setSpace(d.space);
+    localStorage.setItem(`space_${id}`, JSON.stringify(d.space));
     setLoading(false);
-  }, [id]);
+  }, [id, router]);
 
   useEffect(() => {
     if (status === "unauthenticated") { router.replace("/login"); return; }
     if (status === "authenticated") {
-      fetchSpace();
-      const t = setInterval(fetchSpace, 3000);
+      fetchSpace(false);
+      const t = setInterval(() => fetchSpace(true), 3000);
       return () => clearInterval(t);
     }
-  }, [status, id]);
+  }, [status, id, fetchSpace, router]);
 
   const showToast = (msg: string, type: "success"|"error"|"heart" = "success") =>
     setToast({ msg, type });
@@ -69,23 +83,87 @@ export default function SpaceDetailPage() {
   async function handleAddWish(e: React.FormEvent) {
     e.preventDefault();
     setActionLoading(true);
+
+    const tempId = `optimistic_${Math.random().toString()}`;
+    const optimisticWish: Wish = {
+      id: tempId,
+      title: wishForm.title,
+      description: wishForm.description,
+      emoji: wishForm.emoji,
+      category: wishForm.category,
+      userId: userId,
+      user: {
+        id: userId,
+        displayName: session?.user?.name || "ฉัน",
+        emoji: (session?.user as any)?.emoji || "🌸",
+        avatarUrl: (session?.user as any)?.avatarUrl,
+      }
+    };
+
+    // Optimistically add wish to list
+    setSpace(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        wishes: [optimisticWish, ...prev.wishes]
+      };
+    });
+
+    setShowAdd(false);
+    setWishForm({ title: "", description: "", emoji: "🎁", category: "item" });
+    showToast("เพิ่มความปรารถนาแล้ว 💫", "heart");
+
     const res = await fetch("/api/wishes", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...wishForm, spaceId: id }),
     });
     const d = await res.json();
     setActionLoading(false);
-    if (!res.ok) { showToast(d.error, "error"); return; }
-    setShowAdd(false);
-    setWishForm({ title: "", description: "", emoji: "🎁", category: "item" });
-    showToast("เพิ่มความปรารถนาแล้ว 💫", "heart");
-    fetchSpace();
+
+    if (!res.ok) {
+      // Revert optimistic add
+      setSpace(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          wishes: prev.wishes.filter(w => w.id !== tempId)
+        };
+      });
+      showToast(d.error || "เกิดข้อผิดพลาดในการบันทึก", "error");
+      return;
+    }
+
+    // Replace optimistic wish with the real database-saved wish
+    setSpace(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        wishes: prev.wishes.map(w => w.id === tempId ? d.wish : w)
+      };
+    });
   }
 
   async function handleDeleteWish(wishId: string) {
     if (!confirm("ต้องการลบรายการนี้?")) return;
+
+    const backupSpace = space;
+
+    // Optimistically remove wish from list
+    setSpace(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        wishes: prev.wishes.filter(w => w.id !== wishId)
+      };
+    });
+    showToast("ลบแล้ว 🗑️");
+
     const res = await fetch(`/api/wishes/${wishId}`, { method: "DELETE" });
-    if (res.ok) { showToast("ลบแล้ว 🗑️"); fetchSpace(); }
+    if (!res.ok) {
+      // Revert if API request fails
+      setSpace(backupSpace);
+      showToast("ลบความปรารถนาไม่สำเร็จ", "error");
+    }
   }
 
   function copyCode() {
