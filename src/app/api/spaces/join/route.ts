@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   if (!space) return NextResponse.json({ error: "ไม่พบรหัสเชิญนี้" }, { status: 404 });
 
-  const alreadyMember = space.members.some((m) => m.userId === session.user!.id);
+  const alreadyMember = space.members.some((m: any) => m.userId === session.user!.id);
   if (alreadyMember) return NextResponse.json({ error: "คุณอยู่ใน Space นี้แล้ว" }, { status: 400 });
 
   const maxMembers = space.type === "1on1" ? 2 : 10;

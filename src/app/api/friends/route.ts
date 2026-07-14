@@ -21,8 +21,8 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
   });
 
-  const friends = all.filter((f) => f.status === "accepted");
-  const pending = all.filter((f) => f.status === "pending");
+  const friends = all.filter((f: any) => f.status === "accepted");
+  const pending = all.filter((f: any) => f.status === "pending");
 
   return NextResponse.json({ friends, pending });
 }

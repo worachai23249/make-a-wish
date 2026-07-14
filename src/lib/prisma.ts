@@ -2,6 +2,13 @@
 import { PrismaClient } from "@prisma/client";
 
 function createPrismaClient() {
+  if (process.env.NEXT_RUNTIME === "edge") {
+    return new Proxy({}, {
+      get() {
+        throw new Error("Prisma cannot be executed in the Edge Runtime.");
+      }
+    }) as any;
+  }
   return new PrismaClient();
 }
 

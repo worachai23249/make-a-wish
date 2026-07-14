@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (!space) return NextResponse.json({ error: "ไม่พบ Space" }, { status: 404 });
 
-  const isMember = space.members.some((m) => m.userId === session.user!.id);
+  const isMember = space.members.some((m: any) => m.userId === session.user!.id);
   if (!isMember) return NextResponse.json({ error: "คุณไม่ใช่สมาชิกของ Space นี้" }, { status: 403 });
 
   return NextResponse.json({ space });
