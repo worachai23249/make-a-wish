@@ -413,26 +413,36 @@ input, textarea, select { font-family: inherit; }
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all var(--transition);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
   position: relative;
   overflow: hidden;
   white-space: nowrap;
   letter-spacing: -0.01em;
+  user-select: none;
 }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--rose) 100%);
   color: white;
   padding: 13px 28px;
-  box-shadow: 0 4px 18px rgba(232, 84, 122, 0.35);
+  box-shadow:
+    0 6px 0 #b5294d,
+    0 8px 20px rgba(232, 84, 122, 0.4);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(232, 84, 122, 0.45);
+  box-shadow:
+    0 8px 0 #b5294d,
+    0 12px 28px rgba(232, 84, 122, 0.45);
 }
 
-.btn-primary:active { transform: translateY(0) scale(0.98); }
+.btn-primary:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 #b5294d,
+    0 4px 10px rgba(232, 84, 122, 0.3);
+}
 
 .btn-primary:disabled {
   opacity: 0.55;
@@ -446,14 +456,25 @@ input, textarea, select { font-family: inherit; }
   color: var(--primary);
   padding: 12px 24px;
   border: 1.5px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  box-shadow:
+    0 5px 0 var(--border),
+    0 6px 12px rgba(0,0,0,0.08);
 }
 
 .btn-secondary:hover {
   border-color: var(--primary-light);
   background: var(--bg-alt);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  box-shadow:
+    0 7px 0 var(--primary-light),
+    0 10px 16px rgba(232, 84, 122, 0.15);
+}
+
+.btn-secondary:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 1px 0 var(--border),
+    0 2px 6px rgba(0,0,0,0.06);
 }
 
 .btn-ghost {
@@ -461,11 +482,18 @@ input, textarea, select { font-family: inherit; }
   color: var(--primary);
   padding: 10px 20px;
   border: 1px solid rgba(232, 84, 122, 0.15);
+  box-shadow: 0 4px 0 rgba(232, 84, 122, 0.15);
 }
 
 .btn-ghost:hover {
   background: rgba(232, 84, 122, 0.13);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(232, 84, 122, 0.2);
+}
+
+.btn-ghost:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(232, 84, 122, 0.15);
 }
 
 .btn-danger {
@@ -474,10 +502,18 @@ input, textarea, select { font-family: inherit; }
   padding: 7px 14px;
   border: 1px solid rgba(239, 68, 68, 0.2);
   font-size: 0.82rem;
+  box-shadow: 0 4px 0 rgba(239, 68, 68, 0.2);
 }
 
 .btn-danger:hover {
   background: rgba(239, 68, 68, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(239, 68, 68, 0.25);
+}
+
+.btn-danger:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(239, 68, 68, 0.2);
 }
 
 .btn-icon {
@@ -489,12 +525,20 @@ input, textarea, select { font-family: inherit; }
   font-size: 1.1rem;
   padding: 0;
   flex-shrink: 0;
+  box-shadow: 0 4px 0 var(--border);
 }
 
 .btn-icon:hover {
   border-color: var(--primary-light);
   background: rgba(232, 84, 122, 0.06);
   color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--primary-light);
+}
+
+.btn-icon:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--border);
 }
 
 .btn-sm { padding: 8px 18px; font-size: 0.82rem; }
