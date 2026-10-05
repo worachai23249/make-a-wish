@@ -1,88 +1,64 @@
 # Make a Wish 🎁 — แอปแชร์ความปรารถนากับคนพิเศษ
 
-ระบบบันทึกรายการของขวัญ/ความปรารถนาและแชร์กับคนพิเศษในห้องส่วนตัว พร้อมฟังก์ชันวงล้อสุ่มของขวัญและ Progressive Web App (PWA)
+ระบบบันทึกรายการของขวัญ/ความปรารถนาและแชร์กับคนพิเศษในห้องส่วนตัว พร้อมฟังก์ชันวงล้อสุ่มของขวัญและ Progressive Web App (PWA) 
+
+สถาปัตยกรรมและเทคโนโลยีถอดแบบมาจาก **church_accounting (HWP Accounting)** ทุกประการ เพื่อความเร็วระดับสูงสุด (Zero Latency)
 
 ---
 
-## 🌟 ฟังก์ชันหลัก (Key Features)
+## 💻 เทคโนโลยีที่ใช้ (Tech Stack)
 
-1. **ระบบยืนยันตัวตนและการเข้าถึง (Authentication & Role Guards)**
-   - Persistent Session อยู่ได้นาน 1 ปี ผ่าน NextAuth v5
-   - Role-Based Redirect: บัญชีแอดมิน (`admin`) ไป `/admin` เสมอ, บัญชีทั่วไป (`user`) ไป `/dashboard` เสมอ
-   - Next.js Proxy/Middleware ปกป้องทุกหน้าส่วนตัว
+* **Build Tool:** Vite (Bundler ความเร็วสูง)
+* **ภาษาหลัก:** JavaScript (ES6+) / React 18 / HTML5 / CSS3
+* **UI/UX Design:** Tailwind CSS (Glassmorphism รองรับ Light / Dark Mode)
+* **ไอคอน:** Lucide React Icons
+* **ฐานข้อมูล (Database):** Supabase Cloud (PostgreSQL) ผ่าน `@supabase/supabase-js`
+* **โฮสติ้ง (Hosting):** Cloudflare Pages (Global Edge CDN เร็วระดับ <10ms)
+* **การติดตั้ง (PWA):** Progressive Web App (Standalone Mode พร้อมไอคอนความละเอียดสูง)
+
+---
+
+## 🌟 ฟังก์ชันการทำงานหลัก (Key Features)
+
+1. **ระบบยืนยันตัวตน (Authentication & Persistent Session)**
+   - ค้างสถานะล็อกอินไว้ตลอดเหมือน Facebook (ไม่ต้องกรอกรหัสใหม่ทุกครั้ง)
+   - แอดมิน: `admin@gmail.com` / `123456` ➡️ เข้าแผงควบคุม `/admin`
+   - ผู้ใช้ทั่วไป: สมัครสมาชิกแล้วล็อกอินอัตโนมัติ ➡️ เข้าแดชบอร์ด
 
 2. **หน้าหลักและระบบห้อง (Dashboard & Spaces)**
-   - แสดงห้องทั้งหมดที่ตนเองเป็นเจ้าของและสมาชิก
-   - สร้างห้องแบบ 1-on-1 หรือห้องกลุ่ม พร้อมเลือกอีโมจิ
+   - สร้างห้อง 1-on-1 หรือกลุ่ม พร้อมเลือกอีโมจิ
    - สุ่มรหัสเชิญ 6 หลักอัตโนมัติ (เช่น `AB12CD`)
-   - ระบบพิมพ์รหัส 6 หลักเพื่อเข้าร่วมห้องทันที
+   - พิมพ์รหัส 6 หลักเพื่อเข้าร่วมห้องได้ทันที
 
 3. **ระบบรายการของขวัญ (Wishes & Optimistic UI)**
    - 3 หมวดหมู่: 🎁 สิ่งของ, 🍜 อาหาร, 📍 สถานที่
    - ตัวกรอง: ทั้งหมด / ของฉัน / ของคนอื่น
-   - Optimistic UI (0 วินาที): เพิ่มหรือลบของขวัญหน้าจอเปลี่ยนทันที แล้วซิงค์ลงฐานข้อมูล
+   - Optimistic UI (0 วินาที): เพิ่ม/ลบของขวัญหน้าจอเปลี่ยนทันที
 
 4. **วงล้อสุ่มของขวัญ (Gift Roulette)**
-   - ปุ่ม "🎰 สุ่มของขวัญ" ดึงของขวัญทั้งหมดในห้องมาใส่ในวงล้อ
-   - แอนิเมชันหมุนสลับของขวัญ หยุดที่ผู้โชคดี พร้อมเอฟเฟกต์หัวใจลอย (ConfettiHearts)
+   - ปุ่ม "🎰 สุ่มของขวัญ" พร้อมแอนิเมชันการหมุนสลับของขวัญ
+   - หยุดที่ของขวัญผู้โชคดี พร้อมเอฟเฟกต์หัวใจลอยกระจาย (ConfettiHearts)
 
 5. **ระบบเพื่อน (Friends Management)**
    - ค้นหาเพื่อนด้วย `@username`
-   - ส่งคำขอเป็นเพื่อน
-   - ยอมรับหรือปฏิเสธคำขอ / ยกเลิกการเป็นเพื่อน
+   - ส่งคำขอเป็นเพื่อน / ตรวจสอบรายชื่อเพื่อน
 
-6. **โปรไฟล์และรูปถ่าย (Profile & Canvas Image Compression)**
-   - แก้ไข Display Name และอีโมจิประจำตัว
-   - บีบอัดรูปโปรไฟล์อัตโนมัติด้วย HTML5 Canvas เหลือไม่เกิน 256x256 px คุณภาพ 82% (ขนาดลดเหลือเพียง 10-20 KB)
-   - ดึงรูปผ่าน `/api/users/[id]/avatar` พร้อมตั้งค่า `Cache-Control: public, max-age=86400`
+6. **โปรไฟล์และรูปถ่าย (Canvas Image Compression)**
+   - บีบอัดรูปโปรไฟล์อัตโนมัติด้วย HTML5 Canvas เหลือไม่เกิน 256x256 px คุณภาพ 82% (ลดเหลือเพียง 10-20 KB)
 
 7. **แผงควบคุมแอดมิน (Admin Panel)**
-   - สถิติจำนวนผู้ใช้, ห้อง, และของขวัญทั้งหมด
-   - ตารางรายชื่อผู้ใช้ สิทธิ์ และวันที่สมัคร
-   - ลบบัญชีผู้ใช้พร้อม Cascade Delete ปลอดภัย
-
-8. **Progressive Web App (PWA)**
-   - ไอคอนแอปสีชมพูพาสเทลความละเอียดสูง (`icon-192.png`, `icon-512.png`)
-   - ติดตั้งลงมือถือได้ทั้ง iOS (Add to Home Screen) และ Android
-   - เปิดใช้งานแบบ Standalone เต็มหน้าจอ
+   - สถิติจำนวนผู้ใช้, ห้อง, และของขวัญ
+   - ตารางดูรายชื่อผู้ใช้ทั้งหมด และปุ่มลบบัญชี
 
 ---
 
-## 🛠️ โครงสร้างฐานข้อมูล (Prisma Models)
+## 🚀 วิธี Deploy บน Cloudflare Pages (เหมือน church_accounting)
 
-- `users`: ผู้ใช้งาน (id, username, displayName, email, passwordHash, emoji, avatarUrl, role)
-- `spaces`: ห้องแชร์ความปรารถนา (id, name, type, emoji, inviteCode, ownerId)
-- `space_members`: ตารางความสัมพันธ์สมาชิกห้อง (spaceId, userId, joinedAt)
-- `wishes`: รายการของขวัญ (id, title, description, emoji, category, spaceId, userId)
-- `friendships`: ความสัมพันธ์เพื่อน (id, senderId, receiverId, status)
-
----
-
-## 🚀 การติดตั้งและเริ่มใช้งาน
-
-```bash
-# ติดตั้ง dependencies
-npm install
-
-# ซิงค์ Prisma Schema กับฐานข้อมูล
-npx prisma db push
-npx prisma generate
-
-# สร้างบัญชี Admin เริ่มต้น
-npm run create-admin
-# บัญชี: admin@gmail.com / 123456
-
-# รันในโหมดพัฒนา
-npm run dev
-```
-
----
-
-## 🌐 การ Deploy (เหมือน church_accounting)
-
-1. นำโค้ดขึ้น GitHub (`worachai23249/make-a-wish`)
-2. เชื่อมต่อโปรเจกต์บน **Vercel**
-3. กำหนด Environment Variables บน Vercel:
-   - `DATABASE_URL`
-   - `AUTH_SECRET`
-   - `NEXTAUTH_URL`
+1. Push โค้ดขึ้น GitHub Repository (`worachai23249/make-a-wish`)
+2. เข้าไปที่ **Cloudflare Dashboard** ➡️ **Workers & Pages** ➡️ **Create application** ➡️ **Pages** ➡️ **Connect to Git**
+3. เลือก Repository `make-a-wish`
+4. ตั้งค่า Build Settings:
+   - **Framework preset:** `Vite`
+   - **Build command:** `npm run build`
+   - **Build output directory:** `dist`
+5. กด **Save and Deploy** จะได้ URL ใช้งานจริงทันที เช่น `https://make-a-wish.pages.dev`
