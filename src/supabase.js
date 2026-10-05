@@ -13,14 +13,25 @@ const STORAGE_KEY_WISHES = 'makewish_local_wishes';
 const STORAGE_KEY_FRIENDS = 'makewish_local_friends';
 
 // Default initial admin account
-const ADMIN_ACCOUNT = {
+export const ADMIN_ACCOUNT = {
   id: 'admin-system-id',
   email: 'admin@gmail.com',
   password: '123456',
-  displayName: 'ผู้ดูแลระบบ',
+  displayName: 'ผู้ดูแลระบบ 👑',
   username: 'admin',
   role: 'admin',
   emoji: '👑',
+};
+
+// Quick Demo User account for 1-tap testing
+export const DEMO_USER_ACCOUNT = {
+  id: 'demo-user-id',
+  email: 'demo@gmail.com',
+  password: '123456',
+  displayName: 'น้องมุก 🌸',
+  username: 'mook_ky',
+  role: 'user',
+  emoji: '🎀',
 };
 
 // ==================== AUTHENTICATION ====================
@@ -38,6 +49,12 @@ export async function login(email, password) {
   if (email === ADMIN_ACCOUNT.email && password === ADMIN_ACCOUNT.password) {
     localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(ADMIN_ACCOUNT));
     return { status: 'success', user: ADMIN_ACCOUNT };
+  }
+
+  // Check demo user
+  if (email === DEMO_USER_ACCOUNT.email && password === DEMO_USER_ACCOUNT.password) {
+    localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(DEMO_USER_ACCOUNT));
+    return { status: 'success', user: DEMO_USER_ACCOUNT };
   }
 
   // Try Supabase Auth or users table
@@ -103,7 +120,7 @@ export function logout() {
 
 // ==================== SPACES ====================
 export function generateInviteCode() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
   for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -131,7 +148,7 @@ export async function getSpaces(userId) {
     if (local) return JSON.parse(local);
   } catch (_) {}
 
-  // Initial Demo Space
+  // Initial Demo Spaces
   const initialSpaces = [
     {
       id: 'space-demo-1',
@@ -140,7 +157,22 @@ export async function getSpaces(userId) {
       emoji: '💕',
       inviteCode: 'LOVE26',
       ownerId: userId || 'admin-system-id',
+      ownerName: 'ผู้ดูแลระบบ 👑',
       memberCount: 2,
+      members: ['ผู้ดูแลระบบ 👑', 'น้องมุก 🌸'],
+      wishCount: 4,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 'space-demo-2',
+      name: 'ทริปเที่ยว & ปาร์ตี้สิ้นปี ✈️',
+      type: 'group',
+      emoji: '🏝️',
+      inviteCode: 'TRIP26',
+      ownerId: userId || 'admin-system-id',
+      ownerName: 'ผู้ดูแลระบบ 👑',
+      memberCount: 4,
+      members: ['ผู้ดูแลระบบ 👑', 'น้องมุก 🌸', 'พี่แบงค์ 🎸', 'แป้ง 🐱'],
       wishCount: 3,
       createdAt: new Date().toISOString(),
     }
@@ -153,12 +185,13 @@ export async function createSpace(spaceData, user) {
   const newSpace = {
     id: 'space-' + Date.now(),
     name: spaceData.name,
-    type: spaceData.type,
-    emoji: spaceData.emoji || '💕',
+    type: spaceData.type || '1on1',
+    emoji: spaceData.emoji || (spaceData.type === 'group' ? '🎉' : '💕'),
     inviteCode: generateInviteCode(),
     ownerId: user.id,
     ownerName: user.displayName,
     memberCount: 1,
+    members: [user.displayName],
     wishCount: 0,
     createdAt: new Date().toISOString(),
   };
@@ -184,7 +217,32 @@ export async function joinSpace(code, user) {
     return { status: 'error', message: 'ไม่พบห้องที่ตรงกับรหัสเชิญนี้' };
   }
 
+  // Add user to members list if not already
+  const members = target.members || [target.ownerName || 'สมาชิก'];
+  if (!members.includes(user.displayName)) {
+    target.members = [...members, user.displayName];
+    target.memberCount = target.members.length;
+    const updated = spaces.map(s => s.id === target.id ? target : s);
+    localStorage.setItem(STORAGE_KEY_SPACES, JSON.stringify(updated));
+  }
+
   return { status: 'success', space: target };
+}
+
+export async function deleteSpace(spaceId) {
+  try {
+    await supabase.from('spaces').delete().eq('id', spaceId);
+  } catch (_) {}
+
+  const spaces = JSON.parse(localStorage.getItem(STORAGE_KEY_SPACES) || '[]');
+  const updated = spaces.filter(s => s.id !== spaceId);
+  localStorage.setItem(STORAGE_KEY_SPACES, JSON.stringify(updated));
+
+  const allWishes = JSON.parse(localStorage.getItem(STORAGE_KEY_WISHES) || '{}');
+  delete allWishes[spaceId];
+  localStorage.setItem(STORAGE_KEY_WISHES, JSON.stringify(allWishes));
+
+  return { status: 'success' };
 }
 
 // ==================== WISHES (Optimistic UI) ====================
@@ -212,34 +270,59 @@ export async function getWishes(spaceId) {
     {
       id: 'w-1',
       spaceId,
-      title: 'หูฟังไร้สาย AirPods Pro',
-      description: 'สีขาว รุ่นตัดเสียงรบกวน',
+      title: 'หูฟังไร้สาย AirPods Pro 2',
+      description: 'สีขาว รุ่นตัดเสียงรบกวน เคสชาร์จ USB-C',
       category: 'item',
+      price: '8,990',
+      linkUrl: 'https://apple.com/th/airpods-pro',
       emoji: '🎧',
+      isFulfilled: true,
+      fulfilledBy: 'ผู้ดูแลระบบ 👑',
+      fulfilledAt: '2026-10-01',
       userId: 'admin-system-id',
-      userName: 'ผู้ดูแลระบบ',
+      userName: 'ผู้ดูแลระบบ 👑',
       createdAt: new Date().toISOString(),
     },
     {
       id: 'w-2',
       spaceId,
-      title: 'ชาบูชิ สยามสแควร์',
-      description: 'อยากกินบุฟเฟต์วันเสาร์นี้ 😋',
+      title: 'ชาบูชิ หรือ โมโม่ พาราไดซ์',
+      description: 'อยากกินบุฟเฟต์เนื้อวันเสาร์นี้ 😋 ชวนทุกคน!',
       category: 'food',
+      price: '659',
+      linkUrl: '',
       emoji: '🍲',
-      userId: 'user-sample',
-      userName: 'แฟน',
+      isFulfilled: false,
+      userId: 'demo-user-id',
+      userName: 'น้องมุก 🌸',
       createdAt: new Date().toISOString(),
     },
     {
       id: 'w-3',
       spaceId,
-      title: 'คาเฟ่ริมทะเล บางแสน',
-      description: 'ไปถ่ายรูปช่วงพระอาทิตย์ตกดิน',
+      title: 'คาเฟ่ริมทะเล บางแสน / พัทยา',
+      description: 'ไปถ่ายรูปช่วงพระอาทิตย์ตกดิน เสาร์-อาทิตย์นี้',
       category: 'place',
+      price: '1,200',
+      linkUrl: '',
       emoji: '🏖️',
+      isFulfilled: false,
       userId: 'admin-system-id',
-      userName: 'ผู้ดูแลระบบ',
+      userName: 'ผู้ดูแลระบบ 👑',
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 'w-4',
+      spaceId,
+      title: 'โคมไฟพระจันทร์ดวงกลม 3D',
+      description: 'โคมไฟตั้งโต๊ะแสงวอร์มไวท์ ปรับแสงได้ 3 ระดับ',
+      category: 'item',
+      price: '450',
+      linkUrl: '',
+      emoji: '🌙',
+      isFulfilled: false,
+      userId: 'demo-user-id',
+      userName: 'น้องมุก 🌸',
       createdAt: new Date().toISOString(),
     },
   ];
@@ -254,10 +337,15 @@ export async function addWish(spaceId, wishData, user) {
   const newWish = {
     id: 'wish-' + Date.now(),
     spaceId,
-    title: wishData.title,
-    description: wishData.description || '',
+    title: wishData.title.trim(),
+    description: wishData.description ? wishData.description.trim() : '',
     category: wishData.category || 'item',
-    emoji: wishData.emoji || '⭐',
+    price: wishData.price ? wishData.price.trim() : '',
+    linkUrl: wishData.linkUrl ? wishData.linkUrl.trim() : '',
+    emoji: wishData.emoji || (wishData.category === 'food' ? '🍜' : wishData.category === 'place' ? '📍' : '🎁'),
+    isFulfilled: false,
+    fulfilledBy: null,
+    fulfilledAt: null,
     userId: user.id,
     userName: user.displayName,
     userEmoji: user.emoji || '🌸',
@@ -279,6 +367,40 @@ export async function addWish(spaceId, wishData, user) {
   localStorage.setItem(STORAGE_KEY_SPACES, JSON.stringify(updatedSpaces));
 
   return newWish;
+}
+
+export async function toggleWishFulfilled(spaceId, wishId, currentUser) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_KEY_WISHES) || '{}');
+  let toggled = null;
+
+  if (all[spaceId]) {
+    all[spaceId] = all[spaceId].map(w => {
+      if (w.id === wishId) {
+        const nextFulfilled = !w.isFulfilled;
+        toggled = {
+          ...w,
+          isFulfilled: nextFulfilled,
+          fulfilledBy: nextFulfilled ? currentUser.displayName : null,
+          fulfilledAt: nextFulfilled ? new Date().toISOString() : null,
+        };
+        return toggled;
+      }
+      return w;
+    });
+    localStorage.setItem(STORAGE_KEY_WISHES, JSON.stringify(all));
+  }
+
+  try {
+    if (toggled) {
+      await supabase.from('wishes').update({
+        is_fulfilled: toggled.isFulfilled,
+        fulfilled_by: toggled.fulfilledBy,
+        fulfilled_at: toggled.fulfilledAt,
+      }).eq('id', wishId);
+    }
+  } catch (_) {}
+
+  return toggled;
 }
 
 export async function deleteWish(spaceId, wishId) {
@@ -309,17 +431,19 @@ export async function getFriends(currentUserId) {
   const defaultFriends = [
     { id: 'f-1', username: 'mook_ky', displayName: 'น้องมุก 🌸', emoji: '🎀', status: 'accepted' },
     { id: 'f-2', username: 'bank_ton', displayName: 'พี่แบงค์', emoji: '🎸', status: 'accepted' },
+    { id: 'f-3', username: 'pang_cute', displayName: 'แป้ง 🐱', emoji: '🐾', status: 'pending' },
   ];
   localStorage.setItem(STORAGE_KEY_FRIENDS, JSON.stringify(defaultFriends));
   return defaultFriends;
 }
 
 export async function addFriend(targetUsername) {
-  const clean = targetUsername.replace(/^@/, '').toLowerCase();
+  const clean = targetUsername.replace(/^@/, '').toLowerCase().trim();
+  if (!clean) return { status: 'error', message: 'กรุณากรอกชื่อผู้ใช้' };
+
   const friends = JSON.parse(localStorage.getItem(STORAGE_KEY_FRIENDS) || '[]');
-  
   if (friends.some(f => f.username === clean)) {
-    return { status: 'error', message: 'ผู้ใช้นี้เป็นเพื่อนอยู่แล้วหรือส่งคำขอแล้ว' };
+    return { status: 'error', message: 'ผู้ใช้นี้เป็นเพื่อนอยู่แล้วหรือส่งคำขอไปแล้ว' };
   }
 
   const newFriend = {
@@ -335,6 +459,20 @@ export async function addFriend(targetUsername) {
   return { status: 'success', friend: newFriend };
 }
 
+export async function acceptFriend(friendId) {
+  const friends = JSON.parse(localStorage.getItem(STORAGE_KEY_FRIENDS) || '[]');
+  const updated = friends.map(f => f.id === friendId ? { ...f, status: 'accepted' } : f);
+  localStorage.setItem(STORAGE_KEY_FRIENDS, JSON.stringify(updated));
+  return { status: 'success' };
+}
+
+export async function deleteFriend(friendId) {
+  const friends = JSON.parse(localStorage.getItem(STORAGE_KEY_FRIENDS) || '[]');
+  const updated = friends.filter(f => f.id !== friendId);
+  localStorage.setItem(STORAGE_KEY_FRIENDS, JSON.stringify(updated));
+  return { status: 'success' };
+}
+
 // ==================== ADMIN ====================
 export async function getAdminStats() {
   const spaces = JSON.parse(localStorage.getItem(STORAGE_KEY_SPACES) || '[]');
@@ -342,12 +480,19 @@ export async function getAdminStats() {
   const allWishes = JSON.parse(localStorage.getItem(STORAGE_KEY_WISHES) || '{}');
   
   let totalWishes = 0;
-  Object.values(allWishes).forEach(arr => { totalWishes += (arr || []).length; });
+  let fulfilledWishes = 0;
+  Object.values(allWishes).forEach(arr => {
+    (arr || []).forEach(w => {
+      totalWishes++;
+      if (w.isFulfilled) fulfilledWishes++;
+    });
+  });
 
   return {
-    users: users.length + 1, // + admin
+    users: users.length + 2, // admin + demo
     spaces: spaces.length,
     wishes: totalWishes,
+    fulfilledWishes,
   };
 }
 
@@ -362,6 +507,15 @@ export async function getAdminUsers() {
       role: 'admin',
       emoji: ADMIN_ACCOUNT.emoji,
       createdAt: '2026-01-01',
+    },
+    {
+      id: DEMO_USER_ACCOUNT.id,
+      displayName: DEMO_USER_ACCOUNT.displayName,
+      username: DEMO_USER_ACCOUNT.username,
+      email: DEMO_USER_ACCOUNT.email,
+      role: 'user',
+      emoji: DEMO_USER_ACCOUNT.emoji,
+      createdAt: '2026-02-14',
     },
     ...users,
   ];
