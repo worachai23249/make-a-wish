@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Lock, Mail, User, AtSign, AlertCircle, Eye, EyeOff, Gift } from 'lucide-react';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 
 const EMOJIS = ['🌸', '💕', '🌹', '⭐', '🦋', '🌈', '💫', '🎀', '🍀', '🌙'];
 
@@ -43,12 +44,23 @@ export default function RegisterPage() {
             const json = await res.json();
             if (!res.ok) {
                 setError(json.error || 'เกิดข้อผิดพลาด');
+                setLoading(false);
             } else {
-                router.push('/login?registered=1');
+                // Auto login immediately like Facebook
+                const loginRes = await signIn('credentials', {
+                    email: data.email,
+                    password: data.password,
+                    redirect: false,
+                });
+                if (loginRes?.error) {
+                    router.push('/login?registered=1');
+                } else {
+                    router.push('/dashboard');
+                    router.refresh();
+                }
             }
         } catch {
             setError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
-        } finally {
             setLoading(false);
         }
     };

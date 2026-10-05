@@ -81,7 +81,24 @@ export const authConfig = {
         },
     },
     session: {
-        maxAge: 365 * 24 * 60 * 60, // 1 ปี
+        strategy: 'jwt',
+        maxAge: 365 * 24 * 60 * 60, // 365 วัน (1 ปี) เข้าค้างไว้ตลอดเหมือน Facebook
+        updateAge: 24 * 60 * 60, // รีเฟรชอายุอัตโนมัติทุกๆ 24 ชั่วโมงเมื่อเปิดใช้งาน
+    },
+    jwt: {
+        maxAge: 365 * 24 * 60 * 60, // 365 วัน
+    },
+    cookies: {
+        sessionToken: {
+            name: process.env.NODE_ENV === 'production' ? '__Secure-authjs.session-token' : 'authjs.session-token',
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 365 * 24 * 60 * 60, // Persistent cookie บันทึกลงเครื่อง 1 ปีเต็ม
+            },
+        },
     },
     providers: [],
 } satisfies NextAuthConfig;
