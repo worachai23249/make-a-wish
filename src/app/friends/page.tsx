@@ -47,7 +47,7 @@ export default function FriendsPage() {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [searching, setSearching] = useState(false);
 
-    const fetchFriends = async () => {
+    const fetchFriends = async (silent = false) => {
         try {
             const res = await fetch('/api/friends');
             if (res.ok) {
@@ -55,16 +55,32 @@ export default function FriendsPage() {
                 setFriends(data.friends || []);
                 setPendingIncoming(data.pendingIncoming || []);
                 setPendingOutgoing(data.pendingOutgoing || []);
+                try {
+                    localStorage.setItem('makewish_friends_cache', JSON.stringify(data));
+                } catch (_) {}
             }
         } catch {
-            showToast('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลเพื่อนได้');
+            if (!silent) showToast('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลเพื่อนได้');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchFriends();
+        // 1. โหลดเพื่อนจากแคชทันที 0 วินาที
+        try {
+            const cached = localStorage.getItem('makewish_friends_cache');
+            if (cached) {
+                const data = JSON.parse(cached);
+                setFriends(data.friends || []);
+                setPendingIncoming(data.pendingIncoming || []);
+                setPendingOutgoing(data.pendingOutgoing || []);
+                setLoading(false);
+            }
+        } catch (_) {}
+
+        // 2. ซิงค์ข้อมูลล่าสุดเบื้องหลัง
+        fetchFriends(true);
     }, []);
 
     // Search users by @username

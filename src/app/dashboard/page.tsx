@@ -50,22 +50,35 @@ export default function DashboardPage() {
     const [joinCode, setJoinCode] = useState('');
     const [joining, setJoining] = useState(false);
 
-    const fetchSpaces = async () => {
+    const fetchSpaces = async (silent = false) => {
         try {
             const res = await fetch('/api/spaces');
             if (res.ok) {
                 const data = await res.json();
                 setSpaces(data);
+                try {
+                    localStorage.setItem('makewish_spaces_cache', JSON.stringify(data));
+                } catch (_) {}
             }
         } catch {
-            showToast('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลห้องได้');
+            if (!silent) showToast('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลห้องได้');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchSpaces();
+        // 1. โหลดข้อมูลแคชทันที 0 วินาที ไม่ต้องรอหมุนติ้วๆ
+        try {
+            const cached = localStorage.getItem('makewish_spaces_cache');
+            if (cached) {
+                setSpaces(JSON.parse(cached));
+                setLoading(false);
+            }
+        } catch (_) {}
+
+        // 2. ซิงค์ข้อมูลล่าสุดเบื้องหลังแบบเงียบๆ
+        fetchSpaces(true);
     }, []);
 
     const handleCreateSpace = async (e: React.FormEvent) => {

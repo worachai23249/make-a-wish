@@ -32,7 +32,7 @@ export default function ProfilePage() {
     const [selectedEmoji, setSelectedEmoji] = useState('🌸');
     const [compressedAvatar, setCompressedAvatar] = useState<string | null>(null);
 
-    const fetchProfile = async () => {
+    const fetchProfile = async (silent = false) => {
         try {
             const res = await fetch('/api/profile');
             if (res.ok) {
@@ -40,16 +40,32 @@ export default function ProfilePage() {
                 setProfile(data);
                 setDisplayName(data.displayName);
                 setSelectedEmoji(data.emoji || '🌸');
+                try {
+                    localStorage.setItem('makewish_profile_cache', JSON.stringify(data));
+                } catch (_) {}
             }
         } catch {
-            showToast('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
+            if (!silent) showToast('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchProfile();
+        // 1. โหลดโปรไฟล์จากแคชทันที 0 วินาที
+        try {
+            const cached = localStorage.getItem('makewish_profile_cache');
+            if (cached) {
+                const data = JSON.parse(cached);
+                setProfile(data);
+                setDisplayName(data.displayName);
+                setSelectedEmoji(data.emoji || '🌸');
+                setLoading(false);
+            }
+        } catch (_) {}
+
+        // 2. ซิงค์ข้อมูลล่าสุดเบื้องหลัง
+        fetchProfile(true);
     }, []);
 
     const handleSave = async (e: React.FormEvent) => {

@@ -38,7 +38,7 @@ export default function AdminPage() {
 
     const currentUserId = session?.user?.id;
 
-    const fetchData = async () => {
+    const fetchData = async (silent = false) => {
         try {
             const [statsRes, usersRes] = await Promise.all([
                 fetch('/api/admin/stats'),
@@ -50,18 +50,33 @@ export default function AdminPage() {
                 const usersData = await usersRes.json();
                 setStats(statsData);
                 setUsers(usersData);
+                try {
+                    localStorage.setItem('makewish_admin_cache', JSON.stringify({ stats: statsData, users: usersData }));
+                } catch (_) {}
             } else {
-                showToast('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลผู้ดูแลระบบได้');
+                if (!silent) showToast('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลผู้ดูแลระบบได้');
             }
         } catch {
-            showToast('error', 'ข้อผิดพลาดในการเชื่อมต่อ');
+            if (!silent) showToast('error', 'ข้อผิดพลาดในการเชื่อมต่อ');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchData();
+        // 1. โหลดข้อมูลแอดมินจากแคชทันที 0 วินาที
+        try {
+            const cached = localStorage.getItem('makewish_admin_cache');
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                setStats(parsed.stats);
+                setUsers(parsed.users);
+                setLoading(false);
+            }
+        } catch (_) {}
+
+        // 2. ซิงค์ข้อมูลล่าสุดเบื้องหลัง
+        fetchData(true);
     }, []);
 
     const handleDeleteUser = async (user: AdminUser) => {

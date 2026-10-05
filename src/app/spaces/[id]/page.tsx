@@ -97,25 +97,38 @@ export default function SpaceDetailPage({ params }: { params: Promise<{ id: stri
 
     const currentUserId = session?.user?.id;
 
-    const fetchSpace = async () => {
+    const fetchSpace = async (silent = false) => {
         try {
             const res = await fetch(`/api/spaces/${id}`);
             if (res.ok) {
                 const data = await res.json();
                 setSpace(data);
+                try {
+                    localStorage.setItem(`makewish_space_${id}`, JSON.stringify(data));
+                } catch (_) {}
             } else if (res.status === 403 || res.status === 404) {
                 showToast('error', 'ไม่สามารถเข้าถึงห้องได้', 'คุณไม่ได้เป็นสมาชิกหรือไม่มีห้องนี้');
                 router.push('/dashboard');
             }
         } catch {
-            showToast('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลห้องได้');
+            if (!silent) showToast('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลห้องได้');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchSpace();
+        // 1. โหลดข้อมูลแคชทันที 0 วินาที หน้าจอจะโชว์ทันทีไม่ต้องรอหมุน
+        try {
+            const cached = localStorage.getItem(`makewish_space_${id}`);
+            if (cached) {
+                setSpace(JSON.parse(cached));
+                setLoading(false);
+            }
+        } catch (_) {}
+
+        // 2. ซิงค์ข้อมูลล่าสุดจากเซิร์ฟเวอร์แบบเงียบๆ
+        fetchSpace(true);
     }, [id]);
 
     const handleCopyCode = () => {
