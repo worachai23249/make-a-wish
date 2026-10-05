@@ -1,0 +1,95 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ผู้ใช้งาน
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  displayName  String
+  email        String   @unique
+  passwordHash String
+  emoji        String   @default("🌸")
+  avatarUrl    String?  @db.Text
+  role         String   @default("user") // "user" | "admin"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedSpaces   Space[]        @relation("SpaceOwner")
+  memberships   SpaceMember[]
+  wishes        Wish[]
+  sentFriendships     Friendship[] @relation("SentFriendships")
+  receivedFriendships Friendship[] @relation("ReceivedFriendships")
+
+  @@map("users")
+}
+
+// ห้องแชร์ความปรารถนา
+model Space {
+  id         String   @id @default(uuid())
+  name       String
+  type       String   // "1on1" | "group"
+  emoji      String   @default("💕")
+  inviteCode String   @unique
+  ownerId    String
+  owner      User     @relation("SpaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  members SpaceMember[]
+  wishes  Wish[]
+
+  @@map("spaces")
+}
+
+// สมาชิกในแต่ละห้อง
+model SpaceMember {
+  id       String   @id @default(uuid())
+  spaceId  String
+  userId   String
+  space    Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt DateTime @default(now())
+
+  @@unique([spaceId, userId])
+  @@map("space_members")
+}
+
+// รายการของขวัญ/ความปรารถนา
+model Wish {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  emoji       String   @default("⭐")
+  category    String   // "item" | "food" | "place"
+  spaceId     String
+  userId      String
+  space       Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("wishes")
+}
+
+// ระบบเพื่อน
+model Friendship {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     String   @default("pending") // "pending" | "accepted" | "declined"
+  sender     User     @relation("SentFriendships", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedFriendships", fields: [receiverId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([senderId, receiverId])
+  @@map("friendships")
+}
