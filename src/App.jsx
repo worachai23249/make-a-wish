@@ -425,10 +425,6 @@ export default function App() {
   if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Soft Ambient Starlight Blobs */}
-        <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-sky-200/35 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full bg-cyan-200/30 blur-3xl pointer-events-none" />
-
         <div className="glass-panel w-full max-w-md rounded-[36px] p-8 sm:p-10 shadow-2xl animate-fade-in relative z-10 border-sky-200/70 dark:border-sky-400/20">
           {/* Logo & Header */}
           <div className="text-center mb-8">
