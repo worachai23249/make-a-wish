@@ -140,80 +140,204 @@
   filter: drop-shadow(0 1px 2px rgba(14, 165, 233, 0.18));
 }
 
-/* ==================== 🔘 BUTTONS & PILLS ==================== */
-.btn-primary {
-  background: linear-gradient(135deg, #00B4FF 0%, #0099FF 50%, #0088EE 100%);
-  color: #FFFFFF;
-  font-weight: 800;
-  text-shadow: 0 1px 2px rgba(2, 132, 199, 0.3);
-  border-radius: 9999px;
-  padding: 10px 24px;
+/* ==================== 💎 3D LIQUID GLASS CAPSULE BUTTONS (IMAGE REFERENCE) ==================== */
+/* Directly replicates the 3D transparent glass cylinder/capsule with specular reflections */
+
+.btn-glass-capsule,
+.btn-primary,
+.btn-secondary,
+.btn-pill {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  border-radius: 9999px;
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 
-    0 8px 22px -3px rgba(0, 166, 255, 0.45),
-    inset 0 1.5px 1px rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.5);
   cursor: pointer;
   letter-spacing: -0.01em;
+  user-select: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Glass Capsule Base - Reflections on Left, Right, Top & Bottom Rims */
+.btn-glass-capsule,
+.btn-primary,
+.btn-secondary {
+  padding: 11px 26px;
+  font-weight: 800;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    0 10px 25px -4px rgba(14, 165, 233, 0.22),
+    0 3px 8px -1px rgba(0, 0, 0, 0.08),
+    /* Top & bottom crisp white glass rim */
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 1),
+    inset 0 -1.5px 1.5px 0 rgba(255, 255, 255, 0.85),
+    /* Curved semicircle end-caps crescent reflections (Left & Right) */
+    inset 5px 0 6px -1px rgba(255, 255, 255, 0.95),
+    inset -5px 0 6px -1px rgba(255, 255, 255, 0.95),
+    /* Cylinder depth reflections */
+    inset 0 10px 14px -5px rgba(255, 255, 255, 0.60),
+    inset 0 -10px 14px -5px rgba(0, 0, 0, 0.12);
+}
+
+/* 🌟 Top Horizontal Specular Reflection Arc (The curved white light beam running along upper rim) */
+.btn-glass-capsule::before,
+.btn-primary::before,
+.btn-secondary::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  right: 6px;
+  height: 44%;
+  border-radius: 9999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.50) 35%,
+    rgba(255, 255, 255, 0.10) 80%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 🌟 Bottom Horizontal Specular Refraction (The thin white glow along lower rim) */
+.btn-glass-capsule::after,
+.btn-primary::after,
+.btn-secondary::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 10px;
+  right: 10px;
+  height: 25%;
+  border-radius: 9999px;
+  background: linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.20) 65%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 💎 Pure Crystalline 3D Liquid Glass Capsule (Matching Image 100% Untinted Crystal) */
+.btn-secondary,
+.btn-glass-capsule {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.50) 0%,
+    rgba(255, 255, 255, 0.16) 35%,
+    rgba(255, 255, 255, 0.05) 55%,
+    rgba(255, 255, 255, 0.18) 85%,
+    rgba(255, 255, 255, 0.45) 100%
+  );
+  color: #0F172A;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.btn-secondary:hover,
+.btn-glass-capsule:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.70) 0%,
+    rgba(255, 255, 255, 0.28) 35%,
+    rgba(255, 255, 255, 0.10) 55%,
+    rgba(255, 255, 255, 0.30) 85%,
+    rgba(255, 255, 255, 0.60) 100%
+  );
+  transform: translateY(-2px) scale(1.02);
+  border-color: #FFFFFF;
+  box-shadow: 
+    0 14px 30px -4px rgba(14, 165, 233, 0.28),
+    0 4px 10px -1px rgba(0, 0, 0, 0.10),
+    inset 0 2px 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -2px 2px 0 rgba(255, 255, 255, 0.95),
+    inset 6px 0 8px -1px rgba(255, 255, 255, 1),
+    inset -6px 0 8px -1px rgba(255, 255, 255, 1);
+}
+
+.btn-secondary:active,
+.btn-glass-capsule:active {
+  transform: translateY(0.5px) scale(0.98);
+  filter: brightness(0.96);
+}
+
+/* 💎 Luminous Tinted 3D Liquid Glass Capsule (Primary Actions) */
+.btn-primary {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(56, 189, 248, 0.40) 25%,
+    rgba(0, 166, 255, 0.65) 60%,
+    rgba(2, 132, 199, 0.80) 85%,
+    rgba(255, 255, 255, 0.55) 100%
+  );
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(2, 132, 199, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.90);
+  box-shadow: 
+    0 10px 28px -3px rgba(0, 166, 255, 0.45),
+    0 3px 8px -1px rgba(0, 0, 0, 0.08),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 1),
+    inset 0 -1.5px 1.5px 0 rgba(255, 255, 255, 0.9),
+    inset 5px 0 6px -1px rgba(255, 255, 255, 0.95),
+    inset -5px 0 6px -1px rgba(255, 255, 255, 0.95),
+    inset 0 10px 14px -5px rgba(255, 255, 255, 0.70),
+    inset 0 -10px 14px -5px rgba(2, 132, 199, 0.35);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1.5px) scale(1.02);
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.08);
+  border-color: #FFFFFF;
   box-shadow: 
-    0 12px 28px -3px rgba(0, 166, 255, 0.55),
-    inset 0 2px 1.5px rgba(255, 255, 255, 0.9);
-  filter: brightness(1.03);
+    0 16px 36px -3px rgba(0, 166, 255, 0.55),
+    0 4px 10px -1px rgba(0, 0, 0, 0.10),
+    inset 0 2px 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -2px 2px 0 rgba(255, 255, 255, 0.95),
+    inset 6px 0 8px -1px rgba(255, 255, 255, 1),
+    inset -6px 0 8px -1px rgba(255, 255, 255, 1);
 }
 
 .btn-primary:active {
   transform: translateY(0.5px) scale(0.98);
+  filter: brightness(0.96);
 }
 
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.85);
-  color: #0F172A;
-  font-weight: 800;
-  border: 1.5px solid rgba(255, 255, 255, 0.95);
-  border-radius: 9999px;
-  padding: 10px 22px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
-  backdrop-filter: blur(16px);
-  box-shadow: 
-    0 6px 18px -2px rgba(14, 165, 233, 0.14),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.95);
-}
-
-.btn-secondary:hover {
-  background: #FFFFFF;
-  border-color: #FFFFFF;
-  transform: translateY(-1px);
-  box-shadow: 
-    0 10px 24px -2px rgba(14, 165, 233, 0.22),
-    inset 0 2px 2px rgba(255, 255, 255, 1);
-}
-
-.btn-secondary:active {
-  transform: translateY(0.5px) scale(0.98);
-}
-
+/* Smaller 3D Liquid Glass Pills (Categories & Quick Actions) */
 .btn-pill {
-  border-radius: 9999px;
-  padding: 6px 14px;
+  padding: 6px 16px;
   font-size: 0.75rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.18) 45%,
+    rgba(255, 255, 255, 0.35) 100%
+  );
+  color: #0F172A;
+  box-shadow: 
+    0 4px 12px -2px rgba(14, 165, 233, 0.15),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.btn-pill:hover {
+  transform: translateY(-1px) scale(1.02);
+  border-color: #FFFFFF;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.30) 45%,
+    rgba(255, 255, 255, 0.50) 100%
+  );
 }
 
 /* ==================== FORM INPUTS ==================== */
