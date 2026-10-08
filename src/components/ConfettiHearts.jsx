@@ -1,89 +1,139 @@
 import React from 'react';
 
+// Luxury Minimalist Geometric Confetti (No text emojis, pure aesthetic gold & pastel foil)
+const CONFETTI_COLORS = [
+  '#F472B6', // Rose Gold
+  '#FBBF24', // Champagne Gold
+  '#FB7185', // Soft Rose
+  '#C084FC', // Lavender Mist
+  '#6EE7B7', // Mint Pastel
+  '#FDBA74', // Warm Peach
+  '#FFFFFF', // Pearl White
+];
+
 export default function ConfettiHearts({ active }) {
   if (!active) return null;
 
-  // 80+ Kawaii Dreamy Minimalist Particles (ซากุระ โบว์ หัวใจ เค้ก ดาว นุ่มฟู)
-  const particles = Array.from({ length: 80 }).map((_, i) => ({
-    id: i,
-    left: Math.random() * 98,
-    size: Math.random() * 26 + 18,
-    delay: Math.random() * 0.45,
-    duration: 2.4 + Math.random() * 1.5,
-    emoji: [
-      '🌸', '💖', '✨', '🎀', '🍰', '🍓', '🎁', '🧸', 
-      '☁️', '🌈', '⭐', '💫', '🧁', '🌷', '💕', '🐱', '🐾'
-    ][Math.floor(Math.random() * 17)],
-  }));
+  // 65 Luxury geometric foil ribbons, circles, and 4-point sparkle stars
+  const particles = Array.from({ length: 65 }).map((_, i) => {
+    const type = i % 3 === 0 ? 'ribbon' : i % 3 === 1 ? 'circle' : 'star';
+    const color = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+    const left = Math.random() * 96 + 2;
+    const delay = Math.random() * 0.35;
+    const duration = 2.2 + Math.random() * 1.4;
+    const size = type === 'circle' ? 6 + Math.random() * 6 : 8 + Math.random() * 8;
+    const drift = (Math.random() - 0.5) * 120;
+
+    return { id: i, type, color, left, delay, duration, size, drift };
+  });
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
-      {/* 1. SOFT PEARL AURORA BLOOM (แสงออโรร่าสีชมพูพาสเทลละมุนตา) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-rose-200/40 via-pink-100/25 to-transparent dark:from-rose-900/30 dark:via-purple-900/15 animate-aurora-bloom pointer-events-none" />
+      {/* 1. SOFT AMBIENT AURORA BLOOM (แสงออโรร่าสีชมพูพาสเทลนุ่มนวล) */}
+      <div className="absolute inset-0 bg-gradient-to-b from-rose-200/25 via-pink-100/15 to-transparent dark:from-rose-900/20 dark:via-purple-900/10 animate-aurora-bloom pointer-events-none" />
 
-      {/* 2. SOFT PASTEL SHOCKWAVE HALO RINGS (วงแหวนคลื่นพลังพาสเทลนุ่มฟู) */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full border-2 border-pink-300/80 shadow-[0_0_40px_rgba(244,114,182,0.6)] animate-kawaii-shockwave" />
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full border-2 border-rose-300/60 shadow-[0_0_50px_rgba(251,113,133,0.5)] animate-kawaii-shockwave [animation-delay:140ms]" />
-
-      {/* 3. FLOATING KAWAII PARTICLES */}
+      {/* 2. GEOMETRIC PARTICLES (ไม่มีตัวอีโมจิ คลีน มินิมอล สบายตา) */}
       {particles.map((p) => (
         <div
           key={p.id}
-          className="absolute select-none will-change-transform filter drop-shadow-sm"
+          className="absolute will-change-transform"
           style={{
             left: `${p.left}vw`,
-            bottom: '-35px',
-            fontSize: `${p.size}px`,
-            animation: `kawaiiFloatUp ${p.duration}s cubic-bezier(0.22, 1, 0.36, 1) ${p.delay}s forwards`,
+            bottom: '-20px',
+            animation: `geometricFloat ${p.duration}s cubic-bezier(0.25, 0.9, 0.3, 1) ${p.delay}s forwards`,
+            '--drift': `${p.drift}px`,
           }}
         >
-          {p.emoji}
+          {p.type === 'ribbon' ? (
+            <div
+              style={{
+                width: `${p.size * 0.7}px`,
+                height: `${p.size * 1.6}px`,
+                backgroundColor: p.color,
+                borderRadius: '2px',
+                boxShadow: `0 0 8px ${p.color}40`,
+                animation: `ribbonTumble ${1.2 + Math.random() * 0.8}s infinite linear`,
+              }}
+            />
+          ) : p.type === 'circle' ? (
+            <div
+              style={{
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                backgroundColor: p.color,
+                borderRadius: '9999px',
+                boxShadow: `0 0 10px ${p.color}60`,
+              }}
+            />
+          ) : (
+            <svg
+              width={p.size * 1.4}
+              height={p.size * 1.4}
+              viewBox="0 0 24 24"
+              style={{
+                filter: `drop-shadow(0 0 6px ${p.color}80)`,
+                animation: `starSpin ${1.8 + Math.random()}s infinite linear`,
+              }}
+            >
+              <path
+                d="M12 0L14.2 9.8L24 12L14.2 14.2L12 24L9.8 14.2L0 12L9.8 9.8Z"
+                fill={p.color}
+              />
+            </svg>
+          )}
         </div>
       ))}
 
       <style>{`
         @keyframes auroraBloom {
-          0% { opacity: 0.9; transform: scale(1); }
-          50% { opacity: 0.7; }
-          100% { opacity: 0; transform: scale(1.05); }
+          0% { opacity: 0; }
+          25% { opacity: 0.8; }
+          100% { opacity: 0; }
         }
         .animate-aurora-bloom {
-          animation: auroraBloom 0.8s ease-out forwards;
+          animation: auroraBloom 1.2s ease-out forwards;
         }
 
-        @keyframes kawaiiShockwave {
+        @keyframes geometricFloat {
           0% {
-            transform: translate(-50%, -50%) scale(0.1);
-            opacity: 1;
-          }
-          60% {
-            opacity: 0.7;
-          }
-          100% {
-            transform: translate(-50%, -50%) scale(14);
+            transform: translate(0, 0) scale(0.4);
             opacity: 0;
           }
-        }
-        .animate-kawaii-shockwave {
-          animation: kawaiiShockwave 1.1s cubic-bezier(0.12, 0.8, 0.25, 1) forwards;
-        }
-
-        @keyframes kawaiiFloatUp {
-          0% {
-            transform: translateY(0) scale(0.3) rotate(0deg);
-            opacity: 0;
-          }
-          18% {
-            opacity: 1;
-            transform: translateY(-28vh) scale(1.25) rotate(${Math.random() > 0.5 ? 45 : -45}deg);
-          }
-          70% {
+          15% {
             opacity: 0.95;
-            transform: translateY(-85vh) scale(1.05) rotate(${Math.random() > 0.5 ? 120 : -120}deg);
+            transform: translate(calc(var(--drift) * 0.2), -30vh) scale(1.1);
+          }
+          65% {
+            opacity: 0.85;
+            transform: translate(calc(var(--drift) * 0.7), -70vh) scale(0.95);
+          }
+          90% {
+            opacity: 0.2;
           }
           100% {
-            transform: translateY(-118vh) scale(0.7) rotate(${Math.random() > 0.5 ? 200 : -200}deg);
+            transform: translate(var(--drift), -95vh) scale(0.4);
             opacity: 0;
+          }
+        }
+
+        @keyframes ribbonTumble {
+          0% {
+            transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+          }
+          100% {
+            transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg);
+          }
+        }
+
+        @keyframes starSpin {
+          0% {
+            transform: rotate(0deg) scale(0.9);
+          }
+          50% {
+            transform: rotate(180deg) scale(1.15);
+          }
+          100% {
+            transform: rotate(360deg) scale(0.9);
           }
         }
       `}</style>

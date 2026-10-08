@@ -178,11 +178,11 @@ export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // Center Heart Icon
-    ctx.font = '16px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('💖', centerX, centerY);
+    // Center Inner Dot
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 7, 0, 2 * Math.PI);
+    ctx.fillStyle = '#FB7185';
+    ctx.fill();
     ctx.restore();
   };
 
@@ -248,7 +248,7 @@ export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
         if (Math.random() > 0.4) {
           setSparks(prev => [
             ...prev.slice(-6),
-            { id: Math.random(), emoji: ['✨', '🌸', '💕', '⭐'][Math.floor(Math.random() * 4)], x: (Math.random() - 0.5) * 36, y: Math.random() * 20 }
+            { id: Math.random(), x: (Math.random() - 0.5) * 36, y: Math.random() * 20 }
           ]);
         }
       }
@@ -395,17 +395,13 @@ export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
             {sparks.map((s) => (
               <div
                 key={s.id}
-                className="absolute text-sm select-none animate-spark-float pointer-events-none"
+                className="absolute w-1.5 h-1.5 rounded-full bg-amber-300 shadow-[0_0_6px_#f59e0b] animate-spark-float pointer-events-none"
                 style={{ transform: `translate(${s.x}px, ${s.y}px)` }}
-              >
-                {s.emoji}
-              </div>
+              />
             ))}
 
-            {/* Cute Heart Badge on Pointer */}
-            <div className="w-5 h-5 rounded-full bg-white shadow-md flex items-center justify-center text-[10px] -mb-1 z-10 border border-pink-200">
-              💖
-            </div>
+            {/* Minimal Pearl Badge on Pointer */}
+            <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-rose-500 to-pink-400 shadow-sm flex items-center justify-center -mb-1 z-10 border-2 border-white" />
 
             {/* Rose Pink Arrow Needle */}
             <div
