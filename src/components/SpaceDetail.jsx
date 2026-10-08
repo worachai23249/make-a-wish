@@ -38,16 +38,21 @@ export default function SpaceDetail({
       </button>
 
       {/* ==================== 💎 SPACE HEADER SANCTUARY BANNER 💎 ==================== */}
-      <div className="glass-card p-6 sm:p-8 rounded-[32px] flex flex-wrap items-center justify-between gap-6 border-sky-200/50 dark:border-sky-500/20 relative overflow-hidden">
+      <div className="glass-card p-6 sm:p-9 rounded-[38px] flex flex-wrap items-center justify-between gap-6 relative overflow-hidden">
+        {/* 💧 3D Glass Water Droplets on Space Header */}
+        <div className="water-droplet-accent top-5 right-10 w-3 h-3.5 opacity-85 hidden sm:block" />
+        <div className="water-droplet-accent top-9 right-6 w-2 h-2 opacity-75 hidden sm:block" />
+        <div className="water-droplet-accent bottom-6 left-8 w-2.5 h-3 opacity-80 hidden sm:block" />
+
         {/* Soft Ambient Light Glow */}
-        <div className="absolute top-0 right-0 w-72 h-72 bg-sky-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-72 h-72 bg-sky-300/25 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex items-center gap-4 relative z-10">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-sky-300 via-sky-400 to-cyan-300 flex items-center justify-center text-3xl shadow-xl shadow-sky-300/40 shrink-0 text-white">
+          <div className="w-16 h-16 rounded-3xl bg-white/80 border border-white flex items-center justify-center text-3xl shadow-md shadow-sky-400/20 shrink-0 text-slate-800">
             {space.emoji}
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
               {space.name}
             </h1>
             <div className="flex flex-wrap items-center gap-2 mt-2">
