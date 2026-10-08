@@ -1,140 +1,200 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
-// Luxury Minimalist Geometric Confetti (No text emojis, pure aesthetic gold & pastel foil)
-const CONFETTI_COLORS = [
-  '#F472B6', // Rose Gold
-  '#FBBF24', // Champagne Gold
-  '#FB7185', // Soft Rose
-  '#C084FC', // Lavender Mist
-  '#6EE7B7', // Mint Pastel
-  '#FDBA74', // Warm Peach
-  '#FFFFFF', // Pearl White
-];
-
+// ==================== CINEMATIC CANVAS FIREWORKS & STARDUST ENGINE ====================
+// Zero emojis, pure 60fps blockbuster movie-quality fireworks and golden stardust
 export default function ConfettiHearts({ active }) {
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+
+  useEffect(() => {
+    if (!active) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    // Particle Collections
+    let fireworks = [];
+    let sparks = [];
+    let stardust = [];
+
+    const PALETTES = [
+      ['#F59E0B', '#FBBF24', '#FDE68A', '#FFFFFF'], // Champagne Gold & Diamond
+      ['#F43F5E', '#FB7185', '#FDA4AF', '#FFE4E6'], // Royal Rose
+      ['#8B5CF6', '#A78BFA', '#C4B5FD', '#EDE9FE'], // Cosmic Violet
+      ['#06B6D4', '#22D3EE', '#67E8F9', '#ECFEFF'], // Celestial Cyan
+      ['#10B981', '#34D399', '#6EE7B7', '#ECFDF5'], // Emerald Sparkle
+    ];
+
+    // Create a Grand Firework Burst
+    const createBurst = (x, y, palette) => {
+      const particleCount = 55 + Math.floor(Math.random() * 25);
+      for (let i = 0; i < particleCount; i++) {
+        const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.2;
+        const speed = 4 + Math.random() * 9;
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        sparks.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          color,
+          alpha: 1,
+          decay: 0.012 + Math.random() * 0.016,
+          gravity: 0.14,
+          friction: 0.965,
+          size: 2 + Math.random() * 2.5,
+          shimmer: Math.random() > 0.3,
+        });
+      }
+    };
+
+    // Stardust floating downwards
+    for (let i = 0; i < 70; i++) {
+      stardust.push({
+        x: Math.random() * width,
+        y: Math.random() * height * 0.7,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: 0.8 + Math.random() * 1.6,
+        size: 1 + Math.random() * 2.5,
+        alpha: Math.random() * 0.8 + 0.2,
+        decay: 0.003 + Math.random() * 0.005,
+        color: Math.random() > 0.4 ? '#FBBF24' : '#FDA4AF',
+      });
+    }
+
+    // Schedule 6 Spectacular Firework Launches across screen
+    const launchTimes = [
+      { delay: 40, x: width * 0.5, y: height * 0.35, p: 0 },
+      { delay: 280, x: width * 0.25, y: height * 0.28, p: 1 },
+      { delay: 420, x: width * 0.75, y: height * 0.3, p: 2 },
+      { delay: 700, x: width * 0.4, y: height * 0.22, p: 0 },
+      { delay: 880, x: width * 0.65, y: height * 0.26, p: 3 },
+      { delay: 1150, x: width * 0.5, y: height * 0.38, p: 4 },
+    ];
+
+    const timeouts = launchTimes.map(({ delay, x, y, p }) =>
+      setTimeout(() => {
+        createBurst(x, y, PALETTES[p]);
+      }, delay)
+    );
+
+    // Animation Loop (60 FPS)
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Render & Update Stardust
+      stardust.forEach((d) => {
+        d.x += d.vx;
+        d.y += d.vy;
+        d.alpha -= d.decay;
+
+        if (d.alpha > 0) {
+          ctx.save();
+          ctx.globalAlpha = d.alpha;
+          ctx.fillStyle = d.color;
+          ctx.shadowColor = d.color;
+          ctx.shadowBlur = 6;
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      // 2. Render & Update Firework Sparks
+      sparks.forEach((s) => {
+        s.vx *= s.friction;
+        s.vy *= s.friction;
+        s.vy += s.gravity;
+        s.x += s.vx;
+        s.y += s.vy;
+        s.alpha -= s.decay;
+
+        if (s.alpha > 0) {
+          ctx.save();
+          const currentAlpha = s.shimmer && Math.random() > 0.3 ? s.alpha * 0.5 : s.alpha;
+          ctx.globalAlpha = Math.max(0, currentAlpha);
+          ctx.fillStyle = s.color;
+          ctx.shadowColor = s.color;
+          ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      // Filter out dead particles
+      sparks = sparks.filter((s) => s.alpha > 0);
+      stardust = stardust.filter((d) => d.alpha > 0);
+
+      animRef.current = requestAnimationFrame(render);
+    };
+
+    animRef.current = requestAnimationFrame(render);
+
+    return () => {
+      timeouts.forEach(clearTimeout);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [active]);
+
   if (!active) return null;
-
-  // 65 Luxury geometric foil ribbons, circles, and 4-point sparkle stars
-  const particles = Array.from({ length: 65 }).map((_, i) => {
-    const type = i % 3 === 0 ? 'ribbon' : i % 3 === 1 ? 'circle' : 'star';
-    const color = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
-    const left = Math.random() * 96 + 2;
-    const delay = Math.random() * 0.35;
-    const duration = 2.2 + Math.random() * 1.4;
-    const size = type === 'circle' ? 6 + Math.random() * 6 : 8 + Math.random() * 8;
-    const drift = (Math.random() - 0.5) * 120;
-
-    return { id: i, type, color, left, delay, duration, size, drift };
-  });
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
-      {/* 1. SOFT AMBIENT AURORA BLOOM (แสงออโรร่าสีชมพูพาสเทลนุ่มนวล) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-rose-200/25 via-pink-100/15 to-transparent dark:from-rose-900/20 dark:via-purple-900/10 animate-aurora-bloom pointer-events-none" />
+      {/* 1. CINEMATIC VOLUMETRIC FLASH */}
+      <div className="absolute inset-0 bg-radial-gradient-cinematic animate-cinematic-flash pointer-events-none" />
 
-      {/* 2. GEOMETRIC PARTICLES (ไม่มีตัวอีโมจิ คลีน มินิมอล สบายตา) */}
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="absolute will-change-transform"
-          style={{
-            left: `${p.left}vw`,
-            bottom: '-20px',
-            animation: `geometricFloat ${p.duration}s cubic-bezier(0.25, 0.9, 0.3, 1) ${p.delay}s forwards`,
-            '--drift': `${p.drift}px`,
-          }}
-        >
-          {p.type === 'ribbon' ? (
-            <div
-              style={{
-                width: `${p.size * 0.7}px`,
-                height: `${p.size * 1.6}px`,
-                backgroundColor: p.color,
-                borderRadius: '2px',
-                boxShadow: `0 0 8px ${p.color}40`,
-                animation: `ribbonTumble ${1.2 + Math.random() * 0.8}s infinite linear`,
-              }}
-            />
-          ) : p.type === 'circle' ? (
-            <div
-              style={{
-                width: `${p.size}px`,
-                height: `${p.size}px`,
-                backgroundColor: p.color,
-                borderRadius: '9999px',
-                boxShadow: `0 0 10px ${p.color}60`,
-              }}
-            />
-          ) : (
-            <svg
-              width={p.size * 1.4}
-              height={p.size * 1.4}
-              viewBox="0 0 24 24"
-              style={{
-                filter: `drop-shadow(0 0 6px ${p.color}80)`,
-                animation: `starSpin ${1.8 + Math.random()}s infinite linear`,
-              }}
-            >
-              <path
-                d="M12 0L14.2 9.8L24 12L14.2 14.2L12 24L9.8 14.2L0 12L9.8 9.8Z"
-                fill={p.color}
-              />
-            </svg>
-          )}
-        </div>
-      ))}
+      {/* 2. DUAL CONCENTRIC GOLD SHOCKWAVE BLAST */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-2 border-amber-300 shadow-[0_0_80px_rgba(251,191,36,0.8)] animate-shockwave-epic pointer-events-none" />
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-2 border-rose-400 shadow-[0_0_90px_rgba(244,63,94,0.7)] animate-shockwave-epic [animation-delay:150ms] pointer-events-none" />
+
+      {/* 3. HARDWARE-ACCELERATED FIREWORKS & STARDUST CANVAS */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
 
       <style>{`
-        @keyframes auroraBloom {
+        .bg-radial-gradient-cinematic {
+          background: radial-gradient(circle at 50% 40%, rgba(254, 240, 138, 0.45) 0%, rgba(251, 113, 133, 0.2) 40%, transparent 75%);
+        }
+
+        @keyframes cinematicFlash {
           0% { opacity: 0; }
-          25% { opacity: 0.8; }
+          20% { opacity: 1; }
           100% { opacity: 0; }
         }
-        .animate-aurora-bloom {
-          animation: auroraBloom 1.2s ease-out forwards;
+        .animate-cinematic-flash {
+          animation: cinematicFlash 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        @keyframes geometricFloat {
+        @keyframes shockwaveEpic {
           0% {
-            transform: translate(0, 0) scale(0.4);
-            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.1);
+            opacity: 1;
           }
-          15% {
-            opacity: 0.95;
-            transform: translate(calc(var(--drift) * 0.2), -30vh) scale(1.1);
-          }
-          65% {
-            opacity: 0.85;
-            transform: translate(calc(var(--drift) * 0.7), -70vh) scale(0.95);
-          }
-          90% {
-            opacity: 0.2;
+          70% {
+            opacity: 0.8;
           }
           100% {
-            transform: translate(var(--drift), -95vh) scale(0.4);
+            transform: translate(-50%, -50%) scale(16);
             opacity: 0;
           }
         }
-
-        @keyframes ribbonTumble {
-          0% {
-            transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-          }
-          100% {
-            transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg);
-          }
-        }
-
-        @keyframes starSpin {
-          0% {
-            transform: rotate(0deg) scale(0.9);
-          }
-          50% {
-            transform: rotate(180deg) scale(1.15);
-          }
-          100% {
-            transform: rotate(360deg) scale(0.9);
-          }
+        .animate-shockwave-epic {
+          animation: shockwaveEpic 1.2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
         }
       `}</style>
     </div>
