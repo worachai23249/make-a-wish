@@ -36,8 +36,6 @@ import {
   Users,
   User,
   ShieldCheck,
-  Sun,
-  Moon,
   LogOut,
   Sparkles,
   Eye,
@@ -60,12 +58,6 @@ import EditWishModal from './components/EditWishModal';
 import RouletteModal from './components/RouletteModal';
 
 export default function App() {
-  // Theme state
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    return saved ? saved === 'dark' : false;
-  });
-
   // Auth state
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -116,16 +108,11 @@ export default function App() {
   const [confettiActive, setConfettiActive] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
-  // Sync theme
+  // Enforce light mode always
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
+    document.documentElement.classList.remove('dark');
+    localStorage.removeItem('theme');
+  }, []);
 
   // Load user data
   useEffect(() => {
@@ -700,15 +687,6 @@ export default function App() {
 
           {/* Right Action Cluster: Theme, Profile, Logout */}
           <div className="flex items-center gap-2">
-            {/* Theme Toggle Button */}
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2 rounded-full text-slate-500 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-500/10 transition-colors"
-              title={isDarkMode ? 'โหมดสว่าง' : 'โหมดมืด'}
-            >
-              {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} />}
-            </button>
-
             {/* Profile Avatar Pill */}
             <div
               onClick={() => {

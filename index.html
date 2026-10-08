@@ -14,17 +14,8 @@
     <script>
       (function() {
         try {
-          var saved = localStorage.getItem('theme');
-          var isDark = saved ? saved === 'dark' : false;
-          if (isDark) {
-            document.documentElement.classList.add('dark');
-            var meta = document.getElementById('theme-color-meta');
-            if (meta) meta.setAttribute('content', '#0A111E');
-          } else {
-            document.documentElement.classList.remove('dark');
-            var meta = document.getElementById('theme-color-meta');
-            if (meta) meta.setAttribute('content', '#F0F7FD');
-          }
+          localStorage.removeItem('theme');
+          document.documentElement.classList.remove('dark');
         } catch(e) {}
       })();
     </script>
