@@ -402,16 +402,27 @@
 }
 
 /* Modal Overlay */
+@keyframes modalOverlayFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(8, 18, 38, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  z-index: 50;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.20);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  animation: fadeInScale 0.2s ease-out;
+  animation: modalOverlayFade 0.2s ease-out forwards;
 }

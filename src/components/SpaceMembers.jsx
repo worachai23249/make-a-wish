@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Users, Plus, X, UserPlus, Check, Search, Sparkles } from 'lucide-react';
 
 export default function SpaceMembers({ members = [], friends = [], onInviteFriend }) {
@@ -52,9 +53,9 @@ export default function SpaceMembers({ members = [], friends = [], onInviteFrien
         </div>
       </div>
 
-      {/* ==================== 🌟 INVITE FRIENDS MODAL DIALOG ==================== */}
-      {/* Doesn't lengthen the page, fits 100+ friends with silky smooth scrolling & search */}
-      {isInviteModalOpen && (
+      {/* ==================== 🌟 INVITE FRIENDS MODAL (PORTAL TO BODY) ==================== */}
+      {/* Mounted to document.body via createPortal to eliminate any container clipping or rectangles */}
+      {isInviteModalOpen && typeof document !== 'undefined' && createPortal(
         <div 
           className="modal-overlay" 
           onClick={() => setIsInviteModalOpen(false)}
@@ -95,15 +96,15 @@ export default function SpaceMembers({ members = [], friends = [], onInviteFrien
               />
             </div>
 
-            {/* Friends Scrollable List Container (Fixed comfortable height, never stretches page) */}
+            {/* Friends Scrollable List Container */}
             <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
               {acceptedFriends.length === 0 ? (
-                <div className="p-8 text-center rounded-3xl bg-white/50 dark:bg-slate-800/50 border border-white/80 dark:border-slate-700 text-xs text-slate-500 space-y-2">
+                <div className="py-7 px-4 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
                   <div className="text-3xl">👥</div>
-                  <div className="font-bold text-sm">ยังไม่มีเพื่อนในรายชื่อ</div>
-                  <div className="text-[11px] text-slate-400 leading-relaxed">
-                    คุณสามารถไปที่แท็บ "เพื่อนของฉัน" ด้านบนเพื่อค้นหาและเพิ่มเพื่อนด้วย @username ก่อนได้ครับ
-                  </div>
+                  <div className="font-bold text-sm text-slate-700 dark:text-slate-200">ยังไม่มีเพื่อนในรายชื่อ</div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed max-w-xs mx-auto">
+                    คุณสามารถไปที่แท็บ "เพื่อนของฉัน" ด้านบน เพื่อค้นหาและเพิ่มเพื่อนด้วย @username ก่อนได้ครับ
+                  </p>
                 </div>
               ) : filteredFriends.length === 0 ? (
                 <div className="p-6 text-center text-xs text-slate-400 font-medium">
@@ -165,7 +166,8 @@ export default function SpaceMembers({ members = [], friends = [], onInviteFrien
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
