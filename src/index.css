@@ -68,25 +68,36 @@
 
 .glass-card, .liquid-glass-card {
   position: relative;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(224, 242, 254, 0.55) 45%, rgba(186, 230, 253, 0.45) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(240, 249, 255, 0.85) 0%,
+    rgba(224, 242, 254, 0.72) 30%,
+    rgba(186, 230, 253, 0.60) 70%,
+    rgba(125, 211, 252, 0.52) 100%
+  );
   backdrop-filter: blur(28px) saturate(210%);
   -webkit-backdrop-filter: blur(28px) saturate(210%);
-  border: 2px solid rgba(255, 255, 255, 0.90);
+  border: 2px solid rgba(255, 255, 255, 0.95);
   border-radius: 36px;
   box-shadow: 
-    0 20px 48px -12px rgba(14, 165, 233, 0.22),
-    0 6px 18px -2px rgba(14, 165, 233, 0.10),
+    0 22px 50px -12px rgba(14, 165, 233, 0.28),
+    0 6px 18px -2px rgba(14, 165, 233, 0.12),
     0 1px 3px 0 rgba(0, 0, 0, 0.02),
-    inset 0 3px 4px 0 rgba(255, 255, 255, 0.98),
-    inset 2.5px 0 3.5px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -3px 4px 0 rgba(14, 165, 233, 0.16),
-    inset 0 0 26px 0 rgba(255, 255, 255, 0.45);
+    /* 🌟 Top-left specular glint & white glass rim */
+    inset 2.5px 2.5px 3.5px 0 rgba(255, 255, 255, 1),
+    /* 🌟 Bottom & bottom-right glowing white refraction edge */
+    inset -2.5px -2.5px 3.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 4px 0 rgba(255, 255, 255, 0.90),
+    /* 💧 Left & top inner glass tray wall refraction shadow */
+    inset 12px 9px 22px -4px rgba(2, 132, 199, 0.45),
+    /* 💎 Interior floor diffuse glow */
+    inset 0 0 32px 0 rgba(255, 255, 255, 0.55);
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dark .glass-card, .dark .liquid-glass-card {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(14, 30, 58, 0.70) 100%);
-  border: 2px solid rgba(56, 189, 248, 0.35);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.80) 0%, rgba(14, 30, 58, 0.75) 100%);
+  border: 2px solid rgba(56, 189, 248, 0.40);
   box-shadow: 
     0 24px 50px -12px rgba(0, 0, 0, 0.65),
     inset 0 2px 3px rgba(255, 255, 255, 0.2),
@@ -97,33 +108,41 @@
   transform: translateY(-3.5px);
   border-color: #FFFFFF;
   box-shadow: 
-    0 28px 55px -10px rgba(14, 165, 233, 0.30),
-    0 10px 24px -2px rgba(14, 165, 233, 0.16),
-    inset 0 3.5px 4.5px 0 rgba(255, 255, 255, 1),
-    inset 3px 0 4.5px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -3px 4px 0 rgba(14, 165, 233, 0.20),
-    inset 0 0 32px 0 rgba(255, 255, 255, 0.6);
+    0 28px 58px -10px rgba(14, 165, 233, 0.36),
+    0 10px 24px -2px rgba(14, 165, 233, 0.18),
+    inset 3px 3px 4.5px 0 rgba(255, 255, 255, 1),
+    inset -3px -3px 4.5px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -3px 4px 0 rgba(255, 255, 255, 0.95),
+    inset 12px 9px 22px -4px rgba(2, 132, 199, 0.50),
+    inset 0 0 36px 0 rgba(255, 255, 255, 0.65);
 }
 
 .glass-panel {
   position: relative;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.76) 0%, rgba(224, 242, 254, 0.58) 55%, rgba(186, 230, 253, 0.50) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(240, 249, 255, 0.88) 0%,
+    rgba(224, 242, 254, 0.76) 30%,
+    rgba(186, 230, 253, 0.64) 70%,
+    rgba(125, 211, 252, 0.55) 100%
+  );
   backdrop-filter: blur(32px) saturate(210%);
   -webkit-backdrop-filter: blur(32px) saturate(210%);
-  border: 2px solid rgba(255, 255, 255, 0.92);
+  border: 2px solid rgba(255, 255, 255, 0.95);
   border-radius: 36px;
   box-shadow: 
-    0 22px 48px -12px rgba(14, 165, 233, 0.22),
-    0 6px 18px -2px rgba(14, 165, 233, 0.10),
-    inset 0 3px 4px 0 rgba(255, 255, 255, 1),
-    inset 2.5px 0 3.5px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -2.5px 4px 0 rgba(14, 165, 233, 0.14),
-    inset 0 0 28px 0 rgba(255, 255, 255, 0.5);
+    0 24px 52px -12px rgba(14, 165, 233, 0.30),
+    0 6px 18px -2px rgba(14, 165, 233, 0.12),
+    inset 2.5px 2.5px 3.5px 0 rgba(255, 255, 255, 1),
+    inset -2.5px -2.5px 3.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 4px 0 rgba(255, 255, 255, 0.90),
+    inset 12px 9px 22px -4px rgba(2, 132, 199, 0.45),
+    inset 0 0 32px 0 rgba(255, 255, 255, 0.55);
 }
 
 .dark .glass-panel {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(23, 37, 84, 0.80) 100%);
-  border: 2px solid rgba(56, 189, 248, 0.35);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(23, 37, 84, 0.82) 100%);
+  border: 2px solid rgba(56, 189, 248, 0.40);
   box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.7);
 }
 
@@ -140,8 +159,8 @@
   filter: drop-shadow(0 1px 2px rgba(14, 165, 233, 0.18));
 }
 
-/* ==================== 💎 3D LIQUID CHROME METALLIC CAPSULE BUTTONS (IMAGE EXACT MATCH) ==================== */
-/* Hyper-realistic 3D Polished Chrome / Liquid Silver Metallic Capsule with dark left reflection, bright right flare, and top specular beam */
+/* ==================== 💎 3D PASTEL SKY-BLUE FROSTED GLASS BUTTONS (IMAGE EXACT MATCH) ==================== */
+/* Crystalline pastel sky-blue 3D glass tray with crisp specular rims, inner refraction bevels, and ambient studio caustics */
 
 .btn-glass-capsule,
 .btn-primary,
@@ -151,7 +170,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border-radius: 20px;
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   letter-spacing: -0.01em;
@@ -160,7 +181,7 @@
   z-index: 1;
 }
 
-/* Chrome Capsule Base - Metallic 3D Curvature & Multi-Layer Horizon Reflections */
+/* Glass Tray Base - 3D Refractive Bevel & Specular Edge Lighting */
 .btn-glass-capsule,
 .btn-primary,
 .btn-secondary {
@@ -168,23 +189,19 @@
   font-weight: 800;
   border: 1.5px solid rgba(255, 255, 255, 0.95);
   box-shadow: 
-    0 12px 28px -4px rgba(15, 23, 42, 0.20),
-    0 4px 10px -2px rgba(15, 23, 42, 0.10),
-    0 1px 3px 0 rgba(0, 0, 0, 0.05),
-    /* 🌟 Top razor-sharp white specular rim */
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 1),
-    /* 🌟 Bottom subtle rim highlight */
-    inset 0 -1.5px 1.5px 0 rgba(255, 255, 255, 0.75),
-    /* 🌑 Left 3D deep dark metallic horizon reflection (Characteristic 3D chrome shadow) */
-    inset 16px 0 18px -4px rgba(15, 23, 42, 0.85),
-    inset 26px 0 26px -10px rgba(30, 41, 59, 0.40),
-    inset 4px 0 6px 0 rgba(15, 23, 42, 0.95),
-    /* 💡 Right 3D bright studio specular bloom reflection */
-    inset -16px 0 20px -3px rgba(255, 255, 255, 0.95),
-    inset -5px 0 10px 0 rgba(255, 255, 255, 1),
-    /* 💎 3D Convex Dome Depth */
-    inset 0 9px 15px -4px rgba(255, 255, 255, 0.75),
-    inset 0 -9px 15px -4px rgba(100, 116, 139, 0.35);
+    0 12px 28px -4px rgba(14, 165, 233, 0.35),
+    0 4px 10px -2px rgba(15, 23, 42, 0.12),
+    0 1px 3px 0 rgba(0, 0, 0, 0.04),
+    /* 🌟 Top-left sharp white specular rim */
+    inset 1.5px 1.5px 2px 0 rgba(255, 255, 255, 1),
+    /* 🌟 Bottom & bottom-right glowing white refraction edge */
+    inset -1.5px -1.5px 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 3px 0 rgba(255, 255, 255, 0.90),
+    /* 💧 Left & top inner glass lip refraction shadow (Recessed Tray Floor) */
+    inset 8px 6px 14px -3px rgba(2, 132, 199, 0.55),
+    inset 2px 2px 4px 0 rgba(3, 105, 161, 0.65),
+    /* 💎 Interior floor depth */
+    inset 0 0 16px 2px rgba(255, 255, 255, 0.40);
 }
 
 /* 🌟 Top Specular Light Arc (Curved white specular beam along upper contour) */
@@ -194,83 +211,76 @@
   content: '';
   position: absolute;
   top: 1.5px;
-  left: 10px;
-  right: 10px;
-  height: 48%;
-  border-radius: 9999px;
+  left: 6px;
+  right: 6px;
+  height: 42%;
+  border-radius: 16px 16px 0 0;
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.98) 0%,
-    rgba(255, 255, 255, 0.65) 28%,
-    rgba(255, 255, 255, 0.15) 70%,
+    rgba(255, 255, 255, 0.45) 35%,
+    rgba(255, 255, 255, 0.10) 70%,
     transparent 100%
   );
   pointer-events: none;
   z-index: 2;
 }
 
-/* 🌟 Bottom-Right Specular Crescent Flare (The distinct white specular glint on lower-right cap) */
+/* 🌟 Bottom-Right Specular Flare (Glowing white light along lower rim) */
 .btn-glass-capsule::after,
 .btn-primary::after,
 .btn-secondary::after {
   content: '';
   position: absolute;
-  bottom: 3.5px;
-  right: 8px;
-  width: 20px;
-  height: 13px;
-  border-radius: 9999px;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 0.80) 45%,
-    rgba(255, 255, 255, 0.20) 75%,
+  bottom: 1.5px;
+  left: 10px;
+  right: 6px;
+  height: 25%;
+  border-radius: 0 0 16px 16px;
+  background: linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.35) 55%,
     transparent 100%
   );
-  transform: rotate(-25deg);
   pointer-events: none;
   z-index: 2;
 }
 
-/* 💎 Pure 3D Liquid Silver Chrome Capsule (100% Image Match) */
+/* 💎 Pure Pastel Sky-Blue 3D Frosted Glass Tray (Image Exact Match) */
 .btn-secondary,
 .btn-glass-capsule {
   background: linear-gradient(
-    175deg,
-    #FFFFFF 0%,
-    #F3F6F9 16%,
-    #E1E7EE 40%,
-    #C8D2DC 70%,
-    #9AA7B6 100%
+    135deg,
+    rgba(224, 242, 254, 0.92) 0%,
+    rgba(186, 230, 253, 0.85) 30%,
+    rgba(125, 211, 252, 0.76) 65%,
+    rgba(56, 189, 248, 0.82) 100%
   );
-  color: #0F172A;
+  color: #034A6E;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
 }
 
 .btn-secondary:hover,
 .btn-glass-capsule:hover {
   background: linear-gradient(
-    175deg,
-    #FFFFFF 0%,
-    #F8FAFC 16%,
-    #EDF2F7 40%,
-    #D3DCE6 70%,
-    #A8B5C4 100%
+    135deg,
+    rgba(240, 249, 255, 0.96) 0%,
+    rgba(207, 238, 254, 0.90) 30%,
+    rgba(147, 222, 253, 0.85) 65%,
+    rgba(80, 200, 252, 0.88) 100%
   );
   transform: translateY(-2px) scale(1.02);
   filter: brightness(1.04);
   box-shadow: 
-    0 16px 34px -4px rgba(15, 23, 42, 0.26),
-    0 6px 14px -2px rgba(15, 23, 42, 0.12),
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 1),
-    inset 0 -1.5px 1.5px 0 rgba(255, 255, 255, 0.85),
-    inset 16px 0 18px -4px rgba(15, 23, 42, 0.85),
-    inset 26px 0 26px -10px rgba(30, 41, 59, 0.40),
-    inset 4px 0 6px 0 rgba(15, 23, 42, 0.95),
-    inset -16px 0 20px -3px rgba(255, 255, 255, 0.98),
-    inset -5px 0 10px 0 rgba(255, 255, 255, 1),
-    inset 0 10px 16px -4px rgba(255, 255, 255, 0.85),
-    inset 0 -10px 16px -4px rgba(100, 116, 139, 0.40);
+    0 16px 34px -4px rgba(14, 165, 233, 0.42),
+    0 6px 14px -2px rgba(15, 23, 42, 0.14),
+    inset 1.5px 1.5px 2px 0 rgba(255, 255, 255, 1),
+    inset -1.5px -1.5px 2px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -2px 3px 0 rgba(255, 255, 255, 0.95),
+    inset 8px 6px 14px -3px rgba(2, 132, 199, 0.60),
+    inset 2px 2px 4px 0 rgba(3, 105, 161, 0.70),
+    inset 0 0 20px 2px rgba(255, 255, 255, 0.50);
 }
 
 .btn-secondary:active,
@@ -279,54 +289,41 @@
   filter: brightness(0.96);
 }
 
-/* 💎 3D Liquid Electric Chrome Capsule (Primary CTAs - Same Metallic 3D Form with Electric Sheen) */
+/* 💎 Luminous 3D Electric Sky-Blue Glass Tray (Primary Action CTAs) */
 .btn-primary {
   background: linear-gradient(
-    175deg,
-    #FFFFFF 0%,
-    #E0F2FE 16%,
-    #BAE6FD 38%,
-    #38BDF8 68%,
-    #0284C7 90%,
-    #0369A1 100%
+    135deg,
+    rgba(224, 242, 254, 0.95) 0%,
+    rgba(125, 211, 252, 0.92) 25%,
+    rgba(14, 165, 233, 0.88) 65%,
+    rgba(2, 132, 199, 0.92) 100%
   );
   color: #FFFFFF;
   text-shadow: 0 1px 2px rgba(3, 44, 90, 0.70);
   box-shadow: 
-    0 12px 30px -3px rgba(0, 166, 255, 0.45),
-    0 4px 10px -2px rgba(15, 23, 42, 0.10),
+    0 14px 32px -4px rgba(0, 166, 255, 0.50),
+    0 4px 12px -2px rgba(15, 23, 42, 0.12),
     0 1px 3px 0 rgba(0, 0, 0, 0.05),
-    /* 🌟 Top white rim */
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 1),
-    /* 🌟 Bottom rim */
-    inset 0 -1.5px 1.5px 0 rgba(255, 255, 255, 0.8),
-    /* 🌑 Left deep blue chrome reflection */
-    inset 16px 0 18px -4px rgba(3, 44, 90, 0.85),
-    inset 26px 0 26px -10px rgba(7, 89, 133, 0.45),
-    inset 4px 0 6px 0 rgba(3, 44, 90, 0.95),
-    /* 💡 Right specular light */
-    inset -16px 0 20px -3px rgba(255, 255, 255, 0.95),
-    inset -5px 0 10px 0 rgba(255, 255, 255, 1),
-    /* 💎 3D Dome Depth */
-    inset 0 9px 15px -4px rgba(255, 255, 255, 0.80),
-    inset 0 -9px 15px -4px rgba(2, 44, 90, 0.40);
+    inset 1.5px 1.5px 2px 0 rgba(255, 255, 255, 1),
+    inset -1.5px -1.5px 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 3px 0 rgba(255, 255, 255, 0.95),
+    inset 8px 6px 14px -3px rgba(3, 44, 90, 0.65),
+    inset 2px 2px 4px 0 rgba(3, 44, 90, 0.80),
+    inset 0 0 18px 2px rgba(255, 255, 255, 0.45);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px) scale(1.02);
   filter: brightness(1.06);
   box-shadow: 
-    0 18px 38px -3px rgba(0, 166, 255, 0.58),
-    0 6px 14px -2px rgba(15, 23, 42, 0.12),
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 1),
-    inset 0 -1.5px 1.5px 0 rgba(255, 255, 255, 0.9),
-    inset 16px 0 18px -4px rgba(3, 44, 90, 0.85),
-    inset 26px 0 26px -10px rgba(7, 89, 133, 0.45),
-    inset 4px 0 6px 0 rgba(3, 44, 90, 0.95),
-    inset -16px 0 20px -3px rgba(255, 255, 255, 0.98),
-    inset -5px 0 10px 0 rgba(255, 255, 255, 1),
-    inset 0 10px 16px -4px rgba(255, 255, 255, 0.88),
-    inset 0 -10px 16px -4px rgba(2, 44, 90, 0.45);
+    0 18px 38px -3px rgba(0, 166, 255, 0.60),
+    0 6px 14px -2px rgba(15, 23, 42, 0.14),
+    inset 1.5px 1.5px 2px 0 rgba(255, 255, 255, 1),
+    inset -1.5px -1.5px 2px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -2px 3px 0 rgba(255, 255, 255, 0.95),
+    inset 8px 6px 14px -3px rgba(3, 44, 90, 0.70),
+    inset 2px 2px 4px 0 rgba(3, 44, 90, 0.85),
+    inset 0 0 22px 2px rgba(255, 255, 255, 0.55);
 }
 
 .btn-primary:active {
@@ -334,28 +331,26 @@
   filter: brightness(0.96);
 }
 
-/* 💎 Compact 3D Liquid Chrome Pills (Category Filters & Quick Tags) */
+/* 💎 Compact 3D Pastel Sky-Blue Glass Pills (Category Filters & Quick Tags) */
 .btn-pill {
   padding: 6px 16px;
   font-size: 0.75rem;
   font-weight: 800;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.92);
   background: linear-gradient(
-    175deg,
-    #FFFFFF 0%,
-    #F3F6F9 18%,
-    #E1E7EE 45%,
-    #C8D2DC 75%,
-    #9AA7B6 100%
+    135deg,
+    rgba(224, 242, 254, 0.90) 0%,
+    rgba(186, 230, 253, 0.85) 35%,
+    rgba(125, 211, 252, 0.75) 100%
   );
-  color: #0F172A;
+  color: #034A6E;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
   box-shadow: 
-    0 6px 16px -2px rgba(15, 23, 42, 0.14),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.75),
-    inset 8px 0 10px -2px rgba(15, 23, 42, 0.75),
-    inset -8px 0 10px -2px rgba(255, 255, 255, 0.95);
+    0 6px 16px -2px rgba(14, 165, 233, 0.25),
+    inset 1px 1px 1.5px 0 rgba(255, 255, 255, 1),
+    inset -1px -1px 1.5px 0 rgba(255, 255, 255, 0.9),
+    inset 4px 3px 6px -1px rgba(2, 132, 199, 0.45);
 }
 
 .btn-pill:hover {
@@ -366,20 +361,19 @@
 /* 🌟 Active State for Pills */
 .btn-pill-active {
   background: linear-gradient(
-    175deg,
-    #FFFFFF 0%,
-    #BAE6FD 25%,
-    #0284C7 80%,
-    #0369A1 100%
+    135deg,
+    rgba(224, 242, 254, 0.95) 0%,
+    rgba(125, 211, 252, 0.90) 25%,
+    rgba(14, 165, 233, 0.85) 70%,
+    rgba(2, 132, 199, 0.90) 100%
   ) !important;
   color: #FFFFFF !important;
   text-shadow: 0 1px 2px rgba(3, 44, 90, 0.70) !important;
   box-shadow: 
     0 6px 18px -2px rgba(0, 166, 255, 0.45),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.8),
-    inset 8px 0 10px -2px rgba(3, 44, 90, 0.80),
-    inset -8px 0 10px -2px rgba(255, 255, 255, 0.95) !important;
+    inset 1px 1px 1.5px 0 rgba(255, 255, 255, 1),
+    inset -1px -1px 1.5px 0 rgba(255, 255, 255, 0.9),
+    inset 4px 3px 6px -1px rgba(3, 44, 90, 0.65) !important;
 }
 
 /* ==================== FORM INPUTS ==================== */
