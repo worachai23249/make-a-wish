@@ -527,3 +527,147 @@ export async function deleteUserAdmin(userId) {
   localStorage.setItem('makewish_all_users', JSON.stringify(filtered));
   return { status: 'success' };
 }
+
+// ==================== NEW FUNCTIONS ====================
+
+export async function editWish(spaceId, wishId, updates) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_KEY_WISHES) || '{}');
+  let updatedWish = null;
+
+  if (all[spaceId]) {
+    all[spaceId] = all[spaceId].map(w => {
+      if (w.id === wishId) {
+        updatedWish = { ...w, ...updates };
+        return updatedWish;
+      }
+      return w;
+    });
+    localStorage.setItem(STORAGE_KEY_WISHES, JSON.stringify(all));
+  }
+
+  try {
+    if (updatedWish) {
+      const dbUpdates = {};
+      if (updates.title !== undefined) dbUpdates.title = updates.title;
+      if (updates.description !== undefined) dbUpdates.description = updates.description;
+      if (updates.category !== undefined) dbUpdates.category = updates.category;
+      if (updates.price !== undefined) dbUpdates.price = updates.price;
+      if (updates.linkUrl !== undefined) dbUpdates.link_url = updates.linkUrl;
+      if (updates.emoji !== undefined) dbUpdates.emoji = updates.emoji;
+      
+      if (Object.keys(dbUpdates).length > 0) {
+        await supabase.from('wishes').update(dbUpdates).eq('id', wishId);
+      }
+    }
+  } catch (_) {}
+
+  return updatedWish;
+}
+
+export async function getSpaceEvents(spaceId) {
+  try {
+    const { data, error } = await supabase
+      .from('space_events')
+      .select('*')
+      .eq('space_id', spaceId)
+      .order('event_date', { ascending: true });
+
+    if (data && !error && data.length > 0) {
+      return data;
+    }
+  } catch (_) {}
+
+  try {
+    const all = JSON.parse(localStorage.getItem('makewish_space_events') || '{}');
+    if (all[spaceId]) return all[spaceId];
+  } catch (_) {}
+
+  let defaultEvents = [];
+  if (spaceId === 'space-demo-1') {
+    defaultEvents = [{ id: 'evt-1', spaceId, title: 'วันครบรอบ 1 ปี 💕', emoji: '💕', date: '2026-12-25', createdAt: new Date().toISOString() }];
+  } else if (spaceId === 'space-demo-2') {
+    defaultEvents = [{ id: 'evt-2', spaceId, title: 'ปาร์ตี้ปีใหม่ 2027 🎉', emoji: '🎉', date: '2027-01-01', createdAt: new Date().toISOString() }];
+  }
+
+  const all = JSON.parse(localStorage.getItem('makewish_space_events') || '{}');
+  all[spaceId] = defaultEvents;
+  localStorage.setItem('makewish_space_events', JSON.stringify(all));
+  
+  return defaultEvents;
+}
+
+export async function addSpaceEvent(spaceId, eventData) {
+  const newEvent = {
+    id: 'evt-' + Date.now(),
+    spaceId,
+    title: eventData.title,
+    emoji: eventData.emoji,
+    date: eventData.date,
+    createdAt: new Date().toISOString(),
+  };
+
+  try {
+    await supabase.from('space_events').insert([{
+      id: newEvent.id,
+      space_id: newEvent.spaceId,
+      title: newEvent.title,
+      emoji: newEvent.emoji,
+      event_date: newEvent.date,
+      created_at: newEvent.createdAt
+    }]);
+  } catch (_) {}
+
+  const all = JSON.parse(localStorage.getItem('makewish_space_events') || '{}');
+  all[spaceId] = [...(all[spaceId] || []), newEvent];
+  localStorage.setItem('makewish_space_events', JSON.stringify(all));
+
+  return newEvent;
+}
+
+export async function deleteSpaceEvent(spaceId, eventId) {
+  try {
+    await supabase.from('space_events').delete().eq('id', eventId);
+  } catch (_) {}
+
+  const all = JSON.parse(localStorage.getItem('makewish_space_events') || '{}');
+  if (all[spaceId]) {
+    all[spaceId] = all[spaceId].filter(e => e.id !== eventId);
+    localStorage.setItem('makewish_space_events', JSON.stringify(all));
+  }
+
+  return { status: 'success' };
+}
+
+export async function inviteFriendToSpace(spaceId, friendDisplayName) {
+  const spaces = JSON.parse(localStorage.getItem(STORAGE_KEY_SPACES) || '[]');
+  const target = spaces.find(s => s.id === spaceId);
+
+  if (!target) {
+    return { status: 'error', message: 'ไม่พบห้องที่ต้องการเชิญ' };
+  }
+
+  const members = target.members || [];
+  if (!members.includes(friendDisplayName)) {
+    target.members = [...members, friendDisplayName];
+    target.memberCount = target.members.length;
+    const updated = spaces.map(s => s.id === spaceId ? target : s);
+    localStorage.setItem(STORAGE_KEY_SPACES, JSON.stringify(updated));
+    return { status: 'success' };
+  }
+
+  return { status: 'error', message: 'มีเพื่อนคนนี้ในห้องแล้ว' };
+}
+
+export function subscribeToWishes(spaceId, onWishChange) {
+  const channel = supabase.channel(`wishes-${spaceId}`)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'wishes', filter: `space_id=eq.${spaceId}` }, payload => {
+      onWishChange();
+    })
+    .subscribe();
+    
+  return channel;
+}
+
+export function unsubscribeAll() {
+  supabase.removeAllChannels();
+}

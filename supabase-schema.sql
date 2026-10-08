@@ -42,6 +42,13 @@ CREATE TABLE IF NOT EXISTS public.wishes (
     description TEXT,
     emoji TEXT DEFAULT '⭐',
     category TEXT DEFAULT 'item', -- 'item' | 'food' | 'place'
+    is_fulfilled BOOLEAN DEFAULT false,
+    fulfilled_by TEXT,
+    fulfilled_at TIMESTAMP WITH TIME ZONE,
+    price TEXT,
+    link_url TEXT,
+    user_name TEXT,
+    user_emoji TEXT,
     user_id TEXT REFERENCES public.users(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -56,15 +63,27 @@ CREATE TABLE IF NOT EXISTS public.friendships (
     UNIQUE(sender_id, receiver_id)
 );
 
+-- 6. Space Events Table
+CREATE TABLE IF NOT EXISTS public.space_events (
+    id TEXT PRIMARY KEY,
+    space_id TEXT REFERENCES public.spaces(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    emoji TEXT DEFAULT '🎂',
+    event_date DATE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- Enable Row Level Security (RLS) & Allow public anon access for this app
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.spaces ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.space_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.wishes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.friendships ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.space_events ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Allow public all access on users" ON public.users FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public all access on spaces" ON public.spaces FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public all access on space_members" ON public.space_members FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public all access on wishes" ON public.wishes FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public all access on friendships" ON public.friendships FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public all access on space_events" ON public.space_events FOR ALL USING (true) WITH CHECK (true);
