@@ -412,7 +412,12 @@ export default function App() {
   if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-        <div className="glass-panel w-full max-w-md rounded-[36px] p-8 sm:p-10 shadow-2xl animate-fade-in relative z-10 border-sky-200/70 dark:border-sky-400/20">
+        <div className="glass-card w-full max-w-md rounded-[40px] p-8 sm:p-10 shadow-2xl animate-fade-in relative z-10 border-sky-200/80 dark:border-sky-400/20">
+          {/* 💧 3D Glass Water Droplets on Auth Card (From Image 1) */}
+          <div className="water-droplet-accent top-6 right-8 w-3 h-3.5 opacity-80" />
+          <div className="water-droplet-accent top-11 right-6 w-2 h-2 opacity-70" />
+          <div className="water-droplet-accent bottom-8 left-6 w-2.5 h-3 opacity-75" />
+
           {/* Logo & Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-tr from-sky-300 via-sky-400 to-cyan-300 text-white shadow-xl shadow-sky-300/40 text-3xl mb-4">
@@ -624,20 +629,20 @@ export default function App() {
             </div>
           </div>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 bg-sky-500/8 dark:bg-slate-800/60 p-1 rounded-full border border-sky-500/15">
+          {/* Desktop Navigation Links (Matching Image 3) */}
+          <nav className="hidden md:flex items-center gap-1.5 p-1 rounded-full border border-sky-200/90 dark:border-sky-500/30 bg-white/75 dark:bg-slate-900/60 shadow-inner">
             <button
               onClick={() => {
                 setActiveTab('dashboard');
                 setActiveSpace(null);
               }}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs transition-all ${
                 activeTab === 'dashboard' && !activeSpace
-                  ? 'bg-sky-500 text-white shadow-md shadow-sky-500/25'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-sky-600 hover:bg-sky-500/10'
+                  ? 'bg-[#00a6ff] text-white font-extrabold shadow-lg shadow-sky-400/35 border border-white/40'
+                  : 'text-slate-800 dark:text-slate-200 hover:text-[#00a6ff] hover:bg-sky-50 dark:hover:bg-slate-800 font-bold'
               }`}
             >
-              <LayoutDashboard size={15} /> ห้องทั้งหมด
+              <LayoutDashboard size={16} /> ห้องทั้งหมด
             </button>
 
             <button
@@ -645,13 +650,13 @@ export default function App() {
                 setActiveTab('friends');
                 setActiveSpace(null);
               }}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs transition-all ${
                 activeTab === 'friends'
-                  ? 'bg-sky-500 text-white shadow-md shadow-sky-500/25'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-sky-600 hover:bg-sky-500/10'
+                  ? 'bg-[#00a6ff] text-white font-extrabold shadow-lg shadow-sky-400/35 border border-white/40'
+                  : 'text-slate-800 dark:text-slate-200 hover:text-[#00a6ff] hover:bg-sky-50 dark:hover:bg-slate-800 font-bold'
               }`}
             >
-              <Users size={15} /> เพื่อนของฉัน
+              <Users size={16} /> เพื่อนของฉัน
             </button>
 
             <button
@@ -659,13 +664,13 @@ export default function App() {
                 setActiveTab('profile');
                 setActiveSpace(null);
               }}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs transition-all ${
                 activeTab === 'profile'
-                  ? 'bg-sky-500 text-white shadow-md shadow-sky-500/25'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-sky-600 hover:bg-sky-500/10'
+                  ? 'bg-[#00a6ff] text-white font-extrabold shadow-lg shadow-sky-400/35 border border-white/40'
+                  : 'text-slate-800 dark:text-slate-200 hover:text-[#00a6ff] hover:bg-sky-50 dark:hover:bg-slate-800 font-bold'
               }`}
             >
-              <User size={15} /> โปรไฟล์
+              <User size={16} /> โปรไฟล์
             </button>
 
             {currentUser.role === 'admin' && (
@@ -674,13 +679,13 @@ export default function App() {
                   setActiveTab('admin');
                   setActiveSpace(null);
                 }}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs transition-all ${
                   activeTab === 'admin' && !activeSpace
-                    ? 'bg-gradient-to-r from-amber-500 to-sky-500 text-white shadow-md'
-                    : 'text-amber-500 hover:bg-amber-500/10'
+                    ? 'bg-gradient-to-r from-amber-500 to-[#00a6ff] text-white font-extrabold shadow-md'
+                    : 'text-amber-500 hover:bg-amber-500/10 font-bold'
                 }`}
               >
-                <ShieldCheck size={15} /> แอดมิน
+                <ShieldCheck size={16} /> แอดมิน
               </button>
             )}
           </nav>
@@ -773,14 +778,14 @@ export default function App() {
       </main>
 
       {/* ==================== MOBILE SLIM DOCK ==================== */}
-      <div className="md:hidden fixed bottom-3 inset-x-6 z-40 glass-panel rounded-full p-2 shadow-2xl flex items-center justify-around border-sky-300/40 dark:border-sky-500/30">
+      <div className="md:hidden fixed bottom-3 inset-x-6 z-40 glass-panel rounded-full p-2 shadow-2xl flex items-center justify-around border-sky-300/60 dark:border-sky-500/30">
         <button
           onClick={() => {
             setActiveTab('dashboard');
             setActiveSpace(null);
           }}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
-            activeTab === 'dashboard' && !activeSpace ? 'bg-sky-500 text-white' : 'text-slate-500'
+          className={`flex flex-col items-center gap-0.5 px-3.5 py-1.5 rounded-full text-[10px] font-bold transition-all ${
+            activeTab === 'dashboard' && !activeSpace ? 'bg-[#00a6ff] text-white shadow-md shadow-sky-400/35' : 'text-slate-700 dark:text-slate-300'
           }`}
         >
           <LayoutDashboard size={18} />
@@ -792,8 +797,8 @@ export default function App() {
             setActiveTab('friends');
             setActiveSpace(null);
           }}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
-            activeTab === 'friends' ? 'bg-sky-500 text-white' : 'text-slate-500'
+          className={`flex flex-col items-center gap-0.5 px-3.5 py-1.5 rounded-full text-[10px] font-bold transition-all ${
+            activeTab === 'friends' ? 'bg-[#00a6ff] text-white shadow-md shadow-sky-400/35' : 'text-slate-700 dark:text-slate-300'
           }`}
         >
           <Users size={18} />
@@ -805,8 +810,8 @@ export default function App() {
             setActiveTab('profile');
             setActiveSpace(null);
           }}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
-            activeTab === 'profile' ? 'bg-sky-500 text-white' : 'text-slate-500'
+          className={`flex flex-col items-center gap-0.5 px-3.5 py-1.5 rounded-full text-[10px] font-bold transition-all ${
+            activeTab === 'profile' ? 'bg-[#00a6ff] text-white shadow-md shadow-sky-400/35' : 'text-slate-700 dark:text-slate-300'
           }`}
         >
           <User size={18} />
@@ -819,8 +824,8 @@ export default function App() {
               setActiveTab('admin');
               setActiveSpace(null);
             }}
-            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
-              activeTab === 'admin' && !activeSpace ? 'bg-amber-500 text-white' : 'text-amber-500'
+            className={`flex flex-col items-center gap-0.5 px-3.5 py-1.5 rounded-full text-[10px] font-bold transition-all ${
+              activeTab === 'admin' && !activeSpace ? 'bg-amber-500 text-white shadow-md shadow-amber-500/35' : 'text-amber-500 font-bold'
             }`}
           >
             <ShieldCheck size={18} />

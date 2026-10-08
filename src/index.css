@@ -4,18 +4,16 @@
 @layer base {
   :root {
     --bg-base: #FFFFFF;
-    --bg-card: rgba(255, 255, 255, 0.90);
-    --bg-card-subtle: rgba(255, 255, 255, 0.82);
+    --bg-card: rgba(255, 255, 255, 0.92);
+    --bg-card-subtle: rgba(255, 255, 255, 0.85);
     --border-color: rgba(186, 230, 253, 0.75);
-    --border-card-hover: rgba(125, 211, 252, 0.9);
-    --accent: #38BDF8;
+    --border-card-hover: rgba(56, 189, 248, 0.8);
+    --accent: #00A6FF;
     --accent-light: #7DD3FC;
-    --accent-glow: rgba(56, 189, 248, 0.25);
-    --gold: #F59E0B;
-    --gold-glow: rgba(245, 158, 11, 0.25);
+    --accent-glow: rgba(0, 166, 255, 0.28);
     --text-primary: #0F172A;
     --text-muted: #64748B;
-    --surface-glass: rgba(255, 255, 255, 0.88);
+    --surface-glass: rgba(255, 255, 255, 0.90);
   }
 
   * {
@@ -34,16 +32,16 @@
     letter-spacing: -0.01em;
   }
 
-  /* Pastel Blue Gingham Plaid Wallpaper Pattern (Pure Sharp High-DPI Grid) */
+  /* Pastel Sky-Blue Gingham Plaid Grid (Matches User Screenshots 2, 3, 4, 5) */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     background-color: #FFFFFF;
     background-image: 
-      linear-gradient(90deg, rgba(164, 218, 248, 0.48) 50%, transparent 50%),
-      linear-gradient(rgba(164, 218, 248, 0.48) 50%, transparent 50%);
-    background-size: 56px 56px;
+      linear-gradient(90deg, rgba(186, 230, 253, 0.58) 50%, transparent 50%),
+      linear-gradient(rgba(186, 230, 253, 0.58) 50%, transparent 50%);
+    background-size: 52px 52px;
     pointer-events: none;
     z-index: -1;
   }
@@ -57,56 +55,97 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(125, 211, 252, 0.35);
+    background: rgba(0, 166, 255, 0.3);
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(56, 189, 248, 0.5);
+    background: rgba(0, 166, 255, 0.6);
   }
 }
 
-/* ==================== LUXURY GLASSMORPHISM & SURFACES ==================== */
+/* ==================== 💎 3D LIQUID FROSTED GLASS CARDS & PANELS ==================== */
+/* Directly inspired by Image 1 (Liquid Glass Weather Widget) & Images 2-5 */
+
+.glass-card, .liquid-glass-card {
+  position: relative;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 249, 255, 0.88) 45%, rgba(224, 242, 254, 0.78) 100%);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  border-radius: 34px;
+  box-shadow: 
+    0 20px 42px -10px rgba(14, 165, 233, 0.16),
+    0 6px 18px -2px rgba(14, 165, 233, 0.08),
+    0 1px 3px 0 rgba(0, 0, 0, 0.02),
+    inset 0 2.5px 3px 0 rgba(255, 255, 255, 0.98),
+    inset 2px 0 3px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -2.5px 4px 0 rgba(14, 165, 233, 0.12),
+    inset 0 0 24px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .glass-card, .dark .liquid-glass-card {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.85) 0%, rgba(14, 30, 58, 0.80) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 
+    0 20px 45px -10px rgba(0, 0, 0, 0.6),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 3px rgba(14, 165, 233, 0.2);
+}
+
+.glass-card:hover, .liquid-glass-card:hover {
+  transform: translateY(-3.5px);
+  border-color: #FFFFFF;
+  box-shadow: 
+    0 28px 52px -10px rgba(14, 165, 233, 0.26),
+    0 10px 24px -2px rgba(14, 165, 233, 0.14),
+    inset 0 3px 4px 0 rgba(255, 255, 255, 1),
+    inset 2px 0 4px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2.5px 4px 0 rgba(14, 165, 233, 0.16),
+    inset 0 0 28px 0 rgba(255, 255, 255, 0.6);
+}
+
 .glass-panel {
-  background: var(--bg-card);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 12px 40px -10px rgba(56, 189, 248, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 249, 255, 0.88) 60%, rgba(224, 242, 254, 0.80) 100%);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 20px 45px -12px rgba(14, 165, 233, 0.18),
+    0 6px 18px -2px rgba(14, 165, 233, 0.10),
+    inset 0 2px 3px 0 rgba(255, 255, 255, 1),
+    inset 2px 0 3px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -2px 4px 0 rgba(14, 165, 233, 0.10),
+    inset 0 0 25px 0 rgba(255, 255, 255, 0.45);
 }
 
 .dark .glass-panel {
-  box-shadow: 0 16px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(23, 37, 84, 0.85) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.7);
 }
 
-.glass-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 6px 24px -2px rgba(56, 189, 248, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+/* ==================== 💧 3D WATER DROPLET DECORATION ==================== */
+.water-droplet-accent {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.3) 30%, rgba(186, 230, 253, 0.2) 65%, rgba(14, 165, 233, 0.35) 100%);
+  box-shadow: 
+    inset 1px 1px 1.5px rgba(255, 255, 255, 0.95),
+    inset -1px -1px 1.5px rgba(14, 165, 233, 0.35),
+    1px 2px 3px rgba(14, 165, 233, 0.25);
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgba(14, 165, 233, 0.15));
 }
 
-.dark .glass-card {
-  box-shadow: 0 6px 28px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
-}
-
-.glass-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--border-card-hover);
-  box-shadow: 0 16px 36px -4px rgba(56, 189, 248, 0.16), inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
-}
-
-.dark .glass-card:hover {
-  box-shadow: 0 18px 42px -6px rgba(0, 0, 0, 0.65), 0 0 25px -4px rgba(56, 189, 248, 0.22);
-}
-
-/* ==================== BUTTONS & INTERACTIVE ==================== */
+/* ==================== 🔘 BUTTONS & PILLS ==================== */
+/* Matching Image 3 & Image 5 vibrant cyan pill */
 .btn-primary {
-  background: linear-gradient(135deg, #7DD3FC 0%, #38BDF8 50%, #0EA5E9 100%);
+  background: linear-gradient(135deg, #00B4FF 0%, #0099FF 50%, #0088EE 100%);
   color: #FFFFFF;
   font-weight: 700;
-  text-shadow: 0 1px 2px rgba(2, 132, 199, 0.25);
+  text-shadow: 0 1px 2px rgba(2, 132, 199, 0.3);
   border-radius: 9999px;
   padding: 10px 24px;
   display: inline-flex;
@@ -114,27 +153,32 @@
   justify-content: center;
   gap: 8px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  border: none;
+  box-shadow: 
+    0 8px 22px -3px rgba(0, 166, 255, 0.45),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   cursor: pointer;
   letter-spacing: -0.01em;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1.5px) scale(1.015);
-  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  filter: brightness(1.04);
+  transform: translateY(-1.5px) scale(1.02);
+  box-shadow: 
+    0 12px 28px -3px rgba(0, 166, 255, 0.55),
+    inset 0 2px 1.5px rgba(255, 255, 255, 0.9);
+  filter: brightness(1.03);
 }
 
 .btn-primary:active {
   transform: translateY(0.5px) scale(0.98);
 }
 
+/* Matching Image 5 "ใส่รหัสเข้าห้อง" white 3D pill */
 .btn-secondary {
-  background: var(--bg-card-subtle);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0F172A;
+  font-weight: 700;
+  border: 1.5px solid rgba(186, 230, 253, 0.85);
   border-radius: 9999px;
   padding: 10px 22px;
   display: inline-flex;
@@ -144,12 +188,18 @@
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   backdrop-filter: blur(14px);
+  box-shadow: 
+    0 4px 14px -2px rgba(14, 165, 233, 0.12),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.95);
 }
 
 .btn-secondary:hover {
-  background: rgba(56, 189, 248, 0.1);
-  border-color: rgba(56, 189, 248, 0.4);
+  background: #FFFFFF;
+  border-color: #38BDF8;
   transform: translateY(-1px);
+  box-shadow: 
+    0 8px 20px -2px rgba(14, 165, 233, 0.20),
+    inset 0 2px 2px rgba(255, 255, 255, 1);
 }
 
 .btn-secondary:active {
@@ -160,7 +210,7 @@
   border-radius: 9999px;
   padding: 6px 14px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -170,37 +220,38 @@
 /* ==================== FORM INPUTS ==================== */
 .form-input {
   width: 100%;
-  padding: 11px 16px;
-  border-radius: 14px;
-  border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.75);
+  padding: 12px 18px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(186, 230, 253, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   color: var(--text-primary);
   outline: none;
   font-size: 0.875rem;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.02);
 }
 
 .dark .form-input {
-  background: rgba(15, 23, 42, 0.75);
-  border-color: rgba(56, 189, 248, 0.2);
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(56, 189, 248, 0.3);
 }
 
 .form-input:focus {
-  border-color: #38BDF8;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.16);
+  border-color: #00A6FF;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(0, 166, 255, 0.18);
 }
 
 .dark .form-input:focus {
-  background: rgba(15, 23, 42, 0.95);
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
+  background: rgba(15, 23, 42, 0.98);
+  box-shadow: 0 0 0 4px rgba(0, 166, 255, 0.28);
 }
 
 /* ==================== ANIMATIONS ==================== */
 @keyframes fadeInScale {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.98);
+    transform: translateY(10px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -209,15 +260,15 @@
 }
 
 .animate-fade-in {
-  animation: fadeInScale 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    box-shadow: 0 0 18px rgba(0, 166, 255, 0.25);
   }
   50% {
-    box-shadow: 0 0 28px rgba(56, 189, 248, 0.45);
+    box-shadow: 0 0 32px rgba(0, 166, 255, 0.55);
   }
 }
 
@@ -229,7 +280,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(6, 11, 20, 0.72);
+  background: rgba(8, 18, 38, 0.65);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   z-index: 50;
