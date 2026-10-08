@@ -29,11 +29,11 @@ export default function ConfettiHearts({ active }) {
     let stardust = [];
 
     const PALETTES = [
+      ['#38BDF8', '#0284C7', '#7DD3FC', '#FFFFFF'], // Celestial Sky Blue & Diamond
       ['#F59E0B', '#FBBF24', '#FDE68A', '#FFFFFF'], // Champagne Gold & Diamond
-      ['#F43F5E', '#FB7185', '#FDA4AF', '#FFE4E6'], // Royal Rose
-      ['#8B5CF6', '#A78BFA', '#C4B5FD', '#EDE9FE'], // Cosmic Violet
-      ['#06B6D4', '#22D3EE', '#67E8F9', '#ECFEFF'], // Celestial Cyan
-      ['#10B981', '#34D399', '#6EE7B7', '#ECFDF5'], // Emerald Sparkle
+      ['#06B6D4', '#22D3EE', '#67E8F9', '#ECFEFF'], // Celestial Cyan & Ice
+      ['#818CF8', '#A5B4FC', '#C7D2FE', '#EEF2FF'], // Periwinkle Starlight
+      ['#34D399', '#6EE7B7', '#A7F3D0', '#ECFDF5'], // Mint Aurora
     ];
 
     // Create a Grand Firework Burst
@@ -70,7 +70,7 @@ export default function ConfettiHearts({ active }) {
         size: 1 + Math.random() * 2.5,
         alpha: Math.random() * 0.8 + 0.2,
         decay: 0.003 + Math.random() * 0.005,
-        color: Math.random() > 0.4 ? '#FBBF24' : '#FDA4AF',
+        color: Math.random() > 0.4 ? '#FBBF24' : '#38BDF8',
       });
     }
 
@@ -161,14 +161,14 @@ export default function ConfettiHearts({ active }) {
 
       {/* 2. DUAL CONCENTRIC GOLD SHOCKWAVE BLAST */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-2 border-amber-300 shadow-[0_0_80px_rgba(251,191,36,0.8)] animate-shockwave-epic pointer-events-none" />
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-2 border-rose-400 shadow-[0_0_90px_rgba(244,63,94,0.7)] animate-shockwave-epic [animation-delay:150ms] pointer-events-none" />
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-2 border-sky-400 shadow-[0_0_90px_rgba(56,189,248,0.7)] animate-shockwave-epic [animation-delay:150ms] pointer-events-none" />
 
       {/* 3. HARDWARE-ACCELERATED FIREWORKS & STARDUST CANVAS */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
 
       <style>{`
         .bg-radial-gradient-cinematic {
-          background: radial-gradient(circle at 50% 40%, rgba(254, 240, 138, 0.45) 0%, rgba(251, 113, 133, 0.2) 40%, transparent 75%);
+          background: radial-gradient(circle at 50% 40%, rgba(254, 240, 138, 0.4) 0%, rgba(56, 189, 248, 0.25) 40%, transparent 75%);
         }
 
         @keyframes cinematicFlash {

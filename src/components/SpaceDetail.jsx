@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Copy, Check, Share2, Sparkles, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Share2, Sparkles, Plus, Trash2, Tag, Compass } from 'lucide-react';
 import CountdownCard from './CountdownCard';
 import SpaceMembers from './SpaceMembers';
 import WishCard from './WishCard';
@@ -25,38 +25,45 @@ export default function SpaceDetail({
     return true;
   });
 
+  const fulfilledCount = wishes.filter(w => w.isFulfilled).length;
+
   return (
     <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
       {/* Back button */}
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-2 text-xs font-bold text-stone-500 hover:text-rose-500 transition-colors"
+        className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
       >
         <ArrowLeft size={15} /> กลับไปห้องทั้งหมด
       </button>
 
-      {/* Space Header Banner */}
-      <div className="glass-card p-6 sm:p-8 rounded-3xl flex flex-wrap items-center justify-between gap-6 border-rose-500/20">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-500 to-pink-400 flex items-center justify-center text-3xl shadow-lg shadow-rose-500/25 shrink-0">
+      {/* ==================== 💎 SPACE HEADER SANCTUARY BANNER 💎 ==================== */}
+      <div className="glass-card p-6 sm:p-8 rounded-[32px] flex flex-wrap items-center justify-between gap-6 border-sky-200/50 dark:border-sky-500/20 relative overflow-hidden">
+        {/* Soft Ambient Light Glow */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-sky-400/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-sky-400 via-sky-500 to-blue-600 flex items-center justify-center text-3xl shadow-xl shadow-sky-500/25 shrink-0 text-white">
             {space.emoji}
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{space.name}</h1>
-            <div className="flex flex-wrap items-center gap-2 mt-1.5">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-500">
-                {space.type === '1on1' ? '1-on-1 คู่รัก/เพื่อนสนิท' : 'ห้องกลุ่ม'}
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+              {space.name}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-400/20">
+                {space.type === '1on1' ? '1-on-1 Sanctuary' : 'Group Circle'}
               </span>
               <button
                 onClick={() => onCopyInviteCode(space.inviteCode)}
-                className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-stone-500/10 hover:bg-rose-500/15 text-stone-600 dark:text-stone-300 hover:text-rose-500 inline-flex items-center gap-1 transition-all"
+                className="px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-slate-500/10 hover:bg-sky-500/15 text-slate-600 dark:text-slate-300 hover:text-sky-600 inline-flex items-center gap-1.5 transition-all border border-slate-300/30 dark:border-slate-700"
               >
                 {copiedCode ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
                 #{space.inviteCode}
               </button>
               <button
                 onClick={() => onShareSpace(space)}
-                className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-500/10 hover:bg-rose-500/15 text-stone-600 dark:text-stone-300 hover:text-rose-500 inline-flex items-center gap-1 transition-all"
+                className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-slate-500/10 hover:bg-sky-500/15 text-slate-600 dark:text-slate-300 hover:text-sky-600 inline-flex items-center gap-1.5 transition-all border border-slate-300/30 dark:border-slate-700"
               >
                 <Share2 size={12} /> แชร์ห้อง
               </button>
@@ -65,12 +72,12 @@ export default function SpaceDetail({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-3 relative z-10">
           <button
             onClick={onOpenRoulette}
-            className="btn-primary bg-gradient-to-r from-amber-500 to-rose-500 shadow-amber-500/20 text-xs py-2.5 px-4"
+            className="btn-primary bg-gradient-to-r from-amber-400 via-sky-500 to-blue-600 shadow-sky-500/25 text-xs py-2.5 px-5 font-bold"
           >
-            <Sparkles size={16} /> 🎰 วงล้อสุ่มของขวัญ
+            <Sparkles size={16} className="text-yellow-200" /> วงล้อสุ่มความปรารถนา
           </button>
           <button onClick={onOpenAddWish} className="btn-primary text-xs py-2.5 px-4">
             <Plus size={16} /> ขอของขวัญ
@@ -78,7 +85,7 @@ export default function SpaceDetail({
           {space.ownerId === currentUser.id && (
             <button
               onClick={() => onDeleteSpace(space.id, space.name)}
-              className="p-2.5 rounded-full hover:bg-rose-500/10 text-stone-400 hover:text-rose-500 transition-colors"
+              className="p-2.5 rounded-full hover:bg-rose-500/10 text-slate-400 hover:text-rose-500 transition-colors"
               title="ลบห้องนี้"
             >
               <Trash2 size={16} />
@@ -102,8 +109,8 @@ export default function SpaceDetail({
         />
       </div>
 
-      {/* Filter Toolbar */}
-      <div className="glass-card p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+      {/* ==================== ✦ FILTER TOOLBAR ✦ ==================== */}
+      <div className="glass-card p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 border-sky-200/50 dark:border-sky-500/20">
         {/* Category Pills */}
         <div className="flex flex-wrap gap-1.5">
           {[
@@ -115,10 +122,10 @@ export default function SpaceDetail({
             <button
               key={c.id}
               onClick={() => setCategoryFilter(c.id)}
-              className={`btn-pill ${
+              className={`btn-pill transition-all ${
                 categoryFilter === c.id
-                  ? 'bg-rose-500 text-white shadow-sm'
-                  : 'text-stone-600 dark:text-stone-300 hover:bg-rose-500/10'
+                  ? 'bg-sky-500 text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-sky-500/10'
               }`}
             >
               {c.label}
@@ -129,17 +136,17 @@ export default function SpaceDetail({
         {/* Status & Ownership Filters */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Status Filter */}
-          <div className="flex gap-1 bg-stone-500/10 p-1 rounded-full">
+          <div className="flex gap-1 bg-sky-500/8 dark:bg-slate-800/60 p-1 rounded-full border border-sky-500/15">
             {[
               { id: 'all', label: 'ทุกสถานะ' },
-              { id: 'unfulfilled', label: '⏳ ยังไม่ได้ซื้อ' },
-              { id: 'fulfilled', label: '✨ ซื้อให้แล้ว' },
+              { id: 'unfulfilled', label: '⏳ รอส่งมอบ' },
+              { id: 'fulfilled', label: '✨ มอบแล้ว' },
             ].map((s) => (
               <button
                 key={s.id}
                 onClick={() => setStatusFilter(s.id)}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
-                  statusFilter === s.id ? 'bg-rose-500 text-white shadow-sm' : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
+                  statusFilter === s.id ? 'bg-sky-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
                 {s.label}
@@ -148,7 +155,7 @@ export default function SpaceDetail({
           </div>
 
           {/* Owner Filter */}
-          <div className="flex gap-1 bg-stone-500/10 p-1 rounded-full">
+          <div className="flex gap-1 bg-sky-500/8 dark:bg-slate-800/60 p-1 rounded-full border border-sky-500/15">
             {[
               { id: 'all', label: 'ทุกคน' },
               { id: 'mine', label: 'ของฉัน' },
@@ -157,8 +164,8 @@ export default function SpaceDetail({
               <button
                 key={f.id}
                 onClick={() => setOwnerFilter(f.id)}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
-                  ownerFilter === f.id ? 'bg-rose-500 text-white shadow-sm' : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
+                  ownerFilter === f.id ? 'bg-sky-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
                 {f.label}
@@ -168,20 +175,20 @@ export default function SpaceDetail({
         </div>
       </div>
 
-      {/* Wishes Grid */}
+      {/* ==================== 💎 WISHES GRID 💎 ==================== */}
       {filteredWishes.length === 0 ? (
-        <div className="glass-card p-14 text-center rounded-3xl space-y-3">
-          <div className="text-5xl">⭐</div>
-          <div className="font-bold text-base">ไม่พบรายการความปรารถนาในเงื่อนไขนี้</div>
-          <p className="text-xs text-stone-400 max-w-sm mx-auto">
-            กดปุ่ม "ขอของขวัญ" ด้านบนเพื่อเพิ่มสิ่งของ อาหาร หรือสถานที่ที่อยากไปได้เลย
+        <div className="glass-card p-14 text-center rounded-[32px] space-y-3 border-sky-200/50 dark:border-sky-500/20">
+          <div className="text-5xl">✨</div>
+          <div className="font-extrabold text-base text-slate-800 dark:text-slate-200">ยังไม่มีรายการความปรารถนาในเงื่อนไขนี้</div>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto font-medium">
+            กดปุ่ม "ขอของขวัญ" ด้านบนเพื่อเพิ่มสิ่งของ อาหาร หรือทริปท่องเที่ยวที่อยากไป
           </p>
           <button onClick={onOpenAddWish} className="btn-primary text-xs py-2 px-5 mt-2">
-            <Plus size={15} /> ขอของขวัญเลย
+            <Plus size={15} /> ขอความปรารถนาทันที
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredWishes.map((w) => (
             <WishCard 
               key={w.id} 

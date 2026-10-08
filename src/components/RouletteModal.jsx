@@ -2,18 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Volume2, VolumeX, Sparkles, Check, Trophy, Star, Zap } from 'lucide-react';
 import { sound } from '../audio';
 
-// Opulent Regal Color Palette for Wheel
+// Celestial Luxury Color Palette for Wheel
 const regalColors = [
-  { bg: '#E11D48', border: '#FFF1F2' }, // Imperial Ruby
-  { bg: '#7C3AED', border: '#F5F3FF' }, // Royal Amethyst
-  { bg: '#D97706', border: '#FFFBEB' }, // Sovereign Gold
-  { bg: '#059669', border: '#ECFDF5' }, // Emerald Jewel
-  { bg: '#0284C7', border: '#F0F9FF' }, // Celestial Sapphire
-  { bg: '#DB2777', border: '#FDF2F8' }, // Crown Magenta
-  { bg: '#EA580C', border: '#FFF7ED' }, // Radiant Amber
+  { bg: '#0284C7', border: '#E0F2FE' }, // Sky Cerulean
+  { bg: '#38BDF8', border: '#F0F9FF' }, // Ice Azure
+  { bg: '#D97706', border: '#FEF3C7' }, // Imperial Gold
+  { bg: '#0D9488', border: '#CCFBF1' }, // Aquamarine
+  { bg: '#2563EB', border: '#DBEAFE' }, // Royal Blue
+  { bg: '#F59E0B', border: '#FEF9C3' }, // Champagne Gold
+  { bg: '#0891B2', border: '#CFFAFE' }, // Cyan Starlight
   { bg: '#4F46E5', border: '#EEF2FF' }, // Cosmic Lapis
-  { bg: '#0D9488', border: '#F0FDFA' }, // Mystic Teal
-  { bg: '#CA8A04', border: '#FEFCE8' }, // Golden Topaz
+  { bg: '#059669', border: '#D1FAE5' }, // Emerald Glow
+  { bg: '#0EA5E9', border: '#E0F2FE' }, // Radiant Ocean
 ];
 
 export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
@@ -107,9 +107,9 @@ export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius + 8, 0, 2 * Math.PI);
     ctx.lineWidth = 10;
-    ctx.strokeStyle = isFast ? '#F59E0B' : '#E11D48';
-    ctx.shadowColor = isFast ? 'rgba(245, 158, 11, 0.8)' : 'rgba(225, 29, 72, 0.4)';
-    ctx.shadowBlur = isFast ? 28 : 12;
+    ctx.strokeStyle = isFast ? '#F59E0B' : '#38BDF8';
+    ctx.shadowColor = isFast ? 'rgba(245, 158, 11, 0.8)' : 'rgba(56, 189, 248, 0.6)';
+    ctx.shadowBlur = isFast ? 28 : 14;
     ctx.stroke();
     ctx.restore();
 
@@ -343,8 +343,8 @@ export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
                 <Sparkles size={18} className="text-amber-400 animate-spin" /> ✦ ลุ้นชี้ชะตา... ✦
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 bg-clip-text text-transparent font-black">
-                <Sparkles size={16} className="text-amber-400" /> วงล้อสุ่มของขวัญ
+              <span className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 via-sky-500 to-blue-600 bg-clip-text text-transparent font-black">
+                <Sparkles size={16} className="text-amber-400" /> วงล้อสุ่มความปรารถนา
               </span>
             )}
           </h3>
@@ -358,7 +358,7 @@ export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
         </div>
 
         {/* Category Filter Tabs */}
-        <div className="flex gap-1 justify-center bg-stone-500/10 p-1 rounded-full shrink-0 relative z-10 border border-stone-500/10">
+        <div className="flex gap-1 justify-center bg-sky-500/8 dark:bg-slate-800/60 p-1 rounded-full shrink-0 relative z-10 border border-sky-400/20">
           {[
             { id: 'all', label: 'ทั้งหมด' },
             { id: 'item', label: '🎁 ของขวัญ' },
@@ -376,8 +376,8 @@ export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
               }}
               className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
                 rouletteCategory === cat.id
-                  ? 'bg-rose-500 text-white shadow-sm'
-                  : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                  ? 'bg-sky-500 text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-sky-600'
               }`}
             >
               {cat.label}
@@ -400,8 +400,8 @@ export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
               style={{
                 borderLeft: '11px solid transparent',
                 borderRight: '11px solid transparent',
-                borderTop: '20px solid #E11D48',
-                filter: 'drop-shadow(0 0 10px rgba(225, 29, 72, 0.7))',
+                borderTop: '20px solid #0284C7',
+                filter: 'drop-shadow(0 0 10px rgba(14, 165, 233, 0.75))',
               }}
             />
           </div>

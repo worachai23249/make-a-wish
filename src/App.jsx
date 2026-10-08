@@ -40,11 +40,11 @@ import {
   Moon,
   LogOut,
   Sparkles,
-  Menu,
   Eye,
   EyeOff,
   CheckCheck,
   X,
+  Compass,
 } from 'lucide-react';
 
 import ConfettiHearts from './components/ConfettiHearts';
@@ -66,12 +66,12 @@ export default function App() {
     return saved ? saved === 'dark' : false;
   });
 
-  // Auth state (Persistent like Facebook)
+  // Auth state
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Nav tab state
+  // Navigation tab
   const [activeTab, setActiveTab] = useState(() => {
     const user = getCurrentUser();
     return user?.role === 'admin' ? 'admin' : 'dashboard';
@@ -102,7 +102,6 @@ export default function App() {
   const [isEditWishOpen, setIsEditWishOpen] = useState(false);
   const [editingWish, setEditingWish] = useState(null);
   const [isRouletteOpen, setIsRouletteOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Auth Forms state
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -128,7 +127,7 @@ export default function App() {
     }
   }, [isDarkMode]);
 
-  // Load initial data on user change
+  // Load user data
   useEffect(() => {
     if (currentUser) {
       loadUserData();
@@ -149,10 +148,9 @@ export default function App() {
     }
   };
 
-  // Space data loading & Supabase Real-time Subscription
+  // Space data loading & Real-time Subscription
   useEffect(() => {
     if (!activeSpace) return;
-
     let isMounted = true;
 
     const loadSpaceData = async () => {
@@ -164,7 +162,6 @@ export default function App() {
 
     loadSpaceData();
 
-    // Subscribe to Realtime Wish changes
     const channel = subscribeToWishes(activeSpace.id, async () => {
       const updatedWishes = await getWishes(activeSpace.id);
       if (isMounted) setWishes(updatedWishes);
@@ -178,7 +175,6 @@ export default function App() {
     };
   }, [activeSpace]);
 
-  // Open Space handler
   const openSpace = (space) => {
     setActiveSpace(space);
   };
@@ -190,7 +186,7 @@ export default function App() {
     if (res.status === 'success') {
       setCurrentUser(res.user);
       setActiveTab(res.user.role === 'admin' ? 'admin' : 'dashboard');
-      showToast('ยินดีต้อนรับกลับ! ✨', `${res.user.displayName}`);
+      showToast('ยินดีต้อนรับกลับ ✨', `${res.user.displayName}`);
     } else {
       showToast('เข้าสู่ระบบไม่สำเร็จ', res.message);
     }
@@ -202,7 +198,7 @@ export default function App() {
     if (res.status === 'success') {
       setCurrentUser(res.user);
       setActiveTab(res.user.role === 'admin' ? 'admin' : 'dashboard');
-      showToast('เข้าสู่ระบบสำเร็จ! 🌸', `เข้าสู่ระบบในฐานะ ${res.user.displayName}`);
+      showToast('เข้าสู่ระบบสำเร็จ ✨', `เข้าสู่ระบบในฐานะ ${res.user.displayName}`);
     }
   };
 
@@ -216,7 +212,7 @@ export default function App() {
     if (res.status === 'success') {
       setCurrentUser(res.user);
       setActiveTab('dashboard');
-      showToast('สร้างบัญชีสำเร็จ! 🎉', 'เข้าสู่ระบบให้อัตโนมัติเรียบร้อย');
+      showToast('สร้างบัญชีสำเร็จ 💎', 'เข้าสู่ระบบเรียบร้อย');
     }
   };
 
@@ -227,27 +223,25 @@ export default function App() {
     showToast('ออกจากระบบแล้ว', 'ข้อมูลถูกบันทึกไว้อย่างปลอดภัย');
   };
 
-  // Create Space
+  // Space Handlers
   const handleCreateSpace = async (spaceFormData) => {
     const newSpace = await createSpace(spaceFormData, currentUser);
     setSpaces([newSpace, ...spaces]);
     setIsCreateSpaceOpen(false);
-    showToast('สร้างห้องสำเร็จ! 💕', `รหัสเชิญ: ${newSpace.inviteCode}`);
+    showToast('สร้างห้องสำเร็จ ✨', `รหัสเชิญ: ${newSpace.inviteCode}`);
   };
 
-  // Join Space
   const handleJoinSpace = async (joinCode) => {
     const res = await joinSpace(joinCode, currentUser);
     if (res.status === 'success') {
       setSpaces([res.space, ...spaces.filter((s) => s.id !== res.space.id)]);
       setIsJoinSpaceOpen(false);
-      showToast('เข้าร่วมห้องสำเร็จ! 🥳', res.space.name);
+      showToast('เข้าร่วมห้องสำเร็จ 💎', res.space.name);
     } else {
       showToast('ข้อผิดพลาด', res.message);
     }
   };
 
-  // Delete Space
   const handleDeleteSpace = async (spaceId, spaceName) => {
     if (!confirm(`ต้องการลบห้อง "${spaceName}" ใช่หรือไม่? รายการความปรารถนาทั้งหมดในห้องนี้จะถูกลบ`)) return;
     await deleteSpace(spaceId);
@@ -256,11 +250,10 @@ export default function App() {
     showToast('ลบห้องเรียบร้อย');
   };
 
-  // Copy or Share Invite Code
   const handleCopyInviteCode = (code) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(true);
-    showToast('คัดลอกรหัสเชิญแล้ว! 📋', `รหัส: ${code}`);
+    showToast('คัดลอกรหัสเชิญแล้ว 📋', `รหัส: ${code}`);
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
@@ -269,27 +262,26 @@ export default function App() {
       try {
         await navigator.share({
           title: `เข้าร่วมห้อง "${space.name}" บน Make a Wish`,
-          text: `ใส่รหัสเชิญ: ${space.inviteCode} เพื่อแชร์ของขวัญและความปรารถนากับฉันใน Make a Wish! 🎁`,
+          text: `ใส่รหัสเชิญ: ${space.inviteCode} เพื่อแชร์ของขวัญและความปรารถนากับฉันใน Make a Wish! ✨`,
           url: window.location.origin,
         });
-        showToast('แชร์สำเร็จ! 💌');
+        showToast('แชร์สำเร็จ 💌');
       } catch (_) {}
     } else {
       handleCopyInviteCode(space.inviteCode);
     }
   };
 
-  // Add Wish
+  // Wish Handlers
   const handleAddWish = async (wishFormData) => {
     if (!activeSpace) return;
     setIsAddWishOpen(false);
     const newWish = await addWish(activeSpace.id, wishFormData, currentUser);
     setWishes([newWish, ...wishes]);
     sound.playSuccess();
-    showToast('เพิ่มรายการสำเร็จ! 🎁', newWish.title);
+    showToast('เพิ่มรายการสำเร็จ ✨', newWish.title);
   };
 
-  // Edit Wish
   const handleOpenEditWish = (wish) => {
     setEditingWish(wish);
     setIsEditWishOpen(true);
@@ -302,11 +294,10 @@ export default function App() {
       setWishes(wishes.map((w) => (w.id === wishId ? updated : w)));
       setIsEditWishOpen(false);
       setEditingWish(null);
-      showToast('แก้ไขรายการสำเร็จ! ✏️', updated.title);
+      showToast('แก้ไขรายการสำเร็จ ✏️', updated.title);
     }
   };
 
-  // Toggle Fulfilled
   const handleToggleWishFulfilled = async (wish) => {
     const updated = await toggleWishFulfilled(activeSpace.id, wish.id, currentUser);
     if (updated) {
@@ -314,15 +305,14 @@ export default function App() {
       if (updated.isFulfilled) {
         sound.playSuccess();
         setConfettiActive(true);
-        setTimeout(() => setConfettiActive(false), 2800);
-        showToast('ซื้อให้แล้ว! 🎉', `ทำเครื่องหมายสำเร็จโดย ${currentUser.displayName}`);
+        setTimeout(() => setConfettiActive(false), 3600);
+        showToast('มอบของขวัญสำเร็จ ✦', `ทำเครื่องหมายโดย ${currentUser.displayName}`);
       } else {
         showToast('เปลี่ยนสถานะ', 'เปลี่ยนกลับเป็นยังไม่ได้ซื้อ');
       }
     }
   };
 
-  // Delete Wish
   const handleDeleteWish = async (wishId, title) => {
     if (!confirm(`คุณต้องการลบ "${title}" ใช่หรือไม่?`)) return;
     setWishes(wishes.filter((w) => w.id !== wishId));
@@ -330,12 +320,12 @@ export default function App() {
     showToast('ลบรายการเรียบร้อย');
   };
 
-  // Space Events Handlers
+  // Space Events
   const handleAddEvent = async (eventData) => {
     if (!activeSpace) return;
     const newEvent = await addSpaceEvent(activeSpace.id, eventData);
     setSpaceEvents([...spaceEvents, newEvent]);
-    showToast('เพิ่มวันสำคัญแล้ว! ⏰', newEvent.title);
+    showToast('เพิ่มวันสำคัญแล้ว ⏰', newEvent.title);
   };
 
   const handleDeleteEvent = async (eventId) => {
@@ -345,7 +335,7 @@ export default function App() {
     showToast('ลบวันสำคัญเรียบร้อย');
   };
 
-  // Invite Friend to Space
+  // Invite Friend
   const handleInviteFriend = async (friendDisplayName) => {
     if (!activeSpace) return;
     const res = await inviteFriendToSpace(activeSpace.id, friendDisplayName);
@@ -358,7 +348,7 @@ export default function App() {
       };
       setActiveSpace(updatedSpace);
       setSpaces(spaces.map((s) => (s.id === activeSpace.id ? updatedSpace : s)));
-      showToast('เชิญเพื่อนเข้าห้องสำเร็จ! 🌸', friendDisplayName);
+      showToast('เชิญเพื่อนเข้าห้องสำเร็จ ✨', friendDisplayName);
     } else {
       showToast('ข้อผิดพลาด', res.message);
     }
@@ -391,7 +381,7 @@ export default function App() {
     showToast('ลบผู้ใช้สำเร็จ');
   };
 
-  // Avatar Upload with Canvas Compression
+  // Profile Image Canvas Compression
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -419,55 +409,59 @@ export default function App() {
         canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
-        const base64 = canvas.toDataURL('image/jpeg', 0.82);
+        const base64 = canvas.toDataURL('image/jpeg', 0.85);
 
         const updated = { ...currentUser, avatarUrl: base64 };
         setCurrentUser(updated);
         localStorage.setItem('makewish_auth_user', JSON.stringify(updated));
-        showToast('บีบอัดรูปสำเร็จ! ✨', 'ขนาดภาพย่อเหลือ ~15 KB เร็วและประหยัดพื้นที่');
+        showToast('อัปเดตรูปโปรไฟล์สำเร็จ ✨', 'ขนาดภาพย่อเหลือ ~15 KB ด้วย Canvas Smart Compression');
       };
       img.src = event.target.result;
     };
     reader.readAsDataURL(file);
   };
 
-  // ==================== RENDER: AUTH SCREEN ====================
+  // ==================== RENDER: AUTH SCREEN (LUXURY PASTEL BLUE) ====================
   if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-        <div className="glass-panel w-full max-w-md rounded-3xl p-8 sm:p-10 shadow-2xl animate-fade-in relative z-10 border-rose-500/20">
+        {/* Soft Ambient Starlight Blobs */}
+        <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-sky-300/20 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full bg-blue-400/15 blur-3xl pointer-events-none" />
+
+        <div className="glass-panel w-full max-w-md rounded-[36px] p-8 sm:p-10 shadow-2xl animate-fade-in relative z-10 border-sky-200/50 dark:border-sky-500/20">
           {/* Logo & Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-500 to-pink-400 text-white shadow-lg shadow-rose-500/30 text-3xl mb-4">
-              🎁
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-tr from-sky-400 via-sky-500 to-blue-600 text-white shadow-xl shadow-sky-500/25 text-3xl mb-4">
+              ✨
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Make a Wish
             </h1>
-            <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1 font-medium">
-              แชร์ความปรารถนากับคนพิเศษ • บันทึกอัตโนมัติตลอด 365 วัน
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium tracking-wide">
+              Luxury Private Wishlist • แชร์ความปรารถนากับคนพิเศษ
             </p>
           </div>
 
           {/* Quick Demo Access Bar */}
-          <div className="mb-6 p-3 rounded-2xl bg-rose-500/8 border border-rose-500/15">
-            <div className="text-[11px] font-bold text-rose-500 mb-2 flex items-center gap-1.5 justify-center">
-              <Sparkles size={13} /> กดเข้าสู่ระบบด่วน 1 คลิกเพื่อทดลองใช้งาน:
+          <div className="mb-6 p-3 rounded-2xl bg-sky-500/8 border border-sky-500/15">
+            <div className="text-[11px] font-bold text-sky-600 dark:text-sky-400 mb-2 flex items-center gap-1.5 justify-center">
+              <Sparkles size={13} /> ทดลองใช้งานด่วน 1 คลิก:
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => handleQuickLogin(ADMIN_ACCOUNT)}
-                className="py-2 px-2.5 rounded-xl text-xs font-bold bg-white dark:bg-stone-900 border border-rose-500/20 hover:border-rose-500 hover:text-rose-500 shadow-sm transition-all text-center truncate"
+                className="py-2.5 px-3 rounded-xl text-xs font-bold bg-white/90 dark:bg-slate-900 border border-sky-300/40 dark:border-sky-500/30 hover:border-sky-500 hover:text-sky-500 shadow-sm transition-all text-center truncate"
               >
                 👑 แอดมินระบบ
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickLogin(DEMO_USER_ACCOUNT)}
-                className="py-2 px-2.5 rounded-xl text-xs font-bold bg-white dark:bg-stone-900 border border-rose-500/20 hover:border-rose-500 hover:text-rose-500 shadow-sm transition-all text-center truncate"
+                className="py-2.5 px-3 rounded-xl text-xs font-bold bg-white/90 dark:bg-slate-900 border border-sky-300/40 dark:border-sky-500/30 hover:border-sky-500 hover:text-sky-500 shadow-sm transition-all text-center truncate"
               >
-                🌸 ผู้ใช้ทั่วไป (มุก)
+                🌸 สมาชิก (น้องมุก)
               </button>
             </div>
           </div>
@@ -476,31 +470,31 @@ export default function App() {
             /* REGISTER FORM */
             <form onSubmit={handleRegister} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 mb-1.5">ชื่อที่แสดง</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">ชื่อที่แสดง</label>
                 <input
                   type="text"
                   required
                   className="form-input"
-                  placeholder="เช่น มุก, พี่แบงค์, บีม"
+                  placeholder="เช่น มุก, พัตเตอร์, บีม"
                   value={registerForm.displayName}
                   onChange={(e) => setRegisterForm({ ...registerForm, displayName: e.target.value })}
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 mb-1.5">
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                   ชื่อผู้ใช้ (@username)
                 </label>
                 <input
                   type="text"
                   required
                   className="form-input"
-                  placeholder="เช่น mook_ky (สำหรับให้เพื่อนค้นหา)"
+                  placeholder="เช่น mook_ky"
                   value={registerForm.username}
                   onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 mb-1.5">อีเมล</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">อีเมล</label>
                 <input
                   type="email"
                   required
@@ -511,7 +505,7 @@ export default function App() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 mb-1.5">รหัสผ่าน</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">รหัสผ่าน</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -525,20 +519,20 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-rose-500 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-500 transition-colors"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
-              <button type="submit" className="btn-primary w-full py-3 mt-3 text-sm">
-                สมัครสมาชิก & เริ่มใช้งานทันที 🚀
+              <button type="submit" className="btn-primary w-full py-3.5 mt-3 text-sm">
+                สร้างบัญชีระดับพรีเมียม ✦
               </button>
               <div className="text-center pt-2">
                 <button
                   type="button"
                   onClick={() => setIsRegisterMode(false)}
-                  className="text-xs text-rose-500 font-bold hover:underline"
+                  className="text-xs text-sky-600 dark:text-sky-400 font-bold hover:underline"
                 >
                   มีบัญชีอยู่แล้ว? เข้าสู่ระบบที่นี่
                 </button>
@@ -548,7 +542,7 @@ export default function App() {
             /* LOGIN FORM */
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 mb-1.5">อีเมล</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">อีเมล</label>
                 <input
                   type="email"
                   required
@@ -559,9 +553,7 @@ export default function App() {
                 />
               </div>
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-stone-500 dark:text-stone-400">รหัสผ่าน</label>
-                </div>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">รหัสผ่าน</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -574,28 +566,28 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-rose-500 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-500 transition-colors"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
-              <button type="submit" className="btn-primary w-full py-3 mt-3 text-sm">
-                เข้าสู่ระบบ 🌸
+              <button type="submit" className="btn-primary w-full py-3.5 mt-3 text-sm">
+                เข้าสู่ระบบ ✨
               </button>
               <div className="text-center pt-3 space-y-2">
                 <div>
                   <button
                     type="button"
                     onClick={() => setIsRegisterMode(true)}
-                    className="text-xs text-rose-500 font-bold hover:underline"
+                    className="text-xs text-sky-600 dark:text-sky-400 font-bold hover:underline"
                   >
                     ยังไม่มีบัญชี? สมัครสมาชิกใหม่ฟรี
                   </button>
                 </div>
-                <div className="text-[11px] text-stone-400 flex items-center justify-center gap-1.5">
-                  <CheckCheck size={13} className="text-emerald-500" />
-                  ระบบจดจำบัญชีค้างไว้ตลอดเหมือน Facebook ไม่ต้องกรอกใหม่
+                <div className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+                  <CheckCheck size={13} className="text-sky-500" />
+                  ระบบจำการล็อกอินอัตโนมัติ ไม่ต้องกรอกใหม่
                 </div>
               </div>
             </form>
@@ -605,173 +597,154 @@ export default function App() {
     );
   }
 
-  // ==================== RENDER: MAIN APPLICATION ====================
+  // ==================== RENDER: MAIN APPLICATION (PASTEL BLUE LUXURY) ====================
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row pb-20 lg:pb-0">
+    <div className="min-h-screen flex flex-col pb-24 lg:pb-8">
+      {/* 60fps Hardware Canvas Fireworks & Stardust */}
       <ConfettiHearts active={confettiActive} />
 
       {/* Floating Toast Notification */}
       {toast && (
-        <div className="fixed top-5 right-5 z-50 glass-panel px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 border-rose-500/30 animate-fade-in max-w-sm">
-          <div className="w-8 h-8 rounded-full bg-rose-500/15 text-rose-500 flex items-center justify-center shrink-0">
+        <div className="fixed top-6 right-6 z-50 glass-panel px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 border-sky-300/40 dark:border-sky-500/30 animate-fade-in max-w-sm">
+          <div className="w-8 h-8 rounded-full bg-sky-500/15 text-sky-500 flex items-center justify-center shrink-0">
             <Sparkles size={16} />
           </div>
           <div className="min-w-0">
-            <div className="font-bold text-xs sm:text-sm truncate">{toast.title}</div>
-            {toast.message && <div className="text-[11px] text-stone-500 dark:text-stone-400 truncate">{toast.message}</div>}
+            <div className="font-bold text-xs sm:text-sm truncate text-slate-900 dark:text-slate-100">{toast.title}</div>
+            {toast.message && <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{toast.message}</div>}
           </div>
         </div>
       )}
 
-      {/* Desktop Sidebar Navigation */}
-      <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 glass-panel flex flex-col transition-transform duration-300 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
-      >
-        {/* Brand Header */}
-        <div className="p-6 border-b border-rose-500/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-400 flex items-center justify-center text-xl text-white shadow-md shadow-rose-500/25">
-              🎁
-            </div>
-            <div>
-              <div className="font-extrabold text-base tracking-tight bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent">
-                Make a Wish
-              </div>
-              <div className="text-[10px] text-stone-400 font-mono flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" /> Cloudflare • 0ms
-              </div>
-            </div>
-          </div>
-          <button className="lg:hidden text-stone-400 hover:text-stone-600" onClick={() => setIsSidebarOpen(false)}>
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* User Profile Card */}
-        <div className="p-3.5 mx-4 my-3 rounded-2xl bg-rose-500/8 border border-rose-500/10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white text-lg overflow-hidden shrink-0 shadow-sm">
-            {currentUser.avatarUrl ? (
-              <img src={currentUser.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              currentUser.emoji || '🌸'
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="font-bold text-xs truncate flex items-center gap-1">
-              {currentUser.displayName}
-              {currentUser.role === 'admin' && <span className="text-[10px]">👑</span>}
-            </div>
-            <div className="text-[11px] text-rose-500 font-mono truncate">@{currentUser.username}</div>
-          </div>
-        </div>
-
-        {/* Navigation Items */}
-        <nav className="flex-1 px-4 py-2 space-y-1.5">
-          <button
+      {/* ==================== 💎 FLOATING LUXURY TOPBAR ==================== */}
+      <header className="sticky top-4 z-40 px-4 sm:px-8 max-w-7xl mx-auto w-full">
+        <div className="glass-panel rounded-full px-5 py-3 flex items-center justify-between border-sky-200/50 dark:border-sky-500/20 shadow-lg">
+          {/* Brand Logo & Emblem */}
+          <div
             onClick={() => {
               setActiveTab('dashboard');
               setActiveSpace(null);
-              setIsSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-xs transition-all ${
-              activeTab === 'dashboard' && !activeSpace
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/25'
-                : 'hover:bg-rose-500/10 text-stone-700 dark:text-stone-300'
-            }`}
+            className="flex items-center gap-3 cursor-pointer group"
           >
-            <LayoutDashboard size={17} /> ห้องทั้งหมด
-          </button>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-400 to-blue-600 flex items-center justify-center text-lg text-white shadow-md shadow-sky-500/25 group-hover:scale-105 transition-transform">
+              ✨
+            </div>
+            <div>
+              <div className="font-extrabold text-base tracking-tight bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Make a Wish
+              </div>
+              <div className="text-[10px] text-slate-400 font-mono flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 inline-block animate-pulse" />
+                Private Wishlist Sanctuary
+              </div>
+            </div>
+          </div>
 
-          <button
-            onClick={() => {
-              setActiveTab('friends');
-              setActiveSpace(null);
-              setIsSidebarOpen(false);
-            }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-xs transition-all ${
-              activeTab === 'friends'
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/25'
-                : 'hover:bg-rose-500/10 text-stone-700 dark:text-stone-300'
-            }`}
-          >
-            <Users size={17} /> เพื่อนของฉัน
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveTab('profile');
-              setActiveSpace(null);
-              setIsSidebarOpen(false);
-            }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-xs transition-all ${
-              activeTab === 'profile'
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/25'
-                : 'hover:bg-rose-500/10 text-stone-700 dark:text-stone-300'
-            }`}
-          >
-            <User size={17} /> โปรไฟล์
-          </button>
-
-          {currentUser.role === 'admin' && (
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1 bg-sky-500/8 dark:bg-slate-800/60 p-1 rounded-full border border-sky-500/15">
             <button
               onClick={() => {
-                setActiveTab('admin');
+                setActiveTab('dashboard');
                 setActiveSpace(null);
-                setIsSidebarOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-xs transition-all ${
-                activeTab === 'admin' && !activeSpace
-                  ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-md'
-                  : 'hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold'
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                activeTab === 'dashboard' && !activeSpace
+                  ? 'bg-sky-500 text-white shadow-md shadow-sky-500/25'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-sky-600 hover:bg-sky-500/10'
               }`}
             >
-              <ShieldCheck size={17} /> แผงควบคุมแอดมิน 👑
+              <LayoutDashboard size={15} /> ห้องทั้งหมด
             </button>
-          )}
-        </nav>
 
-        {/* Footer actions */}
-        <div className="p-4 border-t border-rose-500/10 space-y-1.5">
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-rose-500/10 transition-colors"
-          >
-            {isDarkMode ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} className="text-stone-500" />}
-            {isDarkMode ? 'โหมดสว่าง' : 'โหมดมืด'}
-          </button>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-500/10 transition-colors"
-          >
-            <LogOut size={16} /> ออกจากระบบ
-          </button>
-        </div>
-      </aside>
+            <button
+              onClick={() => {
+                setActiveTab('friends');
+                setActiveSpace(null);
+              }}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                activeTab === 'friends'
+                  ? 'bg-sky-500 text-white shadow-md shadow-sky-500/25'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-sky-600 hover:bg-sky-500/10'
+              }`}
+            >
+              <Users size={15} /> เพื่อนของฉัน
+            </button>
 
-      {/* Main Content Viewport */}
-      <main className="flex-1 min-w-0 p-4 sm:p-8 overflow-y-auto">
-        {/* Mobile Header */}
-        <div className="lg:hidden flex items-center justify-between mb-5 glass-panel p-3.5 rounded-2xl">
-          <button onClick={() => setIsSidebarOpen(true)} className="p-1 text-stone-600 dark:text-stone-300">
-            <Menu size={22} />
-          </button>
+            <button
+              onClick={() => {
+                setActiveTab('profile');
+                setActiveSpace(null);
+              }}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                activeTab === 'profile'
+                  ? 'bg-sky-500 text-white shadow-md shadow-sky-500/25'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-sky-600 hover:bg-sky-500/10'
+              }`}
+            >
+              <User size={15} /> โปรไฟล์
+            </button>
+
+            {currentUser.role === 'admin' && (
+              <button
+                onClick={() => {
+                  setActiveTab('admin');
+                  setActiveSpace(null);
+                }}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  activeTab === 'admin' && !activeSpace
+                    ? 'bg-gradient-to-r from-amber-500 to-sky-500 text-white shadow-md'
+                    : 'text-amber-500 hover:bg-amber-500/10'
+                }`}
+              >
+                <ShieldCheck size={15} /> แอดมิน
+              </button>
+            )}
+          </nav>
+
+          {/* Right Action Cluster: Theme, Profile, Logout */}
           <div className="flex items-center gap-2">
-            <span className="text-xl">🎁</span>
-            <span className="font-extrabold text-sm bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent">
-              Make a Wish
-            </span>
-          </div>
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="p-1 text-stone-600 dark:text-stone-300"
-          >
-            {isDarkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} />}
-          </button>
-        </div>
+            {/* Theme Toggle Button */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 rounded-full text-slate-500 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-500/10 transition-colors"
+              title={isDarkMode ? 'โหมดสว่าง' : 'โหมดมืด'}
+            >
+              {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} />}
+            </button>
 
-        {/* Main Content Router */}
+            {/* Profile Avatar Pill */}
+            <div
+              onClick={() => {
+                setActiveTab('profile');
+                setActiveSpace(null);
+              }}
+              className="flex items-center gap-2 p-1 pl-1.5 pr-3 rounded-full bg-sky-500/10 hover:bg-sky-500/15 border border-sky-400/20 cursor-pointer transition-colors"
+            >
+              <div className="w-7 h-7 rounded-full bg-sky-500 text-white flex items-center justify-center text-xs overflow-hidden">
+                {currentUser.avatarUrl ? (
+                  <img src={currentUser.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  currentUser.emoji || '🌸'
+                )}
+              </div>
+              <span className="text-xs font-bold truncate max-w-[90px]">{currentUser.displayName}</span>
+            </div>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+              title="ออกจากระบบ"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ==================== MAIN CONTENT AREA ==================== */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-8 pt-6 pb-12">
         {activeSpace ? (
           <SpaceDetail
             space={activeSpace}
@@ -797,6 +770,7 @@ export default function App() {
         ) : activeTab === 'dashboard' ? (
           <DashboardView
             spaces={spaces}
+            currentUser={currentUser}
             onOpenSpace={openSpace}
             onCreateSpace={() => setIsCreateSpaceOpen(true)}
             onJoinSpace={() => setIsJoinSpaceOpen(true)}
@@ -824,15 +798,15 @@ export default function App() {
         ) : null}
       </main>
 
-      {/* Mobile Bottom Dock */}
-      <div className="lg:hidden fixed bottom-3 inset-x-4 z-40 glass-panel rounded-full p-1.5 shadow-2xl flex items-center justify-around border-rose-500/20">
+      {/* ==================== MOBILE SLIM DOCK ==================== */}
+      <div className="md:hidden fixed bottom-3 inset-x-6 z-40 glass-panel rounded-full p-2 shadow-2xl flex items-center justify-around border-sky-300/40 dark:border-sky-500/30">
         <button
           onClick={() => {
             setActiveTab('dashboard');
             setActiveSpace(null);
           }}
           className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
-            activeTab === 'dashboard' && !activeSpace ? 'bg-rose-500 text-white' : 'text-stone-500'
+            activeTab === 'dashboard' && !activeSpace ? 'bg-sky-500 text-white' : 'text-slate-500'
           }`}
         >
           <LayoutDashboard size={18} />
@@ -845,7 +819,7 @@ export default function App() {
             setActiveSpace(null);
           }}
           className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
-            activeTab === 'friends' ? 'bg-rose-500 text-white' : 'text-stone-500'
+            activeTab === 'friends' ? 'bg-sky-500 text-white' : 'text-slate-500'
           }`}
         >
           <Users size={18} />
@@ -858,7 +832,7 @@ export default function App() {
             setActiveSpace(null);
           }}
           className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
-            activeTab === 'profile' ? 'bg-rose-500 text-white' : 'text-stone-500'
+            activeTab === 'profile' ? 'bg-sky-500 text-white' : 'text-slate-500'
           }`}
         >
           <User size={18} />
@@ -916,7 +890,7 @@ export default function App() {
         wishes={wishes}
         onConfetti={() => {
           setConfettiActive(true);
-          setTimeout(() => setConfettiActive(false), 3500);
+          setTimeout(() => setConfettiActive(false), 3600);
         }}
       />
     </div>
