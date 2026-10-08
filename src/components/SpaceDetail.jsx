@@ -43,7 +43,7 @@ export default function SpaceDetail({
         <div className="absolute top-0 right-0 w-72 h-72 bg-sky-400/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex items-center gap-4 relative z-10">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-sky-400 via-sky-500 to-blue-600 flex items-center justify-center text-3xl shadow-xl shadow-sky-500/25 shrink-0 text-white">
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-sky-300 via-sky-400 to-cyan-300 flex items-center justify-center text-3xl shadow-xl shadow-sky-300/40 shrink-0 text-white">
             {space.emoji}
           </div>
           <div>
@@ -51,7 +51,7 @@ export default function SpaceDetail({
               {space.name}
             </h1>
             <div className="flex flex-wrap items-center gap-2 mt-2">
-              <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-400/20">
+              <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 dark:bg-sky-500/10 text-sky-600 dark:text-sky-300 border border-sky-200 dark:border-sky-400/20">
                 {space.type === '1on1' ? '1-on-1 Sanctuary' : 'Group Circle'}
               </span>
               <button
@@ -75,9 +75,9 @@ export default function SpaceDetail({
         <div className="flex flex-wrap items-center gap-3 relative z-10">
           <button
             onClick={onOpenRoulette}
-            className="btn-primary bg-gradient-to-r from-amber-400 via-sky-500 to-blue-600 shadow-sky-500/25 text-xs py-2.5 px-5 font-bold"
+            className="btn-primary bg-gradient-to-r from-sky-400 via-cyan-300 to-sky-400 text-slate-900 shadow-sky-300/30 text-xs py-2.5 px-5 font-extrabold"
           >
-            <Sparkles size={16} className="text-yellow-200" /> วงล้อสุ่มความปรารถนา
+            <Sparkles size={16} className="text-amber-500" /> วงล้อสุ่มความปรารถนา
           </button>
           <button onClick={onOpenAddWish} className="btn-primary text-xs py-2.5 px-4">
             <Plus size={16} /> ขอของขวัญ

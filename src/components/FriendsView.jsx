@@ -57,12 +57,12 @@ export default function FriendsView({ friends, onAddFriend, onAcceptFriend, onDe
           friends.map((f) => (
             <div key={f.id} className="glass-card p-4 rounded-2xl flex items-center justify-between gap-3 border-sky-200/50 dark:border-sky-500/20">
               <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-full bg-sky-500/15 border border-sky-400/20 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                <div className="w-11 h-11 rounded-full bg-sky-100 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-400/20 flex items-center justify-center text-xl shrink-0 shadow-sm">
                   {f.emoji}
                 </div>
                 <div>
                   <div className="font-bold text-sm text-slate-900 dark:text-slate-100">{f.displayName}</div>
-                  <div className="text-xs text-sky-600 dark:text-sky-400 font-mono">@{f.username}</div>
+                  <div className="text-xs text-sky-500 dark:text-sky-300 font-mono">@{f.username}</div>
                 </div>
               </div>
 

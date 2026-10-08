@@ -37,8 +37,8 @@ export default function CreateSpaceModal({ isOpen, onClose, onSubmit }) {
                 onClick={() => setSpaceForm({ ...spaceForm, type: '1on1' })}
                 className={`p-3 rounded-2xl text-xs font-bold border transition-all ${
                   spaceForm.type === '1on1'
-                    ? 'border-sky-500 bg-sky-500/15 text-sky-600 dark:text-sky-400 shadow-sm'
-                    : 'border-slate-200 dark:border-slate-800 hover:bg-sky-500/5'
+                    ? 'border-sky-300 bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-sky-300 shadow-sm shadow-sky-200/50'
+                    : 'border-slate-200 dark:border-slate-800 hover:bg-sky-50'
                 }`}
               >
                 1-on-1 (คู่รัก/เพื่อนสนิท)
@@ -48,8 +48,8 @@ export default function CreateSpaceModal({ isOpen, onClose, onSubmit }) {
                 onClick={() => setSpaceForm({ ...spaceForm, type: 'group' })}
                 className={`p-3 rounded-2xl text-xs font-bold border transition-all ${
                   spaceForm.type === 'group'
-                    ? 'border-sky-500 bg-sky-500/15 text-sky-600 dark:text-sky-400 shadow-sm'
-                    : 'border-slate-200 dark:border-slate-800 hover:bg-sky-500/5'
+                    ? 'border-sky-300 bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-sky-300 shadow-sm shadow-sky-200/50'
+                    : 'border-slate-200 dark:border-slate-800 hover:bg-sky-50'
                 }`}
               >
                 กลุ่ม (เพื่อนหลายคน)

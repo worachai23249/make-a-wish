@@ -29,7 +29,7 @@ export default function ConfettiHearts({ active }) {
     let stardust = [];
 
     const PALETTES = [
-      ['#38BDF8', '#0284C7', '#7DD3FC', '#FFFFFF'], // Celestial Sky Blue & Diamond
+      ['#38BDF8', '#BAE6FD', '#7DD3FC', '#FFFFFF'], // Pastel Sky Blue & Diamond
       ['#F59E0B', '#FBBF24', '#FDE68A', '#FFFFFF'], // Champagne Gold & Diamond
       ['#06B6D4', '#22D3EE', '#67E8F9', '#ECFEFF'], // Celestial Cyan & Ice
       ['#818CF8', '#A5B4FC', '#C7D2FE', '#EEF2FF'], // Periwinkle Starlight

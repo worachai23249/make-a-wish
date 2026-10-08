@@ -12,14 +12,14 @@ export default function ProfileView({ currentUser, onAvatarChange }) {
         <div className="absolute top-0 right-0 w-48 h-48 bg-sky-400/10 rounded-full blur-2xl pointer-events-none" />
 
         <div className="relative inline-block mx-auto z-10">
-          <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-sky-400 via-sky-500 to-blue-600 flex items-center justify-center text-5xl overflow-hidden shadow-2xl shadow-sky-500/30 mx-auto ring-4 ring-white dark:ring-slate-900">
+          <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-sky-300 via-sky-400 to-cyan-300 flex items-center justify-center text-5xl overflow-hidden shadow-2xl shadow-sky-300/40 mx-auto ring-4 ring-white dark:ring-slate-900">
             {currentUser.avatarUrl ? (
               <img src={currentUser.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
               currentUser.emoji || '🌸'
             )}
           </div>
-          <label className="absolute bottom-0 right-0 p-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-full cursor-pointer shadow-lg hover:scale-110 active:scale-95 transition-all">
+          <label className="absolute bottom-0 right-0 p-2.5 bg-sky-400 hover:bg-sky-500 text-white rounded-full cursor-pointer shadow-lg hover:scale-110 active:scale-95 transition-all">
             <Camera size={16} />
             <input type="file" accept="image/*" onChange={onAvatarChange} className="hidden" />
           </label>

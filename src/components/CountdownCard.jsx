@@ -23,13 +23,13 @@ export default function CountdownCard({ events, spaceEvents, onAddEvent, onDelet
   return (
     <div className="glass-card p-6 rounded-[28px] border-sky-200/50 dark:border-sky-500/20 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-extrabold text-sm sm:text-base text-sky-600 dark:text-sky-400 flex items-center gap-2">
+        <h3 className="font-extrabold text-sm sm:text-base text-sky-600 dark:text-sky-300 flex items-center gap-2">
           <Clock size={17} /> วันสำคัญที่กำลังจะมาถึง ⏰
         </h3>
         {isOwner && (
           <button
             onClick={() => setIsAdding(!isAdding)}
-            className="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:text-white hover:bg-sky-500 bg-sky-500/10 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all border border-sky-400/20"
+            className="text-[11px] font-bold text-sky-600 dark:text-sky-300 hover:text-white hover:bg-sky-400 bg-sky-100 dark:bg-sky-500/15 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all border border-sky-200 dark:border-sky-400/20"
           >
             {isAdding ? 'ยกเลิก' : <><Plus size={13} /> เพิ่มวันสำคัญ</>}
           </button>
@@ -96,7 +96,7 @@ export default function CountdownCard({ events, spaceEvents, onAddEvent, onDelet
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   {diffDays > 0 ? (
-                    <span className="text-xs font-bold text-sky-600 dark:text-sky-400 px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-400/20">
+                    <span className="text-xs font-bold text-sky-600 dark:text-sky-300 px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-400/20">
                       อีก {diffDays} วัน ⏳
                     </span>
                   ) : diffDays === 0 ? (

@@ -426,16 +426,16 @@ export default function App() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
         {/* Soft Ambient Starlight Blobs */}
-        <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-sky-300/20 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full bg-blue-400/15 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-sky-200/35 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full bg-cyan-200/30 blur-3xl pointer-events-none" />
 
-        <div className="glass-panel w-full max-w-md rounded-[36px] p-8 sm:p-10 shadow-2xl animate-fade-in relative z-10 border-sky-200/50 dark:border-sky-500/20">
+        <div className="glass-panel w-full max-w-md rounded-[36px] p-8 sm:p-10 shadow-2xl animate-fade-in relative z-10 border-sky-200/70 dark:border-sky-400/20">
           {/* Logo & Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-tr from-sky-400 via-sky-500 to-blue-600 text-white shadow-xl shadow-sky-500/25 text-3xl mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-tr from-sky-300 via-sky-400 to-cyan-300 text-white shadow-xl shadow-sky-300/40 text-3xl mb-4">
               ✨
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 via-sky-500 to-cyan-400 bg-clip-text text-transparent">
               Make a Wish
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium tracking-wide">
@@ -627,11 +627,11 @@ export default function App() {
             }}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-400 to-blue-600 flex items-center justify-center text-lg text-white shadow-md shadow-sky-500/25 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-300 via-sky-400 to-cyan-300 flex items-center justify-center text-lg text-white shadow-md shadow-sky-300/40 group-hover:scale-105 transition-transform">
               ✨
             </div>
             <div>
-              <div className="font-extrabold text-base tracking-tight bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <div className="font-extrabold text-base tracking-tight bg-gradient-to-r from-sky-400 via-sky-500 to-cyan-400 bg-clip-text text-transparent">
                 Make a Wish
               </div>
               <div className="text-[10px] text-slate-400 font-mono flex items-center gap-1.5">

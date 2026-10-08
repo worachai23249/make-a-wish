@@ -2,18 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Volume2, VolumeX, Sparkles, Check, Trophy, Star, Zap } from 'lucide-react';
 import { sound } from '../audio';
 
-// Celestial Luxury Color Palette for Wheel
+// Pastel Sky Luxury Color Palette for Wheel
 const regalColors = [
-  { bg: '#0284C7', border: '#E0F2FE' }, // Sky Cerulean
-  { bg: '#38BDF8', border: '#F0F9FF' }, // Ice Azure
-  { bg: '#D97706', border: '#FEF3C7' }, // Imperial Gold
-  { bg: '#0D9488', border: '#CCFBF1' }, // Aquamarine
-  { bg: '#2563EB', border: '#DBEAFE' }, // Royal Blue
-  { bg: '#F59E0B', border: '#FEF9C3' }, // Champagne Gold
-  { bg: '#0891B2', border: '#CFFAFE' }, // Cyan Starlight
-  { bg: '#4F46E5', border: '#EEF2FF' }, // Cosmic Lapis
-  { bg: '#059669', border: '#D1FAE5' }, // Emerald Glow
-  { bg: '#0EA5E9', border: '#E0F2FE' }, // Radiant Ocean
+  { bg: '#38BDF8', border: '#F0F9FF' }, // Pastel Sky Azure
+  { bg: '#7DD3FC', border: '#FFFFFF' }, // Soft Powder Blue
+  { bg: '#FBBF24', border: '#FEF9C3' }, // Pastel Champagne Gold
+  { bg: '#67E8F9', border: '#ECFEFF' }, // Pastel Ice Cyan
+  { bg: '#BAE6FD', border: '#FFFFFF' }, // Light Baby Blue
+  { bg: '#F59E0B', border: '#FEF3C7' }, // Warm Honey Gold
+  { bg: '#34D399', border: '#ECFDF5' }, // Soft Pastel Mint
+  { bg: '#A5F3FC', border: '#FFFFFF' }, // Crystalline Sky Aqua
+  { bg: '#818CF8', border: '#EEF2FF' }, // Soft Periwinkle
+  { bg: '#0EA5E9', border: '#E0F2FE' }, // Bright Sky Cerulean
 ];
 
 export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
@@ -343,7 +343,7 @@ export default function RouletteModal({ isOpen, onClose, wishes, onConfetti }) {
                 <Sparkles size={18} className="text-amber-400 animate-spin" /> ✦ ลุ้นชี้ชะตา... ✦
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 via-sky-500 to-blue-600 bg-clip-text text-transparent font-black">
+              <span className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 via-sky-400 to-cyan-400 bg-clip-text text-transparent font-black">
                 <Sparkles size={16} className="text-amber-400" /> วงล้อสุ่มความปรารถนา
               </span>
             )}

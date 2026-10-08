@@ -12,7 +12,7 @@ export default function SpaceMembers({ members = [], friends = [], onInviteFrien
         </h3>
         <button
           onClick={() => setIsInviteOpen(!isInviteOpen)}
-          className="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:text-white hover:bg-sky-500 bg-sky-500/10 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all border border-sky-400/20"
+          className="text-[11px] font-bold text-sky-600 dark:text-sky-300 hover:text-white hover:bg-sky-400 bg-sky-100 dark:bg-sky-500/15 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all border border-sky-200 dark:border-sky-400/20"
         >
           {isInviteOpen ? <X size={13} /> : <><Plus size={13} /> เชิญเพื่อน</>}
         </button>
@@ -22,7 +22,7 @@ export default function SpaceMembers({ members = [], friends = [], onInviteFrien
         {members.map((memberName, idx) => (
           <div
             key={idx}
-            className={`w-9 h-9 rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-400 font-bold text-xs flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm ${
+            className={`w-9 h-9 rounded-full bg-sky-100 dark:bg-sky-500/15 text-sky-600 dark:text-sky-300 font-bold text-xs flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm ${
               idx > 0 ? '-ml-2.5' : ''
             }`}
             title={memberName}

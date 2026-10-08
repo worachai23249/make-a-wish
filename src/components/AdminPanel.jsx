@@ -17,11 +17,11 @@ export default function AdminPanel({ stats, users, onDeleteUser, showToast }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="glass-card p-5 rounded-[24px] border-sky-200/50 dark:border-sky-500/20">
           <div className="text-xs font-bold text-slate-400">ผู้ใช้ทั้งหมด</div>
-          <div className="text-2xl sm:text-3xl font-extrabold mt-1 text-sky-600 dark:text-sky-400">{stats.users}</div>
+          <div className="text-2xl sm:text-3xl font-extrabold mt-1 text-sky-500 dark:text-sky-400">{stats.users}</div>
         </div>
         <div className="glass-card p-5 rounded-[24px] border-sky-200/50 dark:border-sky-500/20">
           <div className="text-xs font-bold text-slate-400">ห้องความปรารถนา</div>
-          <div className="text-2xl sm:text-3xl font-extrabold mt-1 text-blue-600 dark:text-blue-400">{stats.spaces}</div>
+          <div className="text-2xl sm:text-3xl font-extrabold mt-1 text-cyan-500 dark:text-cyan-400">{stats.spaces}</div>
         </div>
         <div className="glass-card p-5 rounded-[24px] border-sky-200/50 dark:border-sky-500/20">
           <div className="text-xs font-bold text-slate-400">ของขวัญทั้งหมด</div>

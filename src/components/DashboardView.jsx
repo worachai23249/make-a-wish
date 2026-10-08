@@ -9,15 +9,15 @@ export default function DashboardView({ spaces, currentUser, onOpenSpace, onCrea
       {/* ==================== ✦ LUXURY HERO WELCOME BANNER ✦ ==================== */}
       <div className="relative glass-card p-7 sm:p-9 rounded-[32px] overflow-hidden border-sky-200/50 dark:border-sky-500/20">
         {/* Ambient Glowing Blobs */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-sky-400/15 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-sky-300/20 dark:bg-sky-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-cyan-300/20 rounded-full blur-2xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-400/20">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-500/10 text-sky-600 dark:text-sky-300 border border-sky-200 dark:border-sky-400/20">
               <Sparkles size={13} /> Private Luxury Sanctuary
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-sky-900 to-slate-800 dark:from-white dark:via-sky-200 dark:to-slate-200 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-sky-800 to-slate-800 dark:from-white dark:via-sky-200 dark:to-slate-200 bg-clip-text text-transparent">
               ห้องความปรารถนาทั้งหมด ✨
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl font-medium">

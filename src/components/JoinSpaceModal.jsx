@@ -35,7 +35,7 @@ export default function JoinSpaceModal({ isOpen, onClose, onSubmit }) {
             required
             maxLength={6}
             placeholder="เช่น LOVE26"
-            className="form-input text-center text-2xl font-mono tracking-widest uppercase font-black text-sky-600 dark:text-sky-400"
+            className="form-input text-center text-2xl font-mono tracking-widest uppercase font-black text-sky-500 dark:text-sky-300"
             value={joinCodeInput}
             onChange={(e) => setJoinCodeInput(e.target.value)}
           />

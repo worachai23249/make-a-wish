@@ -11,7 +11,7 @@ export default function WishCard({ wish, currentUser, onToggleFulfilled, onDelet
       <div>
         {/* Top Bar: Category & Status */}
         <div className="flex items-center justify-between mb-3.5">
-          <span className="text-[10px] px-3 py-0.5 rounded-full font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-400/20">
+          <span className="text-[10px] px-3 py-0.5 rounded-full font-bold bg-sky-100 dark:bg-sky-500/15 text-sky-600 dark:text-sky-300 border border-sky-200 dark:border-sky-400/20">
             {wish.category === 'food' ? '🍜 อาหาร' : wish.category === 'place' ? '📍 สถานที่' : '🎁 สิ่งของ'}
           </span>
           {wish.isFulfilled ? (
@@ -78,7 +78,7 @@ export default function WishCard({ wish, currentUser, onToggleFulfilled, onDelet
             className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all inline-flex items-center gap-1 ${
               wish.isFulfilled
                 ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/30 border border-emerald-400/20'
-                : 'bg-sky-500/15 text-sky-600 dark:text-sky-400 hover:bg-sky-500 hover:text-white border border-sky-400/20'
+                : 'bg-sky-100 hover:bg-sky-400 hover:text-white text-sky-600 dark:bg-sky-500/15 dark:text-sky-300 dark:hover:bg-sky-400 border border-sky-200 dark:border-sky-400/20'
             }`}
           >
             {wish.isFulfilled ? '✦ มอบแล้ว' : '🎁 ซื้อให้แล้ว'}
