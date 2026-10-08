@@ -61,14 +61,14 @@ export default function SpaceDetail({
               </span>
               <button
                 onClick={() => onCopyInviteCode(space.inviteCode)}
-                className="px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-slate-500/10 hover:bg-sky-500/15 text-slate-600 dark:text-slate-300 hover:text-sky-600 inline-flex items-center gap-1.5 transition-all border border-slate-300/30 dark:border-slate-700"
+                className="btn-pill text-[11px] font-mono font-bold inline-flex items-center gap-1.5 transition-all"
               >
                 {copiedCode ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
                 #{space.inviteCode}
               </button>
               <button
                 onClick={() => onShareSpace(space)}
-                className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-slate-500/10 hover:bg-sky-500/15 text-slate-600 dark:text-slate-300 hover:text-sky-600 inline-flex items-center gap-1.5 transition-all border border-slate-300/30 dark:border-slate-700"
+                className="btn-pill text-[11px] font-bold inline-flex items-center gap-1.5 transition-all"
               >
                 <Share2 size={12} /> แชร์ห้อง
               </button>
@@ -80,11 +80,11 @@ export default function SpaceDetail({
         <div className="flex flex-wrap items-center gap-3 relative z-10">
           <button
             onClick={onOpenRoulette}
-            className="btn-primary bg-gradient-to-r from-sky-400 via-cyan-300 to-sky-400 text-slate-900 shadow-sky-300/30 text-xs py-2.5 px-5 font-extrabold"
+            className="btn-secondary text-xs py-2.5 px-5 font-extrabold shadow-sm"
           >
             <Sparkles size={16} className="text-amber-500" /> วงล้อสุ่มความปรารถนา
           </button>
-          <button onClick={onOpenAddWish} className="btn-primary text-xs py-2.5 px-4">
+          <button onClick={onOpenAddWish} className="btn-primary text-xs py-2.5 px-5 font-extrabold shadow-sm">
             <Plus size={16} /> ขอของขวัญ
           </button>
           {space.ownerId === currentUser.id && (
@@ -115,9 +115,9 @@ export default function SpaceDetail({
       </div>
 
       {/* ==================== ✦ FILTER TOOLBAR ✦ ==================== */}
-      <div className="glass-card p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 border-sky-200/50 dark:border-sky-500/20">
+      <div className="glass-card p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 border-sky-200/50 dark:border-sky-500/20">
         {/* Category Pills */}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2">
           {[
             { id: 'all', label: 'ทั้งหมด' },
             { id: 'item', label: '🎁 สิ่งของ' },
@@ -128,9 +128,7 @@ export default function SpaceDetail({
               key={c.id}
               onClick={() => setCategoryFilter(c.id)}
               className={`btn-pill transition-all ${
-                categoryFilter === c.id
-                  ? 'bg-sky-500 text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-sky-500/10'
+                categoryFilter === c.id ? 'btn-pill-active' : ''
               }`}
             >
               {c.label}
@@ -141,7 +139,7 @@ export default function SpaceDetail({
         {/* Status & Ownership Filters */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Status Filter */}
-          <div className="flex gap-1 bg-sky-500/8 dark:bg-slate-800/60 p-1 rounded-full border border-sky-500/15">
+          <div className="flex gap-1.5 p-1 rounded-full">
             {[
               { id: 'all', label: 'ทุกสถานะ' },
               { id: 'unfulfilled', label: '⏳ รอส่งมอบ' },
@@ -150,8 +148,8 @@ export default function SpaceDetail({
               <button
                 key={s.id}
                 onClick={() => setStatusFilter(s.id)}
-                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
-                  statusFilter === s.id ? 'bg-sky-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                className={`btn-pill text-[11px] transition-all ${
+                  statusFilter === s.id ? 'btn-pill-active' : ''
                 }`}
               >
                 {s.label}
@@ -160,7 +158,7 @@ export default function SpaceDetail({
           </div>
 
           {/* Owner Filter */}
-          <div className="flex gap-1 bg-sky-500/8 dark:bg-slate-800/60 p-1 rounded-full border border-sky-500/15">
+          <div className="flex gap-1.5 p-1 rounded-full">
             {[
               { id: 'all', label: 'ทุกคน' },
               { id: 'mine', label: 'ของฉัน' },
@@ -169,8 +167,8 @@ export default function SpaceDetail({
               <button
                 key={f.id}
                 onClick={() => setOwnerFilter(f.id)}
-                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
-                  ownerFilter === f.id ? 'bg-sky-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                className={`btn-pill text-[11px] transition-all ${
+                  ownerFilter === f.id ? 'btn-pill-active' : ''
                 }`}
               >
                 {f.label}

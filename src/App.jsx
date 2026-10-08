@@ -638,7 +638,7 @@ export default function App() {
               }}
               className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs transition-all ${
                 activeTab === 'dashboard' && !activeSpace
-                  ? 'bg-[#00a6ff] text-white font-extrabold shadow-lg shadow-sky-400/35 border border-white/40'
+                  ? 'btn-pill-active font-extrabold'
                   : 'text-slate-800 dark:text-slate-200 hover:text-[#00a6ff] hover:bg-sky-50 dark:hover:bg-slate-800 font-bold'
               }`}
             >
@@ -652,7 +652,7 @@ export default function App() {
               }}
               className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs transition-all ${
                 activeTab === 'friends'
-                  ? 'bg-[#00a6ff] text-white font-extrabold shadow-lg shadow-sky-400/35 border border-white/40'
+                  ? 'btn-pill-active font-extrabold'
                   : 'text-slate-800 dark:text-slate-200 hover:text-[#00a6ff] hover:bg-sky-50 dark:hover:bg-slate-800 font-bold'
               }`}
             >
@@ -666,7 +666,7 @@ export default function App() {
               }}
               className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs transition-all ${
                 activeTab === 'profile'
-                  ? 'bg-[#00a6ff] text-white font-extrabold shadow-lg shadow-sky-400/35 border border-white/40'
+                  ? 'btn-pill-active font-extrabold'
                   : 'text-slate-800 dark:text-slate-200 hover:text-[#00a6ff] hover:bg-sky-50 dark:hover:bg-slate-800 font-bold'
               }`}
             >

@@ -78,10 +78,8 @@ export default function WishCard({ wish, currentUser, onToggleFulfilled, onDelet
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => onToggleFulfilled(wish)}
-            className={`px-3.5 py-1 rounded-full text-[11px] font-bold transition-all inline-flex items-center gap-1 shadow-sm ${
-              wish.isFulfilled
-                ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/30 border border-emerald-400/25'
-                : 'bg-[#e0f2fe] hover:bg-[#00a6ff] hover:text-white text-[#0284c7] border border-[#bae6fd]'
+            className={`btn-pill text-[11px] font-bold transition-all inline-flex items-center gap-1.5 shadow-sm ${
+              wish.isFulfilled ? 'btn-pill-active' : ''
             }`}
           >
             {wish.isFulfilled ? '✦ มอบแล้ว' : '🎁 ซื้อให้แล้ว'}
