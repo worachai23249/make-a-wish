@@ -1,29 +1,86 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Copy, Check, Share2, Sparkles, Plus, Trash2, Tag, Compass } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Copy, 
+  Check, 
+  Share2, 
+  Sparkles, 
+  Plus, 
+  Trash2, 
+  Tag, 
+  Compass, 
+  Search, 
+  ArrowUpDown, 
+  LogOut,
+  Edit3,
+  ImageIcon
+} from 'lucide-react';
 import CountdownCard from './CountdownCard';
 import SpaceMembers from './SpaceMembers';
 import WishCard from './WishCard';
+import EditSpaceModal from './EditSpaceModal';
+import ShareStoryCardModal from './ShareStoryCardModal';
 
 export default function SpaceDetail({ 
   space, wishes, friends, currentUser, spaceEvents, 
-  onBack, onDeleteSpace, onCopyInviteCode, onShareSpace, 
+  onBack, onDeleteSpace, onLeaveSpace, onCopyInviteCode, onShareSpace, 
   onOpenAddWish, onOpenEditWish, onOpenRoulette, onDeleteWish, 
-  onToggleFulfilled, onAddEvent, onDeleteEvent, onInviteFriend, 
-  showToast, copiedCode 
+  onToggleFulfilled, onClaimWish, onUnclaimWish, onToggleReaction, onAddEvent, onDeleteEvent, onInviteFriend, 
+  onEditSpace, onAddNote, showToast, copiedCode 
 }) {
+  const [isEditSpaceOpen, setIsEditSpaceOpen] = useState(false);
+  const [isShareStoryOpen, setIsShareStoryOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [ownerFilter, setOwnerFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
 
-  // Filtered Wishes for display
-  const filteredWishes = wishes.filter((w) => {
-    if (categoryFilter !== 'all' && w.category !== categoryFilter) return false;
-    if (statusFilter === 'unfulfilled' && w.isFulfilled) return false;
-    if (statusFilter === 'fulfilled' && !w.isFulfilled) return false;
-    if (ownerFilter === 'mine' && w.userId !== currentUser.id) return false;
-    if (ownerFilter === 'others' && w.userId === currentUser.id) return false;
-    return true;
-  });
+  // Parse price helper
+  const parsePrice = (price) => {
+    if (!price) return 0;
+    const num = parseFloat(String(price).replace(/,/g, ''));
+    return isNaN(num) ? 0 : num;
+  };
+
+  // Budget calculations
+  const totalPrice = wishes.reduce((sum, w) => sum + parsePrice(w.price), 0);
+  const fulfilledPrice = wishes
+    .filter((w) => w.isFulfilled)
+    .reduce((sum, w) => sum + parsePrice(w.price), 0);
+  const remainingPrice = totalPrice - fulfilledPrice;
+
+  // Filtered & Sorted Wishes for display
+  const filteredWishes = wishes
+    .filter((w) => {
+      if (categoryFilter !== 'all' && w.category !== categoryFilter) return false;
+      if (statusFilter === 'unfulfilled' && w.isFulfilled) return false;
+      if (statusFilter === 'fulfilled' && !w.isFulfilled) return false;
+      if (ownerFilter === 'mine' && w.userId !== currentUser?.id) return false;
+      if (ownerFilter === 'others' && w.userId === currentUser?.id) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const titleMatch = (w.title || '').toLowerCase().includes(q);
+        const descMatch = (w.description || '').toLowerCase().includes(q);
+        if (!titleMatch && !descMatch) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'newest') {
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      }
+      if (sortBy === 'oldest') {
+        return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+      }
+      if (sortBy === 'price-high') {
+        return parsePrice(b.price) - parsePrice(a.price);
+      }
+      if (sortBy === 'price-low') {
+        return parsePrice(a.price) - parsePrice(b.price);
+      }
+      return 0;
+    });
 
   const fulfilledCount = wishes.filter(w => w.isFulfilled).length;
 
@@ -72,6 +129,14 @@ export default function SpaceDetail({
               >
                 <Share2 size={12} /> แชร์ห้อง
               </button>
+              {space.ownerId === currentUser?.id && (
+                <button
+                  onClick={() => setIsEditSpaceOpen(true)}
+                  className="btn-pill text-[11px] font-bold inline-flex items-center gap-1.5 transition-all"
+                >
+                  <Edit3 size={12} /> แก้ไขห้อง
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -87,13 +152,24 @@ export default function SpaceDetail({
           <button onClick={onOpenAddWish} className="btn-primary text-xs py-2.5 px-5 font-extrabold shadow-sm">
             <Plus size={16} /> ขอของขวัญ
           </button>
-          {space.ownerId === currentUser.id && (
+          <button
+            onClick={() => setIsShareStoryOpen(true)}
+            className="btn-secondary text-xs py-2.5 px-5 font-extrabold shadow-sm"
+          >
+            <ImageIcon size={16} className="text-pink-400" /> แชร์ Story Card
+          </button>
+          {space.ownerId === currentUser?.id && (
             <button
               onClick={() => onDeleteSpace(space.id, space.name)}
               className="p-2.5 rounded-full hover:bg-rose-500/10 text-slate-400 hover:text-rose-500 transition-colors"
               title="ลบห้องนี้"
             >
               <Trash2 size={16} />
+            </button>
+          )}
+          {space.ownerId !== currentUser?.id && (
+            <button onClick={() => onLeaveSpace(space.id, space.name)} className="btn-secondary text-xs py-2.5 px-5 font-extrabold shadow-sm">
+              <LogOut size={16} className="text-rose-400" /> ออกจากห้อง
             </button>
           )}
         </div>
@@ -105,7 +181,7 @@ export default function SpaceDetail({
           spaceEvents={spaceEvents} 
           onAddEvent={onAddEvent} 
           onDeleteEvent={onDeleteEvent} 
-          isOwner={space.ownerId === currentUser.id} 
+          isOwner={space.ownerId === currentUser?.id} 
         />
         <SpaceMembers 
           members={space.members || []} 
@@ -114,66 +190,128 @@ export default function SpaceDetail({
         />
       </div>
 
+      {/* ==================== 💰 BUDGET SUMMARY CARD 💰 ==================== */}
+      <div className="glass-card p-5 rounded-[28px]">
+        <div className="grid grid-cols-3 gap-4">
+          <div className="flex flex-col items-center sm:items-start p-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 mb-1">
+              <span>💰</span> งบรวมทั้งหมด
+            </div>
+            <div className="text-lg font-black text-sky-500">
+              ฿{totalPrice.toLocaleString('th-TH')}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center sm:items-start p-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 mb-1">
+              <span>🎁</span> ซื้อไปแล้ว
+            </div>
+            <div className="text-lg font-black text-emerald-500">
+              ฿{fulfilledPrice.toLocaleString('th-TH')}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center sm:items-start p-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 mb-1">
+              <span>⏳</span> คงเหลือ
+            </div>
+            <div className="text-lg font-black text-amber-500">
+              ฿{remainingPrice.toLocaleString('th-TH')}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ==================== ✦ FILTER TOOLBAR ✦ ==================== */}
-      <div className="glass-card p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 border-sky-200/50 dark:border-sky-500/20">
-        {/* Category Pills */}
-        <div className="flex flex-wrap gap-2">
-          {[
-            { id: 'all', label: 'ทั้งหมด' },
-            { id: 'item', label: '🎁 สิ่งของ' },
-            { id: 'food', label: '🍜 อาหาร' },
-            { id: 'place', label: '📍 สถานที่' },
-          ].map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setCategoryFilter(c.id)}
-              className={`btn-pill transition-all ${
-                categoryFilter === c.id ? 'btn-pill-active' : ''
-              }`}
+      <div className="glass-card p-3.5 rounded-2xl border-sky-200/50 dark:border-sky-500/20">
+        {/* Search & Sort Row */}
+        <div className="w-full flex items-center gap-2 mb-3">
+          <div className="relative flex-1">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="ค้นหาของขวัญ..." 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+              className="w-full pl-8 pr-3 py-2 rounded-xl bg-white/80 border border-white text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40 shadow-sm" 
+            />
+          </div>
+          <div className="relative shrink-0">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="pl-3 pr-8 py-2 rounded-xl bg-white/80 border border-white text-xs font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-400/40 shadow-sm appearance-none cursor-pointer"
             >
-              {c.label}
-            </button>
-          ))}
+              <option value="newest">ล่าสุด</option>
+              <option value="oldest">เก่าที่สุด</option>
+              <option value="price-high">ราคาสูงสุด</option>
+              <option value="price-low">ราคาต่ำสุด</option>
+            </select>
+            <ArrowUpDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          </div>
         </div>
 
-        {/* Status & Ownership Filters */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Status Filter */}
-          <div className="flex gap-1.5 p-1 rounded-full">
+        {/* Filter Row: Category & Status/Ownership */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Category Pills */}
+          <div className="flex flex-wrap gap-2">
             {[
-              { id: 'all', label: 'ทุกสถานะ' },
-              { id: 'unfulfilled', label: '⏳ รอส่งมอบ' },
-              { id: 'fulfilled', label: '✨ มอบแล้ว' },
-            ].map((s) => (
+              { id: 'all', label: 'ทั้งหมด' },
+              { id: 'item', label: '🎁 สิ่งของ' },
+              { id: 'food', label: '🍜 อาหาร' },
+              { id: 'place', label: '📍 สถานที่' },
+            ].map((c) => (
               <button
-                key={s.id}
-                onClick={() => setStatusFilter(s.id)}
-                className={`btn-pill text-[11px] transition-all ${
-                  statusFilter === s.id ? 'btn-pill-active' : ''
+                key={c.id}
+                onClick={() => setCategoryFilter(c.id)}
+                className={`btn-pill transition-all ${
+                  categoryFilter === c.id ? 'btn-pill-active' : ''
                 }`}
               >
-                {s.label}
+                {c.label}
               </button>
             ))}
           </div>
 
-          {/* Owner Filter */}
-          <div className="flex gap-1.5 p-1 rounded-full">
-            {[
-              { id: 'all', label: 'ทุกคน' },
-              { id: 'mine', label: 'ของฉัน' },
-              { id: 'others', label: 'ของคนอื่น' },
-            ].map((f) => (
-              <button
-                key={f.id}
-                onClick={() => setOwnerFilter(f.id)}
-                className={`btn-pill text-[11px] transition-all ${
-                  ownerFilter === f.id ? 'btn-pill-active' : ''
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+          {/* Status & Ownership Filters */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Status Filter */}
+            <div className="flex gap-1.5 p-1 rounded-full">
+              {[
+                { id: 'all', label: 'ทุกสถานะ' },
+                { id: 'unfulfilled', label: '⏳ รอส่งมอบ' },
+                { id: 'fulfilled', label: '✨ มอบแล้ว' },
+              ].map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => setStatusFilter(s.id)}
+                  className={`btn-pill text-[11px] transition-all ${
+                    statusFilter === s.id ? 'btn-pill-active' : ''
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Owner Filter */}
+            <div className="flex gap-1.5 p-1 rounded-full">
+              {[
+                { id: 'all', label: 'ทุกคน' },
+                { id: 'mine', label: 'ของฉัน' },
+                { id: 'others', label: 'ของคนอื่น' },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setOwnerFilter(f.id)}
+                  className={`btn-pill text-[11px] transition-all ${
+                    ownerFilter === f.id ? 'btn-pill-active' : ''
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -198,12 +336,40 @@ export default function SpaceDetail({
               wish={w} 
               currentUser={currentUser} 
               onToggleFulfilled={onToggleFulfilled} 
+              onClaimWish={onClaimWish}
+              onUnclaimWish={onUnclaimWish}
+              onToggleReaction={onToggleReaction}
               onDelete={onDeleteWish} 
               onEdit={onOpenEditWish} 
+              onAddNote={onAddNote}
             />
           ))}
         </div>
       )}
+
+      <EditSpaceModal
+        isOpen={isEditSpaceOpen}
+        onClose={() => setIsEditSpaceOpen(false)}
+        space={space}
+        onSave={(updatesOrId, maybeUpdates) => {
+          const updates = maybeUpdates || updatesOrId;
+          const sId = maybeUpdates ? updatesOrId : space.id;
+          if (onEditSpace) onEditSpace(sId, updates);
+          setIsEditSpaceOpen(false);
+        }}
+      />
+
+      <ShareStoryCardModal
+        isOpen={isShareStoryOpen}
+        onClose={() => setIsShareStoryOpen(false)}
+        space={space}
+        wishes={wishes}
+        onCopyLink={() => {
+          navigator.clipboard.writeText(`${window.location.origin}?join=${space.inviteCode}`);
+          if (showToast) showToast('คัดลอกลิงก์แล้ว 📋');
+        }}
+        showToast={showToast}
+      />
     </div>
   );
 }

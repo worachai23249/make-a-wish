@@ -9,6 +9,8 @@ export default function EditWishModal({ isOpen, onClose, wish, onSave }) {
     price: '',
     linkUrl: '',
     emoji: '🎁',
+    imageUrl: '',
+    priority: 'high',
   });
 
   useEffect(() => {
@@ -20,6 +22,8 @@ export default function EditWishModal({ isOpen, onClose, wish, onSave }) {
         price: wish.price || '',
         linkUrl: wish.linkUrl || '',
         emoji: wish.emoji || '🎁',
+        imageUrl: wish.imageUrl || '',
+        priority: wish.priority || 'high',
       });
     }
   }, [wish, isOpen]);
@@ -72,6 +76,30 @@ export default function EditWishModal({ isOpen, onClose, wish, onSave }) {
           </div>
 
           <div>
+            <label className="block text-xs font-bold text-slate-400 mb-1.5">ระดับความอยากได้</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'must_have', label: '🔥 อยากได้มากสุด', activeColor: 'border-rose-300 bg-rose-50 text-rose-600 shadow-sm shadow-rose-200/50' },
+                { id: 'high', label: '✨ อยากได้มาก', activeColor: 'border-amber-300 bg-amber-50 text-amber-600 shadow-sm shadow-amber-200/50' },
+                { id: 'nice_to_have', label: '💡 มีก็ดี', activeColor: 'border-sky-300 bg-sky-100 text-sky-600 shadow-sm shadow-sky-200/50' },
+              ].map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setForm({ ...form, priority: p.id })}
+                  className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
+                    form.priority === p.id
+                      ? p.activeColor
+                      : 'border-slate-200 dark:border-slate-800 hover:bg-sky-50'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
             <label className="block text-xs font-bold text-slate-400 mb-1.5">สิ่งที่อยากได้</label>
             <input
               type="text"
@@ -101,8 +129,26 @@ export default function EditWishModal({ isOpen, onClose, wish, onSave }) {
                 placeholder="https://..."
                 className="form-input text-xs"
                 value={form.linkUrl}
-                onChange={(e) => setForm({ ...form, linkUrl: e.target.value })}
+                onChange={(e) => {
+                  let val = e.target.value.trim();
+                  if (val && !val.startsWith('http://') && !val.startsWith('https://') && val.includes('.')) {
+                    val = 'https://' + val;
+                  }
+                  setForm({ ...form, linkUrl: val });
+                }}
               />
+              {form.linkUrl && (
+                <div className="mt-1 text-[10px] text-sky-500 font-bold flex items-center gap-1">
+                  {form.linkUrl.includes('shopee') && <span>🛒 ลิงก์ Shopee ตรวจพบ</span>}
+                  {form.linkUrl.includes('lazada') && <span>🛍️ ลิงก์ Lazada ตรวจพบ</span>}
+                  {form.linkUrl.includes('apple.com') && <span>🍏 ลิงก์ Apple Store ตรวจพบ</span>}
+                  {form.linkUrl.includes('tiktok.com') && <span>🎵 ลิงก์ TikTok Shop ตรวจพบ</span>}
+                  {form.linkUrl.includes('instagram.com') && <span>📷 ลิงก์ Instagram Shop ตรวจพบ</span>}
+                  {!form.linkUrl.includes('shopee') && !form.linkUrl.includes('lazada') && !form.linkUrl.includes('apple.com') && !form.linkUrl.includes('tiktok.com') && !form.linkUrl.includes('instagram.com') && (
+                    <span>🔗 ลิงก์เว็บไซต์พร้อมใช้งาน</span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -115,6 +161,42 @@ export default function EditWishModal({ isOpen, onClose, wish, onSave }) {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 mb-1.5">รูปภาพของขวัญ (ไม่บังคับ)</label>
+            {form.imageUrl ? (
+              <div className="relative">
+                <img src={form.imageUrl} alt="Preview" className="w-full h-32 object-cover rounded-2xl border border-sky-200" />
+                <button type="button" onClick={() => setForm({ ...form, imageUrl: '' })} className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <label className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border-2 border-dashed border-sky-200 hover:border-sky-400 text-xs text-slate-400 hover:text-sky-500 cursor-pointer transition-all">
+                📷 เลือกรูปภาพ
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = () => {
+                      const canvas = document.createElement('canvas');
+                      const MAX = 512;
+                      let w = img.width, h = img.height;
+                      if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+                      else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+                      canvas.width = w; canvas.height = h;
+                      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                      setForm({ ...form, imageUrl: canvas.toDataURL('image/jpeg', 0.82) });
+                    };
+                    img.src = ev.target.result;
+                  };
+                  reader.readAsDataURL(file);
+                }} />
+              </label>
+            )}
           </div>
 
           <button type="submit" className="btn-primary w-full py-3.5 text-xs font-bold mt-2 shadow-lg">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import {
   supabase,
   getCurrentUser,
@@ -9,15 +9,18 @@ import {
   createSpace,
   joinSpace,
   deleteSpace,
+  leaveSpace,
   getWishes,
   addWish,
   editWish,
   toggleWishFulfilled,
   deleteWish,
+  getFriendships,
   getFriends,
-  addFriend,
-  acceptFriend,
-  deleteFriend,
+  sendFriendRequest,
+  acceptFriendRequest,
+  removeFriendship,
+  clearAllAccounts,
   getSpaceEvents,
   addSpaceEvent,
   deleteSpaceEvent,
@@ -27,7 +30,17 @@ import {
   getAdminUsers,
   deleteUserAdmin,
   ADMIN_ACCOUNT,
-  DEMO_USER_ACCOUNT,
+  editSpace,
+  addWishNote,
+  updateUserProfile,
+  claimWish,
+  unclaimWish,
+  toggleReaction,
+  getNotifications,
+  createNotification,
+  markNotificationRead,
+  markAllNotificationsRead,
+  subscribeToNotifications,
 } from './supabase';
 import { sound } from './audio';
 
@@ -43,6 +56,11 @@ import {
   CheckCheck,
   X,
   Compass,
+  Volume2,
+  VolumeX,
+  Bell,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 import ConfettiHearts from './components/ConfettiHearts';
@@ -53,9 +71,9 @@ import ProfileView from './components/ProfileView';
 import AdminPanel from './components/AdminPanel';
 import CreateSpaceModal from './components/CreateSpaceModal';
 import JoinSpaceModal from './components/JoinSpaceModal';
-import AddWishModal from './components/AddWishModal';
-import EditWishModal from './components/EditWishModal';
-import RouletteModal from './components/RouletteModal';
+const AddWishModal = lazy(() => import('./components/AddWishModal'));
+const EditWishModal = lazy(() => import('./components/EditWishModal'));
+const RouletteModal = lazy(() => import('./components/RouletteModal'));
 
 export default function App() {
   // Auth state
@@ -75,8 +93,10 @@ export default function App() {
   // Data states
   const [spaces, setSpaces] = useState([]);
   const [wishes, setWishes] = useState([]);
-  const [friends, setFriends] = useState([]);
+  const [friendships, setFriendships] = useState({ friends: [], incomingRequests: [], outgoingRequests: [] });
   const [spaceEvents, setSpaceEvents] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [adminStats, setAdminStats] = useState({ users: 0, spaces: 0, wishes: 0, fulfilledWishes: 0 });
   const [adminUsers, setAdminUsers] = useState([]);
 
@@ -107,12 +127,25 @@ export default function App() {
 
   const [confettiActive, setConfettiActive] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [isMuted, setIsMuted] = useState(() => sound.isMuted());
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try {
+      return localStorage.getItem('makewish_theme') === 'dark';
+    } catch {
+      return false;
+    }
+  });
 
-  // Enforce light mode always
+  // Dark mode handler
   useEffect(() => {
-    document.documentElement.classList.remove('dark');
-    localStorage.removeItem('theme');
-  }, []);
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('makewish_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('makewish_theme', 'light');
+    }
+  }, [isDarkMode]);
 
   // Load user data
   useEffect(() => {
@@ -125,8 +158,10 @@ export default function App() {
     if (!currentUser) return;
     const s = await getSpaces(currentUser.id);
     setSpaces(s);
-    const f = await getFriends(currentUser.id);
-    setFriends(f);
+    const f = await getFriendships(currentUser.id);
+    setFriendships(f);
+    const notifs = await getNotifications(currentUser.id);
+    setNotifications(notifs);
     if (currentUser.role === 'admin') {
       const stats = await getAdminStats();
       setAdminStats(stats);
@@ -134,6 +169,41 @@ export default function App() {
       setAdminUsers(u);
     }
   };
+
+  // Subscribe to Realtime Notifications
+  useEffect(() => {
+    if (!currentUser) return;
+    const channel = subscribeToNotifications(currentUser.id, (newNotif) => {
+      setNotifications(prev => [newNotif, ...prev]);
+      sound.playSuccess();
+      showToast(newNotif.title, newNotif.message);
+    });
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [currentUser]);
+
+  // Auto-join from shared URL (?join=CODE)
+  useEffect(() => {
+    if (!currentUser) return;
+    const params = new URLSearchParams(window.location.search);
+    const joinCode = params.get('join');
+    if (joinCode) {
+      // Clean URL without reload
+      window.history.replaceState({}, '', window.location.pathname);
+      // Auto-join the space
+      (async () => {
+        const res = await joinSpace(joinCode, currentUser);
+        if (res.status === 'success') {
+          setSpaces(prev => [res.space, ...prev.filter(s => s.id !== res.space.id)]);
+          setActiveSpace(res.space);
+          showToast('เข้าร่วมห้องสำเร็จ 💎', res.space.name);
+        } else {
+          showToast('ไม่สามารถเข้าร่วมห้องได้', res.message);
+        }
+      })();
+    }
+  }, [currentUser]);
 
   // Space data loading & Real-time Subscription
   useEffect(() => {
@@ -176,16 +246,6 @@ export default function App() {
       showToast('ยินดีต้อนรับกลับ ✨', `${res.user.displayName}`);
     } else {
       showToast('เข้าสู่ระบบไม่สำเร็จ', res.message);
-    }
-  };
-
-  const handleQuickLogin = async (account) => {
-    setLoginForm({ email: account.email, password: account.password });
-    const res = await login(account.email, account.password);
-    if (res.status === 'success') {
-      setCurrentUser(res.user);
-      setActiveTab(res.user.role === 'admin' ? 'admin' : 'dashboard');
-      showToast('เข้าสู่ระบบสำเร็จ ✨', `เข้าสู่ระบบในฐานะ ${res.user.displayName}`);
     }
   };
 
@@ -237,6 +297,32 @@ export default function App() {
     showToast('ลบห้องเรียบร้อย');
   };
 
+  const handleLeaveSpace = async (spaceId, spaceName) => {
+    if (!confirm(`คุณต้องการออกจากห้อง "${spaceName}" ใช่หรือไม่?`)) return;
+    await leaveSpace(spaceId, currentUser);
+    setSpaces(spaces.filter(s => s.id !== spaceId));
+    setActiveSpace(null);
+    showToast('ออกจากห้องแล้ว', spaceName);
+  };
+
+  const handleEditSpace = async (spaceId, updates) => {
+    const updated = await editSpace(spaceId, updates);
+    if (updated) {
+      setSpaces(spaces.map(s => s.id === spaceId ? updated : s));
+      setActiveSpace(updated);
+      showToast('แก้ไขห้องสำเร็จ ✨', updated.name);
+    }
+  };
+
+  const handleAddNote = async (wishId, noteText) => {
+    if (!activeSpace) return;
+    const res = await addWishNote(activeSpace.id, wishId, noteText, currentUser);
+    if (res?.wish) {
+      setWishes(wishes.map(w => w.id === wishId ? res.wish : w));
+      showToast('เพิ่มโน้ตสำเร็จ 💬');
+    }
+  };
+
   const handleCopyInviteCode = (code) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(true);
@@ -250,7 +336,7 @@ export default function App() {
         await navigator.share({
           title: `เข้าร่วมห้อง "${space.name}" บน Make a Wish`,
           text: `ใส่รหัสเชิญ: ${space.inviteCode} เพื่อแชร์ของขวัญและความปรารถนากับฉันใน Make a Wish! ✨`,
-          url: window.location.origin,
+          url: `${window.location.origin}?join=${space.inviteCode}`,
         });
         showToast('แชร์สำเร็จ 💌');
       } catch (_) {}
@@ -294,9 +380,47 @@ export default function App() {
         setConfettiActive(true);
         setTimeout(() => setConfettiActive(false), 3600);
         showToast('มอบของขวัญสำเร็จ ✦', `ทำเครื่องหมายโดย ${currentUser.displayName}`);
+        if (wish.userId && wish.userId !== currentUser.id) {
+          createNotification(wish.userId, {
+            type: 'wish_fulfilled',
+            title: 'มีคนมอบของขวัญให้คุณแล้ว! 🎁',
+            message: `${currentUser.displayName} ได้มอบ "${wish.title}" ให้คุณแล้ว ✨`,
+            emoji: '🎁',
+            relatedId: wish.id,
+          });
+        }
       } else {
         showToast('เปลี่ยนสถานะ', 'เปลี่ยนกลับเป็นยังไม่ได้ซื้อ');
       }
+    }
+  };
+
+  // Secret Claim (Surprise Mode) Handlers
+  const handleClaimWish = async (wish) => {
+    if (!activeSpace) return;
+    const updated = await claimWish(activeSpace.id, wish.id, currentUser);
+    if (updated) {
+      setWishes(wishes.map((w) => (w.id === wish.id ? updated : w)));
+      sound.playSuccess();
+      showToast('แอบจองของขวัญสำเร็จ 🤫', `เก็บเป็นความลับเพื่อเซอร์ไพรส์ ${wish.userName || 'คนพิเศษ'}!`);
+    }
+  };
+
+  const handleUnclaimWish = async (wish) => {
+    if (!activeSpace) return;
+    const updated = await unclaimWish(activeSpace.id, wish.id);
+    if (updated) {
+      setWishes(wishes.map((w) => (w.id === wish.id ? updated : w)));
+      showToast('ยกเลิกการจองแล้ว', wish.title);
+    }
+  };
+
+  // Reaction Handler
+  const handleToggleReaction = async (wishId, emoji) => {
+    if (!activeSpace) return;
+    const updated = await toggleReaction(activeSpace.id, wishId, emoji, currentUser);
+    if (updated) {
+      setWishes(wishes.map((w) => (w.id === wishId ? updated : w)));
     }
   };
 
@@ -323,41 +447,88 @@ export default function App() {
   };
 
   // Invite Friend
-  const handleInviteFriend = async (friendDisplayName) => {
+  const handleInviteFriend = async (friendDisplayName, friendUserId) => {
     if (!activeSpace) return;
-    const res = await inviteFriendToSpace(activeSpace.id, friendDisplayName);
+    const res = await inviteFriendToSpace(activeSpace.id, friendDisplayName, friendUserId);
     if (res.status === 'success') {
       const updatedMembers = [...(activeSpace.members || []), friendDisplayName];
+      const updatedMemberIds = [...(activeSpace.memberIds || []), friendUserId].filter(Boolean);
       const updatedSpace = {
         ...activeSpace,
         members: updatedMembers,
+        memberIds: updatedMemberIds,
         memberCount: updatedMembers.length,
       };
       setActiveSpace(updatedSpace);
       setSpaces(spaces.map((s) => (s.id === activeSpace.id ? updatedSpace : s)));
+      if (friendUserId) {
+        createNotification(friendUserId, {
+          type: 'room_invite',
+          title: 'คำเชิญเข้าห้อง ✨',
+          message: `${currentUser.displayName} ได้เชิญคุณเข้าร่วมห้อง "${activeSpace.name}"`,
+          emoji: activeSpace.emoji || '🏛️',
+          relatedId: activeSpace.id,
+        });
+      }
       showToast('เชิญเพื่อนเข้าห้องสำเร็จ ✨', friendDisplayName);
     } else {
       showToast('ข้อผิดพลาด', res.message);
     }
   };
 
-  // Friends Handlers
+  // Friends Handlers (Facebook-Style Friend Request System)
   const handleAddFriend = async (username) => {
-    const res = await addFriend(username);
+    const res = await sendFriendRequest(username, currentUser);
     if (res.status === 'success') {
-      setFriends([res.friend, ...friends]);
+      const updated = await getFriendships(currentUser.id);
+      setFriendships(updated);
+      const clean = username.replace(/^@/, '').toLowerCase().trim();
+      const newReq = updated.outgoingRequests?.find(r => (r.username || '').toLowerCase() === clean);
+      if (newReq?.id) {
+        createNotification(newReq.id, {
+          type: 'friend_request',
+          title: 'คำขอเป็นเพื่อนใหม่ 💌',
+          message: `${currentUser.displayName} (@${currentUser.username}) ส่งคำขอเป็นเพื่อนถึงคุณ`,
+          emoji: '💌',
+          relatedId: newReq.friendshipId,
+        });
+      }
     }
     return res;
   };
 
-  const handleAcceptFriend = async (friendId) => {
-    await acceptFriend(friendId);
-    setFriends(friends.map((item) => (item.id === friendId ? { ...item, status: 'accepted' } : item)));
+  const handleAcceptFriend = async (friendshipId) => {
+    const target = friendships.incomingRequests?.find(r => (r.friendshipId || r.id) === friendshipId);
+    await acceptFriendRequest(friendshipId);
+    const updated = await getFriendships(currentUser.id);
+    setFriendships(updated);
+    if (target?.id) {
+      createNotification(target.id, {
+        type: 'friend_accepted',
+        title: 'ตอบรับเป็นเพื่อนแล้ว ✦',
+        message: `${currentUser.displayName} ได้ตอบรับคำขอเป็นเพื่อนของคุณแล้ว!`,
+        emoji: '👥',
+        relatedId: friendshipId,
+      });
+    }
   };
 
-  const handleDeleteFriend = async (friendId) => {
-    await deleteFriend(friendId);
-    setFriends(friends.filter((item) => item.id !== friendId));
+  const handleDeclineFriend = async (friendshipId) => {
+    await removeFriendship(friendshipId);
+    const updated = await getFriendships(currentUser.id);
+    setFriendships(updated);
+  };
+
+  const handleCancelFriendRequest = async (friendshipId) => {
+    await removeFriendship(friendshipId);
+    const updated = await getFriendships(currentUser.id);
+    setFriendships(updated);
+  };
+
+  const handleDeleteFriend = async (friendshipId) => {
+    await removeFriendship(friendshipId);
+    const updated = await getFriendships(currentUser.id);
+    setFriendships(updated);
   };
 
   // Admin Handler
@@ -368,7 +539,30 @@ export default function App() {
     showToast('ลบผู้ใช้สำเร็จ');
   };
 
-  // Profile Image Canvas Compression
+  const handleClearAllAccounts = async () => {
+    if (!confirm('คำเตือน: คุณต้องการล้างข้อมูลระบบและลบบัญชีทั้งหมดใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้')) return;
+    await clearAllAccounts();
+    setCurrentUser(null);
+    setActiveSpace(null);
+    setSpaces([]);
+    setFriendships({ friends: [], incomingRequests: [], outgoingRequests: [] });
+    setWishes([]);
+    setAdminUsers([]);
+    showToast('ล้างข้อมูลระบบทั้งหมดเรียบร้อยแล้ว ✨');
+  };
+
+  // Notifications Helpers
+  const handleMarkNotifRead = async (notifId) => {
+    await markNotificationRead(notifId);
+    setNotifications(prev => prev.map(n => n.id === notifId ? { ...n, isRead: true } : n));
+  };
+
+  const handleMarkAllNotifsRead = async () => {
+    await markAllNotificationsRead(currentUser.id);
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+  };
+
+  // Profile Image Canvas Compression & Cloud Sync
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -376,7 +570,7 @@ export default function App() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
-      img.onload = () => {
+      img.onload = async () => {
         const canvas = document.createElement('canvas');
         const MAX = 256;
         let w = img.width;
@@ -400,8 +594,8 @@ export default function App() {
 
         const updated = { ...currentUser, avatarUrl: base64 };
         setCurrentUser(updated);
-        localStorage.setItem('makewish_auth_user', JSON.stringify(updated));
-        showToast('อัปเดตรูปโปรไฟล์สำเร็จ ✨', 'ขนาดภาพย่อเหลือ ~15 KB ด้วย Canvas Smart Compression');
+        await updateUserProfile(currentUser.id, { avatarUrl: base64 });
+        showToast('อัปเดตรูปโปรไฟล์สำเร็จ ✨', 'ขนาดภาพย่อเหลือ ~15 KB และซิงก์ Cloud เรียบร้อย');
       };
       img.src = event.target.result;
     };
@@ -431,28 +625,6 @@ export default function App() {
             </p>
           </div>
 
-          {/* Quick Demo Access Bar */}
-          <div className="mb-6 p-3 rounded-2xl bg-sky-500/8 border border-sky-500/15">
-            <div className="text-[11px] font-bold text-sky-600 dark:text-sky-400 mb-2 flex items-center gap-1.5 justify-center">
-              <Sparkles size={13} /> ทดลองใช้งานด่วน 1 คลิก:
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickLogin(ADMIN_ACCOUNT)}
-                className="py-2.5 px-3 rounded-xl text-xs font-bold bg-white/90 dark:bg-slate-900 border border-sky-300/40 dark:border-sky-500/30 hover:border-sky-500 hover:text-sky-500 shadow-sm transition-all text-center truncate"
-              >
-                👑 แอดมินระบบ
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickLogin(DEMO_USER_ACCOUNT)}
-                className="py-2.5 px-3 rounded-xl text-xs font-bold bg-white/90 dark:bg-slate-900 border border-sky-300/40 dark:border-sky-500/30 hover:border-sky-500 hover:text-sky-500 shadow-sm transition-all text-center truncate"
-              >
-                🌸 สมาชิก (น้องมุก)
-              </button>
-            </div>
-          </div>
 
           {isRegisterMode ? (
             /* REGISTER FORM */
@@ -690,8 +862,94 @@ export default function App() {
             )}
           </nav>
 
-          {/* Right Action Cluster: Theme, Profile, Logout */}
-          <div className="flex items-center gap-2">
+          {/* Right Action Cluster: Theme, Notifications, Sound, Profile, Logout */}
+          <div className="flex items-center gap-2 relative">
+            {/* Dark / Light Mode Toggle */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 rounded-full text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 transition-colors"
+              title={isDarkMode ? 'เปลี่ยนเป็นธีมสว่าง' : 'เปลี่ยนเป็นธีมมืด'}
+            >
+              {isDarkMode ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
+            </button>
+
+            {/* Notification Bell */}
+            <div className="relative">
+              <button
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                className="p-2 rounded-full text-slate-400 hover:text-sky-500 hover:bg-sky-500/10 transition-colors relative"
+                title="การแจ้งเตือน"
+              >
+                <Bell size={16} />
+                {notifications.filter(n => !n.isRead).length > 0 && (
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                )}
+              </button>
+
+              {/* Notification Popover Dropdown */}
+              {isNotifOpen && (
+                <div className="absolute right-0 top-12 w-80 sm:w-88 glass-panel rounded-3xl p-4 shadow-2xl z-50 border border-sky-200 dark:border-sky-500/30 animate-fade-in max-h-96 overflow-y-auto space-y-2.5">
+                  <div className="flex items-center justify-between pb-2 border-b border-sky-100 dark:border-sky-500/20">
+                    <span className="font-extrabold text-xs text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                      <Bell size={13} className="text-sky-500" /> การแจ้งเตือน ({notifications.filter(n => !n.isRead).length})
+                    </span>
+                    {notifications.some(n => !n.isRead) && (
+                      <button
+                        onClick={handleMarkAllNotifsRead}
+                        className="text-[10px] text-sky-600 dark:text-sky-400 font-bold hover:underline"
+                      >
+                        อ่านทั้งหมด
+                      </button>
+                    )}
+                  </div>
+
+                  {notifications.length === 0 ? (
+                    <div className="py-6 text-center text-xs text-slate-400">
+                      ยังไม่มีการแจ้งเตือนใหม่ ✨
+                    </div>
+                  ) : (
+                    notifications.slice(0, 15).map(n => (
+                      <div
+                        key={n.id}
+                        onClick={() => handleMarkNotifRead(n.id)}
+                        className={`p-3 rounded-2xl flex items-start gap-2.5 cursor-pointer transition-all ${
+                          n.isRead
+                            ? 'bg-white/40 dark:bg-slate-800/40 opacity-75'
+                            : 'bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-400/20 shadow-sm'
+                        }`}
+                      >
+                        <span className="text-lg shrink-0">{n.emoji || '🔔'}</span>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-xs text-slate-800 dark:text-slate-100 leading-snug truncate">
+                            {n.title}
+                          </div>
+                          {n.message && (
+                            <div className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5">
+                              {n.message}
+                            </div>
+                          )}
+                          <div className="text-[9px] text-slate-400 mt-1">
+                            {new Date(n.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Sound FX Toggle */}
+            <button
+              onClick={() => {
+                sound.setMuted(!isMuted);
+                setIsMuted(!isMuted);
+              }}
+              className="p-2 rounded-full text-slate-400 hover:text-sky-500 hover:bg-sky-500/10 transition-colors"
+              title={isMuted ? 'เปิดเสียง' : 'ปิดเสียง'}
+            >
+              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            </button>
             {/* Profile Avatar Pill */}
             <div
               onClick={() => {
@@ -728,11 +986,12 @@ export default function App() {
           <SpaceDetail
             space={activeSpace}
             wishes={wishes}
-            friends={friends}
+            friends={friendships.friends}
             currentUser={currentUser}
             spaceEvents={spaceEvents}
             onBack={() => setActiveSpace(null)}
             onDeleteSpace={handleDeleteSpace}
+            onLeaveSpace={handleLeaveSpace}
             onCopyInviteCode={handleCopyInviteCode}
             onShareSpace={handleShareSpace}
             onOpenAddWish={() => setIsAddWishOpen(true)}
@@ -740,11 +999,16 @@ export default function App() {
             onOpenRoulette={() => setIsRouletteOpen(true)}
             onDeleteWish={handleDeleteWish}
             onToggleFulfilled={handleToggleWishFulfilled}
+            onClaimWish={handleClaimWish}
+            onUnclaimWish={handleUnclaimWish}
+            onToggleReaction={handleToggleReaction}
             onAddEvent={handleAddEvent}
             onDeleteEvent={handleDeleteEvent}
             onInviteFriend={handleInviteFriend}
             showToast={showToast}
             copiedCode={copiedCode}
+            onEditSpace={handleEditSpace}
+            onAddNote={handleAddNote}
           />
         ) : activeTab === 'dashboard' ? (
           <DashboardView
@@ -756,9 +1020,14 @@ export default function App() {
           />
         ) : activeTab === 'friends' ? (
           <FriendsView
-            friends={friends}
+            friends={friendships.friends}
+            incomingRequests={friendships.incomingRequests}
+            outgoingRequests={friendships.outgoingRequests}
+            currentUser={currentUser}
             onAddFriend={handleAddFriend}
             onAcceptFriend={handleAcceptFriend}
+            onDeclineFriend={handleDeclineFriend}
+            onCancelRequest={handleCancelFriendRequest}
             onDeleteFriend={handleDeleteFriend}
             showToast={showToast}
           />
@@ -772,6 +1041,7 @@ export default function App() {
             stats={adminStats}
             users={adminUsers}
             onDeleteUser={handleDeleteUser}
+            onClearAll={handleClearAllAccounts}
             showToast={showToast}
           />
         ) : null}
@@ -847,31 +1117,39 @@ export default function App() {
         onSubmit={handleJoinSpace}
       />
 
-      <AddWishModal
-        isOpen={isAddWishOpen}
-        onClose={() => setIsAddWishOpen(false)}
-        onSubmit={handleAddWish}
-      />
+      <Suspense fallback={null}>
+        {isAddWishOpen && (
+          <AddWishModal
+            isOpen={isAddWishOpen}
+            onClose={() => setIsAddWishOpen(false)}
+            onSubmit={handleAddWish}
+          />
+        )}
 
-      <EditWishModal
-        isOpen={isEditWishOpen}
-        onClose={() => {
-          setIsEditWishOpen(false);
-          setEditingWish(null);
-        }}
-        wish={editingWish}
-        onSave={handleSaveEditWish}
-      />
+        {isEditWishOpen && (
+          <EditWishModal
+            isOpen={isEditWishOpen}
+            onClose={() => {
+              setIsEditWishOpen(false);
+              setEditingWish(null);
+            }}
+            wish={editingWish}
+            onSave={handleSaveEditWish}
+          />
+        )}
 
-      <RouletteModal
-        isOpen={isRouletteOpen}
-        onClose={() => setIsRouletteOpen(false)}
-        wishes={wishes}
-        onConfetti={() => {
-          setConfettiActive(true);
-          setTimeout(() => setConfettiActive(false), 3600);
-        }}
-      />
+        {isRouletteOpen && (
+          <RouletteModal
+            isOpen={isRouletteOpen}
+            onClose={() => setIsRouletteOpen(false)}
+            wishes={wishes}
+            onConfetti={() => {
+              setConfettiActive(true);
+              setTimeout(() => setConfettiActive(false), 3600);
+            }}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

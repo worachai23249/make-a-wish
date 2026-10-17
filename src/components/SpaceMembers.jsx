@@ -6,10 +6,10 @@ export default function SpaceMembers({ members = [], friends = [], onInviteFrien
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [searchFriend, setSearchFriend] = useState('');
 
-  const acceptedFriends = friends.filter((f) => f.status === 'accepted');
+  const acceptedFriends = (friends || []).filter((f) => f.status === 'accepted');
   const filteredFriends = acceptedFriends.filter((f) =>
-    f.displayName.toLowerCase().includes(searchFriend.toLowerCase()) ||
-    f.username.toLowerCase().includes(searchFriend.toLowerCase())
+    (f.displayName || '').toLowerCase().includes(searchFriend.toLowerCase()) ||
+    (f.username || '').toLowerCase().includes(searchFriend.toLowerCase())
   );
 
   return (
@@ -141,7 +141,7 @@ export default function SpaceMembers({ members = [], friends = [], onInviteFrien
                           <button
                             type="button"
                             onClick={() => {
-                              onInviteFriend(f.displayName);
+                              onInviteFriend(f.displayName, f.id);
                             }}
                             className="btn-primary py-1.5 px-4 text-xs font-bold shadow-sm"
                           >

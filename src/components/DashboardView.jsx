@@ -87,7 +87,30 @@ export default function DashboardView({ spaces, currentUser, onOpenSpace, onCrea
       </div>
 
       {/* ==================== 💎 SPACES GRID (3D LIQUID GLASS CARDS) 💎 ==================== */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {spaces.length === 0 ? (
+        <div className="glass-card p-12 text-center rounded-[36px] space-y-4 border-sky-200/50 dark:border-sky-500/20 shadow-md">
+          <div className="w-16 h-16 rounded-3xl bg-sky-100 text-3xl mx-auto flex items-center justify-center shadow-inner">
+            🏛️
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-lg font-black text-slate-800 dark:text-slate-100">
+              ยังไม่มีห้องของคุณ
+            </h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto font-medium leading-relaxed">
+              เริ่มต้นสร้างห้องความปรารถนาแรกของคุณ หรือใส่รหัสเชิญเพื่อเข้าร่วมห้องของเพื่อน/คนรัก
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button onClick={onCreateSpace} className="btn-primary text-xs py-2.5 px-5">
+              <Plus size={15} /> สร้างห้องใหม่
+            </button>
+            <button onClick={onJoinSpace} className="btn-secondary text-xs py-2.5 px-5">
+              <KeyRound size={15} className="text-[#00a6ff]" /> ใส่รหัสเข้าห้อง
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {spaces.map((s) => (
           <div
             key={s.id}
@@ -153,6 +176,7 @@ export default function DashboardView({ spaces, currentUser, onOpenSpace, onCrea
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

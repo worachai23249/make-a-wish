@@ -1,7 +1,7 @@
 import React from 'react';
 import { Trash2, ShieldCheck, Sparkles } from 'lucide-react';
 
-export default function AdminPanel({ stats, users, onDeleteUser, showToast }) {
+export default function AdminPanel({ stats, users, onDeleteUser, onClearAll, showToast }) {
   return (
     <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
       <div className="flex items-center justify-between">
@@ -83,6 +83,26 @@ export default function AdminPanel({ stats, users, onDeleteUser, showToast }) {
           </table>
         </div>
       </div>
+
+      {/* Danger Zone: Reset System */}
+      {onClearAll && (
+        <div className="glass-card p-6 rounded-[28px] border-rose-300/40 bg-rose-50/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h4 className="text-sm font-black text-rose-600 flex items-center gap-1.5">
+              ⚠️ ล้างข้อมูลระบบและบัญชีทั้งหมด (Factory Reset)
+            </h4>
+            <p className="text-xs text-slate-500 mt-0.5">
+              ลบบัญชีผู้ใช้, ห้องความปรารถนา, เพื่อน, และรายการของขวัญทั้งหมด เริ่มต้นระบบใหม่ 100%
+            </p>
+          </div>
+          <button
+            onClick={onClearAll}
+            className="px-4 py-2.5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold transition-all shadow-sm shrink-0"
+          >
+            ล้างข้อมูลทั้งหมดทันที
+          </button>
+        </div>
+      )}
     </div>
   );
 }

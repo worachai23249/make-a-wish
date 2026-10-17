@@ -2,11 +2,11 @@
   "name": "Make a Wish 🎁 — แชร์ความปรารถนากับคนพิเศษ",
   "short_name": "Make a Wish",
   "description": "แอปบันทึกรายการของขวัญและความปรารถนากับคนพิเศษในห้องส่วนตัว",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FDF5F7",
-  "theme_color": "#E8617A",
+  "background_color": "#F0F7FD",
+  "theme_color": "#0284C7",
   "icons": [
     {
       "src": "/icon-192.png",

@@ -2,7 +2,7 @@
 class SoundFX {
   constructor() {
     this.ctx = null;
-    this.muted = false;
+    this.muted = typeof window !== 'undefined' ? localStorage.getItem('makewish_muted') === 'true' : false;
   }
 
   init() {
@@ -18,7 +18,10 @@ class SoundFX {
   }
 
   setMuted(val) {
-    this.muted = val;
+    this.muted = !!val;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('makewish_muted', String(!!val));
+    }
   }
 
   isMuted() {
