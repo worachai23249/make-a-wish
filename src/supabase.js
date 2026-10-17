@@ -44,6 +44,8 @@ const CAMEL_TO_SNAKE_MAP = {
   memberIds: 'member_ids',
   isRead: 'is_read',
   relatedId: 'related_id',
+  coverUrl: 'cover_url',
+  bio: 'bio',
 };
 
 const SNAKE_TO_CAMEL_MAP = {
@@ -82,6 +84,8 @@ const SNAKE_TO_CAMEL_MAP = {
   member_ids: 'memberIds',
   is_read: 'isRead',
   related_id: 'relatedId',
+  cover_url: 'coverUrl',
+  bio: 'bio',
 };
 
 /**
@@ -1327,6 +1331,165 @@ export function subscribeToWishes(spaceId, onWishChange) {
   return channel;
 }
 
+// ==================== FACEBOOK AUTH & SOCIAL FEATURES ====================
+
+/**
+ * Initiates Supabase OAuth Login with Facebook
+ */
+export async function loginWithFacebook() {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+    if (error) throw error;
+    return { status: 'success', data };
+  } catch (err) {
+    return { status: 'error', message: err.message || 'ไม่สามารถเชื่อมต่อ Facebook ได้ในขณะนี้' };
+  }
+}
+
+/**
+ * Real-time instant search for users (debounced queries)
+ */
+export async function searchUsersRealtime(query, currentUserId) {
+  const clean = (query || '').replace(/^@/, '').toLowerCase().trim();
+  if (!clean) return [];
+
+  let results = [];
+
+  // 1. Try Supabase users table
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, display_name, username, email, emoji, avatar_url, bio')
+      .or(`username.ilike.%${clean}%,display_name.ilike.%${clean}%`)
+      .limit(10);
+
+    if (data && !error) {
+      results = data
+        .filter(u => u.id !== currentUserId)
+        .map(toCamelCase);
+    }
+  } catch (_) {}
+
+  // 2. Fallback / merge with local storage registered users
+  try {
+    const localUsers = JSON.parse(localStorage.getItem('makewish_all_users') || '[]');
+    const filteredLocal = localUsers
+      .filter(u => u.id !== currentUserId)
+      .filter(u =>
+        (u.username || '').toLowerCase().includes(clean) ||
+        (u.displayName || '').toLowerCase().includes(clean)
+      )
+      .map(u => ({
+        id: u.id,
+        displayName: u.displayName,
+        username: u.username,
+        email: u.email,
+        emoji: u.emoji || '🌸',
+        avatarUrl: u.avatarUrl || null,
+        bio: u.bio || '',
+      }));
+
+    const seenIds = new Set(results.map(r => r.id));
+    for (const u of filteredLocal) {
+      if (!seenIds.has(u.id)) {
+        results.push(u);
+        seenIds.add(u.id);
+      }
+    }
+  } catch (_) {}
+
+  return results.slice(0, 8);
+}
+
+/**
+ * Get Suggested Friends (People You May Know)
+ * Suggests users who are not yet friends and have no pending requests
+ */
+export async function getSuggestedFriends(currentUserId) {
+  if (!currentUserId) return [];
+
+  const friendships = await getFriendships(currentUserId);
+  const excludedUserIds = new Set([
+    currentUserId,
+    ...friendships.friends.map(f => f.id),
+    ...friendships.incomingRequests.map(r => r.id),
+    ...friendships.outgoingRequests.map(r => r.id),
+  ]);
+
+  let candidates = [];
+
+  // Try Supabase users
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, display_name, username, emoji, avatar_url, bio, created_at')
+      .order('created_at', { ascending: false })
+      .limit(25);
+
+    if (data && !error) {
+      candidates = data.map(toCamelCase);
+    }
+  } catch (_) {}
+
+  // Merge with localStorage
+  try {
+    const localUsers = JSON.parse(localStorage.getItem('makewish_all_users') || '[]');
+    const seen = new Set(candidates.map(c => c.id));
+    for (const u of localUsers) {
+      if (!seen.has(u.id)) {
+        candidates.push(u);
+        seen.add(u.id);
+      }
+    }
+  } catch (_) {}
+
+  const suggestions = candidates.filter(u => !excludedUserIds.has(u.id));
+  return suggestions.slice(0, 8);
+}
+
+/**
+ * Get all wishes created by a specific user across all spaces
+ */
+export async function getUserWishes(userId) {
+  if (!userId) return [];
+  let wishes = [];
+
+  try {
+    const { data, error } = await supabase
+      .from('wishes')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (data && !error && data.length > 0) {
+      wishes = data.map(toCamelCase);
+    }
+  } catch (_) {}
+
+  if (wishes.length === 0) {
+    try {
+      const allSpacesWishes = JSON.parse(localStorage.getItem(STORAGE_KEY_WISHES) || '{}');
+      for (const list of Object.values(allSpacesWishes)) {
+        if (Array.isArray(list)) {
+          for (const w of list) {
+            if (w.userId === userId) {
+              wishes.push(w);
+            }
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
+  return wishes;
+}
+
 export function unsubscribeAll() {
   supabase.removeAllChannels();
 }
+

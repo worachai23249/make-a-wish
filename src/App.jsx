@@ -41,6 +41,9 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   subscribeToNotifications,
+  loginWithFacebook,
+  toSnakeCase,
+  toCamelCase,
 } from './supabase';
 import { sound } from './audio';
 
@@ -183,6 +186,65 @@ export default function App() {
     };
   }, [currentUser]);
 
+  // Handle Facebook / OAuth redirect login
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user && !currentUser) {
+        const fbUser = session.user;
+        const email = fbUser.email || `${fbUser.id}@facebook.user`;
+        const displayName =
+          fbUser.user_metadata?.full_name ||
+          fbUser.user_metadata?.name ||
+          fbUser.user_metadata?.user_name ||
+          'Facebook User';
+        const avatarUrl = fbUser.user_metadata?.avatar_url || fbUser.user_metadata?.picture || null;
+        const cleanUsername = displayName.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase().slice(0, 18) || `fb_${fbUser.id.slice(0, 6)}`;
+
+        let loggedInUser = null;
+        try {
+          const { data } = await supabase.from('users').select('*').eq('id', fbUser.id).maybeSingle();
+          if (data) {
+            loggedInUser = toCamelCase(data);
+          } else {
+            loggedInUser = {
+              id: fbUser.id,
+              displayName,
+              username: cleanUsername,
+              email,
+              password: 'oauth_user',
+              emoji: '🌸',
+              avatarUrl,
+              role: 'user',
+              createdAt: new Date().toISOString(),
+            };
+            await supabase.from('users').upsert([toSnakeCase(loggedInUser)]);
+          }
+        } catch (_) {}
+
+        if (!loggedInUser) {
+          loggedInUser = {
+            id: fbUser.id,
+            displayName,
+            username: cleanUsername,
+            email,
+            emoji: '🌸',
+            avatarUrl,
+            role: 'user',
+          };
+        }
+
+        localStorage.setItem('makewish_auth_user', JSON.stringify(loggedInUser));
+        setCurrentUser(loggedInUser);
+        setActiveTab('dashboard');
+        showToast('เข้าสู่ระบบสำเร็จ ✨', `ยินดีต้อนรับ ${loggedInUser.displayName}`);
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [currentUser]);
+
   // Auto-join from shared URL (?join=CODE)
   useEffect(() => {
     if (!currentUser) return;
@@ -268,6 +330,17 @@ export default function App() {
     setCurrentUser(null);
     setActiveSpace(null);
     showToast('ออกจากระบบแล้ว', 'ข้อมูลถูกบันทึกไว้อย่างปลอดภัย');
+  };
+
+  const handleFacebookLogin = async () => {
+    try {
+      const res = await loginWithFacebook();
+      if (res?.status === 'error') {
+        showToast('เข้าสู่ระบบ Facebook ไม่สำเร็จ', res.message);
+      }
+    } catch (err) {
+      showToast('ข้อผิดพลาด', err.message || 'ไม่สามารถเชื่อมต่อ Facebook ได้');
+    }
   };
 
   // Space Handlers
@@ -688,6 +761,29 @@ export default function App() {
               <button type="submit" className="btn-primary w-full py-3.5 mt-3 text-sm">
                 สร้างบัญชีระดับพรีเมียม ✦
               </button>
+
+              {/* Divider */}
+              <div className="relative my-3 text-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-sky-100 dark:border-sky-500/20" />
+                </div>
+                <span className="relative bg-white/80 dark:bg-slate-900/80 px-3 text-[11px] font-bold text-slate-400">
+                  หรือ
+                </span>
+              </div>
+
+              {/* Facebook Button */}
+              <button
+                type="button"
+                onClick={handleFacebookLogin}
+                className="w-full py-3 px-4 rounded-2xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md shadow-[#1877F2]/25 hover:shadow-lg transition-all active:scale-[0.98]"
+              >
+                <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+                เข้าสู่ระบบด้วย Facebook
+              </button>
+
               <div className="text-center pt-2">
                 <button
                   type="button"
@@ -735,6 +831,29 @@ export default function App() {
               <button type="submit" className="btn-primary w-full py-3.5 mt-3 text-sm">
                 เข้าสู่ระบบ ✨
               </button>
+
+              {/* Divider */}
+              <div className="relative my-3 text-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-sky-100 dark:border-sky-500/20" />
+                </div>
+                <span className="relative bg-white/80 dark:bg-slate-900/80 px-3 text-[11px] font-bold text-slate-400">
+                  หรือ
+                </span>
+              </div>
+
+              {/* Facebook Button */}
+              <button
+                type="button"
+                onClick={handleFacebookLogin}
+                className="w-full py-3 px-4 rounded-2xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md shadow-[#1877F2]/25 hover:shadow-lg transition-all active:scale-[0.98]"
+              >
+                <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+                เข้าสู่ระบบด้วย Facebook
+              </button>
+
               <div className="text-center pt-3 space-y-2">
                 <div>
                   <button
@@ -1035,6 +1154,10 @@ export default function App() {
           <ProfileView
             currentUser={currentUser}
             onAvatarChange={handleAvatarChange}
+            onUpdateUser={(updated) => setCurrentUser(updated)}
+            friends={friendships.friends}
+            spaces={spaces}
+            showToast={showToast}
           />
         ) : activeTab === 'admin' ? (
           <AdminPanel

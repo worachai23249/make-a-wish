@@ -10,9 +10,15 @@ CREATE TABLE IF NOT EXISTS public.users (
     password TEXT NOT NULL,
     emoji TEXT DEFAULT '🌸',
     avatar_url TEXT,
+    cover_url TEXT,
+    bio TEXT,
     role TEXT DEFAULT 'user',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Migration helpers for existing users table
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS cover_url TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS bio TEXT;
 
 -- 2. Spaces Table
 CREATE TABLE IF NOT EXISTS public.spaces (
